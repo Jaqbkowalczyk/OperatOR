@@ -1,0 +1,3470 @@
+[VERSION]
+50
+[PARAMETERS]
+500
+0.0000
+0.0000
+0.0000
+0.0000
+5548263.0497
+7422354.3329
+5548607.0538
+7422841.7045
+
+7
+
+[LAYERS]
+[Layer]
+1
+GESBZO
+0
+0
+5.0000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+3
+GEPADR
+0
+0
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+4
+GEPADR_O
+0
+0
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+5
+GELULI_O
+0
+0
+1.3000
+0
+0
+Arial
+10
+False
+True
+False
+False
+0
+[Layer]
+6
+GESDZI
+32768
+0
+1.3000
+0
+0
+Arial
+10
+False
+False
+False
+False
+0
+[Layer]
+7
+GESDZI_O
+32768
+0
+1.3000
+0
+0
+Arial
+10
+False
+True
+False
+False
+0
+[Layer]
+16
+GSLKBR
+0
+0
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+17
+GSLKOG
+0
+901
+3.5000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+27
+GSLDSO
+0
+0
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+29
+GSPWPS
+0
+0
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+31
+GESBSH
+0
+0
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+75
+GESUZY_O
+0
+0
+1.3000
+0
+0
+Arial
+10
+False
+True
+False
+False
+0
+[Layer]
+81
+GEPPGD
+0
+0
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+86
+GESUZY
+55296
+0
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+121
+GSPPRB
+16777151
+0
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+131
+GSLKOU
+0
+423
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+132
+GTGETI_O
+0
+0
+1.3000
+0
+0
+Arial
+10
+False
+True
+False
+False
+0
+[Layer]
+133
+GSLKOC
+0
+423
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+134
+GSLZSN
+0
+9
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+136
+GSPRDI
+55296
+0
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+137
+GSPRDL
+55296
+0
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+138
+GSSLZK
+0
+0
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+140
+GSLKRW
+0
+0
+5.0000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+174
+GESJOB_O
+0
+0
+1.3000
+0
+0
+Arial
+10
+False
+True
+False
+False
+0
+[Layer]
+183
+GESBZO_O
+0
+0
+1.3000
+0
+0
+Arial
+10
+False
+True
+False
+False
+0
+[Layer]
+201
+GTGTXT_O
+0
+0
+1.3000
+0
+0
+Arial
+7
+False
+True
+False
+False
+0
+[Layer]
+214
+GSSIIN
+0
+0
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+225
+GEPPHC
+0
+0
+1.3000
+0
+0
+Arial
+8
+False
+False
+False
+False
+0
+[Layer]
+298
+GEPPGD_O
+0
+0
+1.3000
+0
+0
+Arial
+7
+False
+True
+False
+False
+0
+[BLOCKS]
+[Block]
+POINT
+
+0.0000
+0.0000
+0
+0
+[Block]
+SLBRA
+
+0.0000
+0.0000
+0
+2
+2
+0
+0.1000
+-999999.0000
+5
+
+0
+0
+-1
+1
+0.0000
+0.0000
+1
+-0.5176
+-0.0681
+1
+-1.0000
+-0.2679
+1
+-1.4142
+-0.5858
+1
+-1.7321
+-1.0000
+`
+0.0000
+0.0000
+0
+0
+0
+1324285030
+42550.3999
+~
+2
+0
+0.1000
+-999999.0000
+5
+
+0
+0
+-1
+1
+-1.7321
+1.0000
+1
+-1.4142
+0.5858
+1
+-1.0000
+0.2679
+1
+-0.5176
+0.0681
+1
+0.0000
+0.0000
+`
+0.0000
+0.0000
+0
+0
+0
+1036826234
+42550.3999
+~
+[Block]
+KOLO
+
+0.0000
+0.0000
+0
+0
+[Block]
+SPDIP
+
+0.0000
+0.0000
+0
+1
+2
+0
+0.1000
+-999999.0000
+12
+
+0
+0
+-1
+1
+-0.5449
+0.1771
+1
+-1.4267
+-0.4636
+1
+-0.3368
+-0.4636
+1
+0.0000
+-1.5001
+1
+0.3368
+-0.4636
+1
+1.4267
+-0.4636
+1
+0.5449
+0.1771
+1
+0.8817
+1.2136
+1
+0.0000
+0.5730
+1
+-0.8817
+1.2136
+1
+-0.5449
+0.1771
+1
+-0.5449
+0.1771
+`
+0.0000
+0.0000
+0
+0
+0
+2121208515
+42550.3999
+~
+[Block]
+OKRAG_PELNY
+
+0.0000
+0.0000
+0
+1
+2
+0
+0.1000
+-999999.0000
+26
+
+0
+0
+-1
+1
+0.0000
+0.5000
+1
+-0.1294
+0.4830
+1
+-0.2500
+0.4330
+1
+-0.3536
+0.3536
+1
+-0.4330
+0.2500
+1
+-0.4830
+0.1294
+1
+-0.5000
+0.0000
+1
+-0.4830
+-0.1294
+1
+-0.4330
+-0.2500
+1
+-0.3536
+-0.3536
+1
+-0.2500
+-0.4330
+1
+-0.1294
+-0.4830
+1
+0.0000
+-0.5000
+1
+0.1294
+-0.4830
+1
+0.2500
+-0.4330
+1
+0.3536
+-0.3536
+1
+0.4330
+-0.2500
+1
+0.4830
+-0.1294
+1
+0.5000
+0.0000
+1
+0.4830
+0.1294
+1
+0.4330
+0.2500
+1
+0.3536
+0.3536
+1
+0.2500
+0.4330
+1
+0.1294
+0.4830
+1
+0.0000
+0.5000
+1
+0.0000
+0.5000
+`
+0.0000
+0.0000
+0
+0
+0
+1265460658
+42550.3999
+~
+[Block]
+SUPE04_1
+
+0.0000
+0.0000
+0
+2
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+0.0000
+0.0000
+1
+0.0000
+10.0000
+`
+0.0000
+0.0000
+0
+0
+0
+838486030
+42550.3999
+~
+2
+0
+0.1000
+-999999.0000
+3
+
+0
+0
+-1
+1
+1.0000
+6.9822
+1
+0.0000
+8.7142
+1
+-1.0000
+6.9822
+`
+0.0000
+0.0000
+0
+0
+0
+1269741467
+42550.3999
+~
+[Block]
+EPPGN
+
+0.0000
+0.0000
+0
+0
+[Block]
+SPDLP
+
+0.0000
+0.0000
+0
+5
+2
+0
+0.1000
+-999999.0000
+7
+
+0
+0
+-1
+1
+-1.1869
+-0.5303
+1
+-1.1682
+-0.7894
+1
+-1.0623
+-1.0267
+1
+-0.8817
+-1.2135
+1
+-0.6482
+-1.3275
+1
+-0.3898
+-1.3550
+1
+-0.1375
+-1.2927
+`
+0.0000
+0.0000
+0
+0
+0
+1041545553
+42668.4394
+~
+2
+0
+0.1000
+-999999.0000
+7
+
+0
+0
+-1
+1
+-0.8711
+0.9650
+1
+-1.1118
+0.8671
+1
+-1.3047
+0.6930
+1
+-1.4266
+0.4635
+1
+-1.4629
+0.2062
+1
+-1.4092
+-0.0480
+1
+-1.2719
+-0.2687
+`
+0.0000
+0.0000
+0
+0
+0
+691310044
+42668.4394
+~
+2
+0
+0.1000
+-999999.0000
+7
+
+0
+0
+-1
+1
+1.2719
+-0.2687
+1
+1.4092
+-0.0480
+1
+1.4629
+0.2062
+1
+1.4266
+0.4635
+1
+1.3047
+0.6930
+1
+1.1118
+0.8671
+1
+0.8711
+0.9650
+`
+0.0000
+0.0000
+0
+0
+0
+733597074
+42668.4394
+~
+2
+0
+0.1000
+-999999.0000
+7
+
+0
+0
+-1
+1
+0.6486
+1.1267
+1
+0.4811
+1.3254
+1
+0.2559
+1.4550
+1
+0.0000
+1.5000
+1
+-0.2559
+1.4550
+1
+-0.4811
+1.3254
+1
+-0.6486
+1.1267
+`
+0.0000
+0.0000
+0
+0
+0
+616525289
+42668.4394
+~
+2
+0
+0.1000
+-999999.0000
+7
+
+0
+0
+-1
+1
+0.1375
+-1.2927
+1
+0.3898
+-1.3550
+1
+0.6482
+-1.3275
+1
+0.8817
+-1.2135
+1
+1.0623
+-1.0267
+1
+1.1682
+-0.7894
+1
+1.1869
+-0.5303
+`
+0.0000
+0.0000
+0
+0
+0
+1710931962
+42668.4394
+~
+[Block]
+SPKRZ
+
+0.0000
+0.0000
+0
+2
+2
+0
+0.1000
+-999999.0000
+21
+
+0
+0
+-1
+1
+0.0000
+0.5000
+1
+-0.1545
+0.4755
+1
+-0.2939
+0.4045
+1
+-0.4045
+0.2939
+1
+-0.4755
+0.1545
+1
+-0.5000
+0.0000
+1
+-0.4755
+-0.1545
+1
+-0.4045
+-0.2939
+1
+-0.2939
+-0.4045
+1
+-0.1545
+-0.4755
+1
+0.0000
+-0.5000
+1
+0.1545
+-0.4755
+1
+0.2939
+-0.4045
+1
+0.4045
+-0.2939
+1
+0.4755
+-0.1545
+1
+0.5000
+0.0000
+1
+0.4755
+0.1545
+1
+0.4045
+0.2939
+1
+0.2939
+0.4045
+1
+0.1545
+0.4755
+1
+0.0000
+0.5000
+`
+0.0000
+0.0000
+0
+0
+0
+1814468343
+42668.4394
+~
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+0.0000
+-0.5000
+1
+-0.5000
+-0.5000
+`
+0.0000
+0.0000
+0
+0
+0
+1015129239
+42668.4394
+~
+[Block]
+SUUS05
+
+0.0000
+0.0000
+0
+3
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+-0.2500
+-0.1750
+1
+0.2500
+-0.1750
+`
+0.0000
+0.0000
+0
+0
+0
+1644160786
+42668.4394
+~
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+-0.2500
+0.1750
+1
+0.2500
+0.1750
+`
+0.0000
+0.0000
+0
+0
+0
+1399685686
+42668.4394
+~
+2
+0
+0.1000
+-999999.0000
+5
+
+0
+0
+-1
+1
+-0.2500
+0.5000
+1
+-0.2500
+-0.5000
+1
+0.2500
+-0.5000
+1
+0.2500
+0.5000
+1
+-0.2500
+0.5000
+`
+0.0000
+0.0000
+0
+0
+0
+225872292
+42668.4394
+~
+[Block]
+PION_C
+
+0.0000
+0.0000
+0
+1
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+0.5000
+0.0000
+1
+-0.5000
+0.0000
+`
+0.0000
+0.0000
+0
+0
+0
+1325644943
+42668.4394
+~
+[Block]
+SUUS02
+
+0.0000
+0.0000
+0
+3
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+0.0000
+1.0000
+1
+0.0000
+2.0000
+`
+0.0000
+0.0000
+0
+0
+0
+2073733214
+42668.4394
+~
+2
+0
+0.1000
+-999999.0000
+3
+
+0
+0
+-1
+1
+0.7071
+1.2929
+1
+0.0000
+2.0000
+1
+-0.7071
+1.2929
+`
+0.0000
+0.0000
+0
+0
+0
+1973955602
+42668.4394
+~
+2
+0
+0.1000
+-999999.0000
+35
+
+0
+0
+-1
+1
+0.0000
+1.0000
+1
+-0.1736
+0.9848
+1
+-0.3420
+0.9397
+1
+-0.5000
+0.8660
+1
+-0.6428
+0.7660
+1
+-0.7660
+0.6428
+1
+-0.8660
+0.5000
+1
+-0.9397
+0.3420
+1
+-0.9848
+0.1736
+1
+-1.0000
+0.0000
+1
+-0.9848
+-0.1736
+1
+-0.9397
+-0.3420
+1
+-0.8660
+-0.5000
+1
+-0.7558
+-0.6549
+1
+-0.6182
+-0.7861
+1
+-0.4582
+-0.8888
+1
+-0.2817
+-0.9595
+1
+-0.0951
+-0.9955
+1
+0.0951
+-0.9955
+1
+0.2817
+-0.9595
+1
+0.4582
+-0.8888
+1
+0.6182
+-0.7861
+1
+0.7558
+-0.6549
+1
+0.8660
+-0.5000
+1
+0.9450
+-0.3271
+1
+0.9898
+-0.1423
+1
+0.9989
+0.0476
+1
+0.9718
+0.2358
+1
+0.9096
+0.4154
+1
+0.8146
+0.5801
+1
+0.6901
+0.7237
+1
+0.5406
+0.8413
+1
+0.3717
+0.9284
+1
+0.1893
+0.9819
+1
+0.0000
+1.0000
+`
+0.0000
+0.0000
+0
+0
+0
+1556934351
+42668.4394
+~
+[Block]
+SOPS2
+
+0.0000
+0.0000
+0
+1
+2
+0
+0.1000
+-999999.0000
+21
+
+0
+0
+-1
+1
+0.0000
+0.2500
+1
+-0.0773
+0.2378
+1
+-0.1469
+0.2023
+1
+-0.2023
+0.1469
+1
+-0.2378
+0.0773
+1
+-0.2500
+0.0000
+1
+-0.2378
+-0.0773
+1
+-0.2023
+-0.1469
+1
+-0.1469
+-0.2023
+1
+-0.0773
+-0.2378
+1
+0.0000
+-0.2500
+1
+0.0773
+-0.2378
+1
+0.1469
+-0.2023
+1
+0.2023
+-0.1469
+1
+0.2378
+-0.0773
+1
+0.2500
+0.0000
+1
+0.2378
+0.0773
+1
+0.2023
+0.1469
+1
+0.1469
+0.2023
+1
+0.0773
+0.2378
+1
+0.0000
+0.2500
+`
+0.0000
+0.0000
+0
+0
+0
+836163970
+42676.3900
+~
+[Block]
+SUUS_P
+
+0.0000
+0.0000
+0
+2
+2
+0
+0.1000
+-999999.0000
+7
+
+0
+0
+-1
+1
+0.0000
+-0.5000
+1
+0.1294
+-0.4830
+1
+0.2500
+-0.4330
+1
+0.3536
+-0.3536
+1
+0.4330
+-0.2500
+1
+0.4830
+-0.1294
+1
+0.5000
+0.0000
+`
+0.0000
+0.0000
+0
+0
+0
+1084946381
+42676.3900
+~
+2
+0
+0.1000
+-999999.0000
+7
+
+0
+0
+-1
+1
+0.0000
+0.5000
+1
+-0.1294
+0.4830
+1
+-0.2500
+0.4330
+1
+-0.3536
+0.3536
+1
+-0.4330
+0.2500
+1
+-0.4830
+0.1294
+1
+-0.5000
+0.0000
+`
+0.0000
+0.0000
+0
+0
+0
+628214671
+42676.3900
+~
+[Block]
+SPTRW
+
+0.0000
+0.0000
+0
+2
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+-0.4867
+-0.7767
+1
+-0.4867
+0.7233
+`
+0.0000
+0.0000
+0
+0
+0
+19014007
+42676.3900
+~
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+0.5133
+0.7233
+1
+0.5133
+-0.7767
+`
+0.0000
+0.0000
+0
+0
+0
+1839970480
+42676.3900
+~
+[Block]
+BUUD02_01
+
+0.0000
+0.0000
+0
+3
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+-0.5000
+-1.9100
+1
+0.5000
+-0.9100
+`
+0.0000
+0.0000
+0
+0
+0
+334351783
+42676.3900
+~
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+-0.5000
+0.9100
+1
+0.5000
+1.9100
+`
+0.0000
+0.0000
+0
+0
+0
+166479546
+42676.3900
+~
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+-0.5000
+-0.5000
+1
+0.5000
+0.5000
+`
+0.0000
+0.0000
+0
+0
+0
+1789691735
+42676.3900
+~
+[Block]
+SUUS16_1
+
+0.0000
+0.0000
+0
+2
+2
+0
+0.1000
+-999999.0000
+4
+
+0
+0
+-1
+1
+1.7500
+-0.7500
+1
+1.7500
+0.7500
+1
+0.7500
+0.0000
+1
+1.7500
+-0.7500
+`
+0.0000
+0.0000
+0
+0
+0
+2004157277
+42676.3900
+~
+2
+0
+0.1000
+-999999.0000
+31
+
+0
+0
+-1
+1
+0.0000
+0.7500
+1
+-0.1559
+0.7336
+1
+-0.3051
+0.6852
+1
+-0.4408
+0.6068
+1
+-0.5574
+0.5018
+1
+-0.6495
+0.3750
+1
+-0.7133
+0.2318
+1
+-0.7459
+0.0784
+1
+-0.7459
+-0.0784
+1
+-0.7133
+-0.2318
+1
+-0.6495
+-0.3750
+1
+-0.5574
+-0.5018
+1
+-0.4408
+-0.6068
+1
+-0.3051
+-0.6852
+1
+-0.1559
+-0.7336
+1
+0.0000
+-0.7500
+1
+0.1559
+-0.7336
+1
+0.3051
+-0.6852
+1
+0.4408
+-0.6068
+1
+0.5574
+-0.5018
+1
+0.6495
+-0.3750
+1
+0.7133
+-0.2318
+1
+0.7459
+-0.0784
+1
+0.7459
+0.0784
+1
+0.7133
+0.2318
+1
+0.6495
+0.3750
+1
+0.5574
+0.5018
+1
+0.4408
+0.6068
+1
+0.3051
+0.6852
+1
+0.1559
+0.7336
+1
+0.0000
+0.7500
+`
+0.0000
+0.0000
+0
+0
+0
+720069189
+42676.3900
+~
+[Block]
+EPPHC
+
+0.0000
+0.0000
+0
+1
+2
+0
+0.1000
+-999999.0000
+4
+
+0
+0
+-1
+1
+1.0000
+-0.7500
+1
+1.0000
+0.7500
+1
+-1.0000
+-0.7500
+1
+-1.0000
+0.7500
+`
+0.0000
+0.0000
+0
+0
+0
+972671704
+42676.3900
+~
+[Block]
+SUSM01_01
+
+0.0000
+0.0000
+0
+5
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+-0.3536
+-0.3536
+1
+-0.2121
+-0.2121
+`
+0.0000
+0.0000
+0
+0
+0
+207113332
+42676.3900
+~
+2
+0
+0.1000
+-999999.0000
+22
+
+0
+0
+-1
+1
+0.0000
+0.1000
+1
+-0.0342
+0.0940
+1
+-0.0643
+0.0766
+1
+-0.0866
+0.0500
+1
+-0.0966
+0.0259
+1
+-0.1000
+0.0000
+1
+-0.0966
+-0.0259
+1
+-0.0866
+-0.0500
+1
+-0.0680
+-0.0733
+1
+-0.0434
+-0.0901
+1
+-0.0149
+-0.0989
+1
+0.0149
+-0.0989
+1
+0.0434
+-0.0901
+1
+0.0680
+-0.0733
+1
+0.0866
+-0.0500
+1
+0.0975
+-0.0223
+1
+0.0997
+0.0075
+1
+0.0931
+0.0365
+1
+0.0782
+0.0623
+1
+0.0563
+0.0826
+1
+0.0295
+0.0956
+1
+0.0000
+0.1000
+`
+0.0000
+0.0000
+0
+0
+0
+760556874
+42676.3900
+~
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+-0.3536
+0.3536
+1
+-0.2121
+0.2121
+`
+0.0000
+0.0000
+0
+0
+0
+1724109889
+42676.3900
+~
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+0.3536
+-0.3536
+1
+0.2121
+-0.2121
+`
+0.0000
+0.0000
+0
+0
+0
+1406301298
+42676.3900
+~
+2
+0
+0.1000
+-999999.0000
+2
+
+0
+0
+-1
+1
+0.3536
+0.3536
+1
+0.2121
+0.2121
+`
+0.0000
+0.0000
+0
+0
+0
+644855830
+42676.3900
+~
+[Block]
+SZAFA1
+
+0.0000
+0.0000
+0
+1
+2
+0
+0.1000
+-999999.0000
+5
+
+0
+0
+-1
+1
+-0.5000
+-1.0000
+1
+0.5000
+-1.0000
+1
+0.5000
+1.0000
+1
+-0.5000
+1.0000
+1
+-0.5000
+-1.0000
+`
+0.0000
+0.0000
+0
+0
+0
+1355665992
+42676.3900
+~
+[Block]
+KWADRAT_NIEPRZEZR
+
+0.0000
+0.0000
+0
+1
+2
+0
+0.1000
+-999999.0000
+5
+
+0
+0
+-1
+1
+0.5000
+-0.5000
+1
+-0.5000
+-0.5000
+1
+-0.5000
+0.5000
+1
+0.5000
+0.5000
+1
+0.5000
+-0.5000
+`
+0.0000
+0.0000
+0
+0
+0
+314507631
+42676.3900
+~
+[Block]
+PROSTOKAT1_5-1_PELNY
+
+0.0000
+0.0000
+0
+1
+2
+0
+0.1000
+-999999.0000
+5
+
+0
+0
+-1
+1
+-0.5000
+0.7500
+1
+-0.5000
+-0.7500
+1
+0.5000
+-0.7500
+1
+0.5000
+0.7500
+1
+-0.5000
+0.7500
+`
+0.0000
+0.0000
+0
+0
+0
+412207551
+42676.3900
+~
+[Block]
+EPPGS
+
+0.0000
+0.0000
+0
+1
+2
+0
+0.1000
+-999999.0000
+21
+
+0
+0
+-1
+1
+0.0000
+0.5000
+1
+-0.1545
+0.4755
+1
+-0.2939
+0.4045
+1
+-0.4045
+0.2939
+1
+-0.4755
+0.1545
+1
+-0.5000
+0.0000
+1
+-0.4755
+-0.1545
+1
+-0.4045
+-0.2939
+1
+-0.2939
+-0.4045
+1
+-0.1545
+-0.4755
+1
+0.0000
+-0.5000
+1
+0.1545
+-0.4755
+1
+0.2939
+-0.4045
+1
+0.4045
+-0.2939
+1
+0.4755
+-0.1545
+1
+0.5000
+0.0000
+1
+0.4755
+0.1545
+1
+0.4045
+0.2939
+1
+0.2939
+0.4045
+1
+0.1545
+0.4755
+1
+0.0000
+0.5000
+`
+0.0000
+0.0000
+0
+0
+0
+1250349268
+42676.3900
+~
+[SYMBOLS]
+[Symbol]
+111
+Punkt osnowy podstawowej poziomej
+tpoly 3 -12,-20 23,0 -12,20; punkt 0,0;
+False
+1.8000
+[Symbol]
+112
+Punkt osnowy podstawowej wysokoúciowej
+wpoly 3 12,20 12,-20 -23,0
+False
+1.8000
+[Symbol]
+113
+Punkt osnowy podstawowej XYH
+tpoly 3 -12,-20 23,0 -12,20; wpoly 3 -12,0 5,-10 5,10; t≥uk -2,-2 2,2 0,0 0,0
+False
+1.8000
+[Symbol]
+2000
+aaa
+t≥uk -31,31 31,-31 0,5 0,5; ≥uk -32,32 32,-32 0,5 0,5
+False
+1.3000
+[Symbol]
+121
+Punkt szczegÛ≥owej osnowy poziomej
+t≥uk -11,11 11,-11 0,5 0,5; ≥uk -12,12 12,-12 0,5 0,5; punkt 0,0
+False
+1.8000
+[Symbol]
+122
+Punkt szczegÛ≥owej osnowy wysokoúciowej
+wpoly 3 6,-10 -11,0 6,10
+False
+1.8000
+[Symbol]
+123
+Punkt osnowy szczegÛ≥owej XYH
+t≥uk -14,-14 14,14 0,5 0,5; ≥uk -13,-13 13,13 0,5 0,5; wpoly 3 -11,0 5,-9 5,9; t≥uk -3,-3 3,3 0,0 0,0
+False
+1.8000
+[Symbol]
+131
+Punkt osnowy pomiarowej poziomej
+≥uk -8,-8 8,8 0,5 0,5; linia 8,0 18,0; t≥uk -6,-6 6,6 0,5 0,5;
+False
+1.8000
+[Symbol]
+140
+Punkt roboczy
+w≥uk -1,-1 1,1 0,0 0,0
+False
+1.8000
+[Symbol]
+201
+Punkt granicy paÒstwa stabilizowany trwale
+t≥uk -14,-14 14,14 0,0 0,0; ≥uk -15,-15 15,15 0,0 0,0
+False
+3.5000
+[Symbol]
+202
+Punkt graniczny stabilizowany trwale
+t≥uk -5,-5 5,5 0,0 0,0;≥uk -5,-5 5,5 0,0 0,0
+False
+1.8000
+[Symbol]
+203
+Punkt za≥amania granicy dzia≥ki nie stabilizowany
+t≥uk -5,-5 5,5 0,1 0,1; punkt 0,0
+False
+1.8000
+[Symbol]
+238
+Punkt adresowy
+Punkt 0,0
+False
+1.3000
+[Symbol]
+311
+Symbol podpory (s≥upa noúnego) podcienia, wiaty, galerii, przewodu
+t≥uk -5,-5 5,5 0,0 0,0;≥uk -5,-5 5,5 0,0 0,0
+False
+1.8000
+[Symbol]
+313
+Symbol budynku
+wpoly 4 -10,-10 -10,10 10,10 10,-10
+True
+1.8000
+[Symbol]
+324
+Oznaczenie úwiπtyni chrzeúcijaÒskiej
+linia -20,0 10,0; linia 0,-10 0,10
+True
+1.8000
+[Symbol]
+325
+Oznaczenie úwiπtyni niechrzeúcijaÒskiej
+linia -30,0 0,0; linia 0,-10 0,10
+True
+1.8000
+[Symbol]
+332
+Wieøa ciúnieÒ, ppoøarowa, widokowa - symbol
+≥uk -5,-5 5,5 0,0 0,0; linia 1,-5 35,0; linia 1,5 35,0
+False
+1.8000
+[Symbol]
+335
+Wiatrak - symbol
+wpoly 4 -5,5 5,5 5,-5 -5,-5; linia 5,0 20,0; linia 25,-5 15,5; linia 25,5 15,-5
+False
+1.8000
+[Symbol]
+366
+Komin przemys≥owy - symbol
+w≥uk -15,-15 15,15 0,1 0,1
+False
+1.8000
+[Symbol]
+401
+S≥up kilometrowy
+t≥uk -10,-10 10,10 0,0 0,0; ≥uk -10,-10 10,10 0,0 0,0; w≥uk -5,-5 5,5 0,0 0,0
+False
+1.8000
+[Symbol]
+402
+S≥up hektometrowy
+t≥uk -10,-10 10,10 0,0 0,0; ≥uk -10,10 10,-10 0,5 0,5; ≥uk -5,-5 5,5 0,1 0,1
+False
+1.8000
+[Symbol]
+403
+Punkt okreúlonej wysokoúci sztucznie ukszta≥towanej powierzchni terenu
+punkt 0,0
+False
+10.0000
+[Symbol]
+406
+Znak przystanku
+linia 0,0 0,10; linia 0,0 10,0; linia 10,-5 10,5; linia 10,5 30,5; linia 30,5 30,-5; linia 30,-5 10,-5
+True
+1.8000
+[Symbol]
+407
+Znak drogowy
+linia 0,0 0,7; linia 0,0 7,0; tpoly 3 7,7 7,-7 19,0
+True
+1.8000
+[Symbol]
+408
+Tablica informacyjna, drogowskaz
+linia 0,0 10,0; linia 0,0 0,10; linia 10,-10 20,-10; linia 20,-10 20,10; linia 20,10 10,10; linia 10,10 10,-10
+True
+1.8000
+[Symbol]
+409
+Znak sygnalizacji úwietlnej
+linia 0,0 0,7; linia 0,0 7,0; ≥uk 7,-4 14,4 0,0 0,0; ≥uk 14,-4 21,4 0,0 0,0; ≥uk 21,-4 28,4 0,0 0,0;
+True
+1.8000
+[Symbol]
+410
+Znak skraju toru
+≥uk -5,5 5,-5 0,1 0,1; linia -5,0 15,0
+True
+1.8000
+[Symbol]
+411
+Znak przejazdu kolejowego (krzyø úw. Andrzeja)
+linia 0,0 0,10; linia 0,0 25,0; linia 30,-10 20,10; linia 30,10 20,-10; linia 15,-10 20,0; linia 20,0 15,10
+True
+1.8000
+[Symbol]
+412
+Zapora przejazdu kolejowego - symbol
+linia 5,-5 5,5; linia -5,-5 -5,5; linia 0,5 0,55
+True
+1.8000
+[Symbol]
+413
+Przepust - symbol
+linia 0,0 10,10;linia 0,0 10,-10;
+True
+3.5000
+[Symbol]
+414
+Przepust - symbol
+linia 0,0 10,10;linia 0,0 10,-10;
+True
+3.5000
+[Symbol]
+430
+Podpora przewodÛw trakcyjnych
+t≥uk -5,-5 5,5 0,0 0,0; ≥uk -5,-5 5,5 0,0 0,0; linia 32,-2 40,5; linia 40,5 30,5; linia 32,2 20,-5; linia 20,-5 26,5; linia 26,5 10,-5
+True
+1.8000
+[Symbol]
+430a
+Podpora przewodÛw trakcyjnych i latarnia
+t≥uk -5,-5 5,5 0,0 0,0;≥uk -5,-5 5,5 0,0 0,0;  linia 32,-2 40,5; linia 40,5 30,5; linia 32,2 20,-5; linia 20,-5 26,5; linia 26,5 10,-5; linia 11,11 18,18; linia 11,-11 18,-18; linia -11,-11 -18,-18; linia -11,11 -18,18
+True
+1.8000
+[Symbol]
+430b
+Podpora przewodÛw trakcyjnych
+t≥uk -5,-5 5,5 0,0 0,0; ≥uk -5,-5 5,5 0,0 0,0; linia 32,-2 40,5; linia 40,5 30,5; linia 32,2 20,-5; linia 20,-5 26,5; linia 26,5 10,-5; linia -32,2 -40,-5; linia -40,-5 -30,-5; linia -32,-2 -20,5; linia -20,5 -26,-5; linia -26,-5 -10,5
+True
+1.8000
+[Symbol]
+456
+Most trwa≥y - symbol (czÍúÊ)
+linia 0,0 0,30; linia 0,30 7,37; linia 0,0 7,-7
+True
+5.0000
+[Symbol]
+457
+Most drewniany - symbol (czÍúÊ)
+linia 0,0 0,30; linia 0,30 7,37; linia 0,0 7,-7
+True
+1.8000
+[Symbol]
+458
+K≥adka dla pieszych - symbol (czÍúÊ)
+linia 0,0 10,0; linia 10,10 10,-10
+True
+3.5000
+[Symbol]
+472
+Symbol kolejki wiszπcej lub wyciπgu
+linia 0,0 -10,0; linia -10,-10 -10,10; linia -10,10 -30,10; linia -30,10 -30,-10; linia -30,-10 -10,-10
+True
+1.8000
+[Symbol]
+474
+Peron - symbol (czÍúÊ)
+linia -5,0 5,0
+True
+1.8000
+[Symbol]
+501
+Niezidentyfikowana armatura naziemna
+w≥uk -2,-2 2,2 0,0 0,0
+False
+1.8000
+[Symbol]
+504
+W≥az prostokπtny
+tpoly 4 5,10 -5,10 -5,-10 5,-10
+True
+1.8000
+[Symbol]
+505
+W≥az kwadratowy
+tpoly 4 5,5 -5,5 -5,-5 5,-5
+True
+1.8000
+[Symbol]
+506
+W≥az okrπg≥y
+t≥uk -6,-6 6,6 0,0 0,0;≥uk -6,-6 6,6 0,0 0,0
+False
+1.8000
+[Symbol]
+507
+Zasuwa liniowa
+tpoly 4 4,4 -4,4 -4,-4 4,-4
+True
+1.8000
+[Symbol]
+508
+Kratka wywietrznika
+tpoly 4 5,10 -5,10 -5,-10 5,-10; linia 0,-10 0,10
+True
+1.8000
+[Symbol]
+509
+Kratka úciekowa
+linia -5,-10 5,-10; linia 5,-10 5,11; linia 5,11 -5,11; linia -5,11 -5,-10; linia 5,-3 -5,-3; linia 5,4 -5,4
+True
+1.8000
+[Symbol]
+510
+Podpora przewodu lub latarni - symbol
+t≥uk -5,-5 5,5 0,0 0,0;≥uk -5,-5 5,5 0,0 0,0
+False
+1.8000
+[Symbol]
+513
+Hydrant
+t≥uk -10,-10 10,10 0,2 0,2;≥uk -10,-10 10,10 0,2 0,2; linia 10,0 20,0; linia 13,-7 20,0; linia 20,0 13,7
+False
+1.8000
+[Symbol]
+514
+ZdrÛj uliczny
+t≥uk -10,-10 10,10 0,2 0,2;≥uk -10,-10 10,10 0,2 0,2; linia 10,0 20,0; linia 20,-10 20,0; linia 20,0 13,7
+False
+1.8000
+[Symbol]
+515
+Latarnia na podporze przewodÛw lub na s≥upie
+linia 0,-25 0,-15; linia 25,0 15,0; linia 0,15 0,25; linia -15,0 -25,0
+False
+1.8000
+[Symbol]
+515a
+Latarnia - symbol s≥upa i symbol latarni
+linia 0,-25 0,-15; linia 25,0 15,0; linia 0,15 0,25; linia -15,0 -25,0; t≥uk -5,-5 5,5 0,0 0,0;≥uk -5,-5 5,5 0,1 0,1
+False
+1.8000
+[Symbol]
+516
+Kierunek napowietrznej linii energetycznej niskiego napiÍcia
+linia 0,15 0,115; linia -14,51 0,65; linia 0,65 14,51
+True
+1.8000
+[Symbol]
+516a
+Kierunek napowietrznej linii niskiego napiÍcia + telefoniczna
+linia 0,15 0,115; linia -14,51 0,65; linia 0,65 14,51;linia 0,85 -14,71
+False
+0.0000
+[Symbol]
+517
+Kierunek napowietrznej linii energetycznej úredniego napiÍcia
+linia 0,15 0,115; linia -5,45 5,45; linia -14,71 0,85; linia 0,85 14,71
+True
+1.8000
+[Symbol]
+518
+Kierunek napowietrznej linii energetycznej wysokiego napiÍcia
+linia 0,15 0,115; linia -14,45 0,59; linia 0,59 14,45; linia -14,71 0,85; linia 0,85 14,71
+True
+1.8000
+[Symbol]
+521
+Kierunek linii napowietrznej - telekomunikacyjnej
+linia 0,15 0,115; linia 0,85 -14,71; linia 0,71 14,57
+True
+1.8000
+[Symbol]
+522
+Kierunek linii napowietrznej - sieci komputerowej
+linia 0,15 0,115; linia 0,85 -14,71; linia 0,71 14,57
+True
+1.8000
+[Symbol]
+523
+Kierunek linii napowietrznej - tv kablowej
+linia 0,15 0,115; linia 0,85 -14,71; linia 0,71 14,57
+True
+1.8000
+[Symbol]
+526
+Kierunek linii napowietrznej - innej sieci kablowej
+linia 0,15 0,115; linia 0,85 -14,71; linia 0,71 14,57
+True
+1.8000
+[Symbol]
+621
+Punkt pomierzonej wysokoúci przewodu wodociπgowego
+punkt 0,0
+False
+2.5000
+[Symbol]
+622
+Punkt pomierzonej wysokoúci przewodu kanalizacyjnego
+punkt 0,0
+False
+2.5000
+[Symbol]
+623
+Punkt pomierzonej wysokoúci przewodu gazowego
+punkt 0,0
+False
+2.5000
+[Symbol]
+624
+Punkt pomierzonej wysokoúci przewodu ciep≥owniczego
+punkt 0,0
+False
+2.5000
+[Symbol]
+625
+Punkt pomierzonej wysokoúci przewodu elektroenergetycznego
+punkt 0,0
+False
+2.5000
+[Symbol]
+626
+Punkt pomierzonej wysokoúci przewodu telekomunikacyjnego
+punkt 0,0
+False
+2.5000
+[Symbol]
+627
+Punkt pomierzonej wysokoúci przewodu benzynowego
+punkt 0,0
+False
+2.5000
+[Symbol]
+628
+Punkt pomierzonej wysokoúci przewodu niezidentyfikowanego
+punkt 0,0
+False
+2.5000
+[Symbol]
+629
+Punkt pomierzonej wysokoúci przewodu naftowego
+punkt 0,0
+False
+2.5000
+[Symbol]
+630
+Punkt pomierzonej wysokoúci przewodu poczty pneumatycznej
+punkt 0,0
+False
+2.5000
+[Symbol]
+631
+Punkt pomierzonej wysokoúci przewodu sieci komputerowej
+punkt 0,0
+False
+2.5000
+[Symbol]
+632
+Punkt pomierzonej wysokoúci przewodu TV kablowej
+punkt 0,0
+False
+2.5000
+[Symbol]
+633
+Punkt pomierzonej wysokoúci przewodu melioracyjnego
+punkt 0,0
+False
+2.5000
+[Symbol]
+634
+Punkt pomierzonej wysokoúci przewodu innych sieci rurowych
+punkt 0,0
+False
+2.5000
+[Symbol]
+635
+Punkt pomierzonej wysokoúci kana≥u zbiorczego
+punkt 0,0
+False
+2.5000
+[Symbol]
+636
+Punkt pomierzonej wysokoúci przewodu innych sieci kablowych
+punkt 0,0
+False
+2.5000
+[Symbol]
+681
+Wcinka lub trÛjnik na przewodzie wodociπgowym
+linia 0,0 20,0; linia 0,-10 0,10
+True
+1.8000
+[Symbol]
+682
+Wcinka lub trÛjnik na przewodzie kanalizacyjnym
+linia 0,0 20,0; linia -0,-10 -0,10
+True
+1.8000
+[Symbol]
+683
+Wcinka lub trÛjnik na przewodzie gazowym
+linia 0,0 20,0; linia 0,-10 0,10
+True
+1.8000
+[Symbol]
+684
+Wylot kana≥u (wylew)
+linia 0,0 20,0; linia 0,-5 0,5
+True
+5.0000
+[Symbol]
+685
+Osadnik kanalizacji lokalnej (dÛ≥ Chambeau)
+t≥uk -10,-10 10,10 0,1 0,1;≥uk -10,-10 10,10 0,1 0,1; linia 0,-10 0,10
+False
+1.8000
+[Symbol]
+686
+Kotwa przewodu ciep≥owniczego
+linia 10,-10 -10,10; linia 10,10 -10,-10
+True
+1.8000
+[Symbol]
+687
+Mufa, punkt ≥πczenia kabla
+tpoly 4 8,0 0,15 -8,0 0,-15
+True
+1.8000
+[Symbol]
+688
+Szafa sterownicza przewodu
+linia 0,-15 0,15; linia 8,-15 -8,-15; linia 8,15 -8,15
+True
+1.8000
+[Symbol]
+701
+Punkt zmiany cech / sposobu inwentaryzacji przewodu wodociπgowego
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+702
+Punkt zmiany cech /sposobu inwentaryzacji przewodu kanalizacyjnego
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+703
+Punkt zmiany cech /sposobu inwentaryzacji przewodu gazowego
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+704
+Punkt zmiany cech /sposobu inwentaryzacji przewodu ciep≥owniczego
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+705
+Punkt zmiany cech /sposobu inwentaryzacji przewodu elektroenergetycznego
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+706
+Punkt zmiany cech /sposobu inwentaryzacji przewodu telekomunikacyjnego
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+707
+Punkt zmiany cech /sposobu inwentaryzacji przewodu benzynowego
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+708
+Punkt zmiany cech /sposobu inwentaryzacji przewodu niezidentyfikowanego
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+709
+Punkt zmiany cech /sposobu inwentaryzacji przewodu naftowego
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+710
+Punkt zmiany cech /sposobu inwentaryzacji przewodu poczty pneumatycznej
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+711
+Punkt zmiany cech /sposobu inwentaryzacji przewodu sieci komputerowej
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+712
+Punkt zmiany cech /sposobu inwentaryzacji przewodu tv kablowej
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+713
+Punkt zmiany cech /sposobu inwentaryzacji przewodu melioracyjnego
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+714
+Punkt zmiany cech /sposobu inwentaryzacji przewodu innych sieci rurowych
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+715
+Punkt zmiany cech /sposobu inwentaryzacji przewodu kana≥u zbiorczego
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+716
+Punkt zmiany cech /sposobu inwentaryzacji przewodu innych sieci kablowych
+linia 5,0 -5,0
+True
+1.8000
+[Symbol]
+721
+Symbol komory podziemnej wodociπgowej
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+722
+Symbol komory podziemnej kanalizacyjnej
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+723
+Symbol komory podziemnej gazowej
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+724
+Symbol komory podziemnej ciep≥owniczej
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+725
+Symbol komory podziemnej elektroenergetycznej
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+726
+Symbol komory podziemnej telekomunikacyjnej
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+727
+Symbol komory podziemnej benzynowej
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+728
+Symbol komory podziemnej sieci niezidentyfikowanej
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+729
+Symbol komory podziemnej naftowej
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+730
+Symbol komory podziemnej poczty pneumatycznej
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+731
+Symbol komory podziemnej sieci komputerowej
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+732
+Symbol komory podziemnej TV kablowej
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+733
+Symbol komory podziemnej melioracyjnej
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+734
+Symbol komory podziemnej sieci innych rurowych
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+735
+Symbol komory podziemnej kanalizacji zbiorczej
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+736
+Symbol komory podziemnej sieci innych kablowych
+t≥uk -8,-8 8,8 0,0 0,0;≥uk -8,-8 8,8 0,0 0,0
+False
+1.8000
+[Symbol]
+801
+Punkt okreúlonej wysokoúci naturalnej powierzchni terenu
+wluk -2,-2 2,2 0,0 0,0
+False
+1.8000
+[Symbol]
+831
+Zwa≥ kamieni, g≥azÛw, stoøek nasypowy - symbol
+wpoly 3 0,-5 15,0 0,5; wpoly 3 -10,0 -15,10 -26,-2; wpoly 3 0,-10 -10,-8 -8,-24
+False
+1.8000
+[Symbol]
+852
+Trzciny, szuwary - symbol
+linia 0,0 20,0; linia 0,9 10,10; linia 10,10 15,12; linia 15,12 20,13; linia 0,-9 10,-10; linia 10,-10 15,-12; linia 15,-12 20,-13
+False
+1.8000
+[Symbol]
+856
+èrÛd≥o
+linia 0,-10 0,10; linia 0,0 30,0; ≥uk 0,0 20,20 20,10 10,0; ≥uk 10,-20 30,0 20,0 30,-10; ≥uk 20,0 40,20 40,10 30,0
+False
+1.8000
+[Symbol]
+858
+Zabagnienie, mokrad≥o - symbol
+linia -10,-40 -10,10; linia 10,-30 10,20; linia 0,-20 0,30
+False
+1.8000
+[Symbol]
+860
+Wydma, ≥acha piaszczysta - symbol
+punkt 13,-15; punkt 6,-6; punkt 13,0; punkt 10,4; punkt 10,11; punkt 2,12; punkt 0,0; punkt -4,-11; punkt -11,-13; punkt -2,7; punkt -12,2; punkt -7,4; punkt -5,9; punkt -12,12; punkt -2,-13; punkt -7,-8; punkt 6,-11
+False
+10.0000
+[Symbol]
+905
+Brama w ogrodzeniu
+≥uk -30,0 30,60 30,15 0,0; ≥uk -30,0 30,-60 0,0 30,-15
+True
+3.5000
+[Symbol]
+905a
+Brama w ogrodzeniu - "zaczepienie lewostronne "
+≥uk -30,15 30,75 30,30 0,15; ≥uk -30,15 30,-45 0,15 30,0
+True
+3.5000
+[Symbol]
+905b
+Brama w ogrodzeniu - "zaczepienie prawostronne"
+≥uk -30,-15 30,45 30,0 0,-15; ≥uk -30,-15 30,-75 0,-15 30,-30
+True
+3.5000
+[Symbol]
+906
+Furtka w ogrodzeniu - prawostronna
+≥uk -30,0 30,60 30,15 0,0
+True
+3.5000
+[Symbol]
+906a
+Furtka w ogrodzeniu - lewostronna
+≥uk -30,0 30,-60 0,0 30,-15
+True
+3.5000
+[Symbol]
+907
+Studnia
+t≥uk -15,-15 15,15 0,2 0,2; ≥uk -15,-15 15,15 0,2 0,2; ≥uk -5,-5 5,5 0,2 0,2
+False
+1.8000
+[Symbol]
+908
+Studnia g≥Íbinowa
+t≥uk -15,-15 15,15 0,2 0,2;≥uk -15,-15 15,15 0,2 0,2;  ≥uk -5,-5 5,5 0,2 0,2; linia 15,0 25,0; ≥uk 20,-10 30,0 25,0 25,-10; ≥uk 30,0 20,10 25,10 25,0
+False
+1.8000
+[Symbol]
+909
+Fontanna - symbol
+t≥uk -10,-10 10,10 0,2 0,2; ≥uk -10,-10 10,10 0,2 0,2; linia 10,0 30,0; ≥uk 20,-20 40,0 30,0 38,-15; ≥uk 20,0 40,20 38,15 30,0
+False
+1.8000
+[Symbol]
+911
+Pomnik
+linia 0,-15 0,15; wpoly 4 0,8 0,-8 22,-8 22,8 0,8; w≥uk 14,-8 30,8 22,8 22,-8
+False
+1.8000
+[Symbol]
+913
+Krzyø przydroøny
+linia 0,0 0,20; linia 0,0 30,0; linia 20,-10 20,10
+False
+2.5000
+[Symbol]
+915
+Figura przydroøna, kapliczka przydroøna
+linia -10,-10 10,-10; linia 10,-10 10,10; linia 10,10 -10,10; linia -10,10 -10,-10; linia 10,0 30,0; linia 20,-10 20,10
+False
+1.8000
+[Symbol]
+917
+Cmentarz wojenny - symbol
+linia -10,-20 40,40; linia -8,-20 42,40; linia 42,-40 -8,20;linia 40,-40 -10,20; linia 7,-27 7,27; linia 15,10 15,30; linia 23,20 23,33; linia 31,29 31,36; linia 15,-10 15,-30; linia 23,-20 23,-33; linia 31,-29 31,-36
+False
+1.8000
+[Symbol]
+918
+Pomnik walki i mÍczeÒstwa - symbol
+≥uk -10,-10 10,10 0,0 0,0; linia 9,-4 30,-15; linia 30,-15 30,15; linia 30,15 9,4; linia 4,9 15,30; linia 15,30 -15,30; linia -15,30 -4,9;linia -9,4 -30,15;linia -30,15 -30,-15;linia -30,-15 -9,-4;linia -4,-9 -15,-30;linia -15,-30 15,-30;linia 15,-30 4,-9
+False
+1.8000
+[Symbol]
+921
+Drzewo iglaste o pomierzonym po≥oøeniu
+punkt 0,0; linia -15,0 -4,-3; linia -4,-3 -5,-14; linia -5,-14 2,-5; linia 2,-5 12,-9; linia 12,-9 5,0; linia 5,0 12,9; linia 12,9 2,5; linia 2,5 -5,14; linia -5,14 -4,3; linia -4,3 -15,0
+False
+1.8000
+[Symbol]
+921-DII
+Drzewo iglaste o pomierzonym po≥oøeniu - DII dla skali 250
+punkt 0,0; linia -40,0 -12,-9; linia -12,-9 -12,-38; linia -12,-38 5,-14; linia 5,-14 32,-24; linia 32,-24 15,0; linia 15,0 32,24; linia 32,24 5,14; linia 5,14 -12,38; linia -12,38 -12,9; linia -12,9 -40,0
+False
+1.8000
+[Symbol]
+922
+Drzewo liúciaste o pomierzonym po≥oøeniu
+punkt 0,0; ≥uk -1,-8 15,8 13,5 13,-5; ≥uk -6,-1 10,15 -1,14 9,11; ≥uk -14,-4 3,12 -13,3 -7,12; ≥uk -14,-12 2,4 -7,-12 -13,-3; ≥uk -6,-15 10,1 9,-11 -1,-14
+False
+1.8000
+[Symbol]
+922-DII
+Drzewo liúciaste o pomierzonym po≥oøeniu -DII dla skali 250
+punkt 0,0; ≥uk 0,-20 40,20 31,17 31,-17; ≥uk -14,-1 26,39 -7,34 26,24; ≥uk -36,-8 4,32 -35,4 -15,32; ≥uk -36,-32 4,8 -15,-32 -35,-4; ≥uk -14,-39 26,1 26,-24 -7,-34
+False
+1.8000
+[Symbol]
+925
+Drzewo iglaste - symbol
+linia -15,0 -4,-3; linia -4,-3 -5,-14; linia -5,-14 2,-5; linia 2,-5 12,-9; linia 12,-9 5,0; linia 5,0 12,9; linia 12,9 2,5; linia 2,5 -5,14; linia -5,14 -4,3; linia -4,3 -15,0
+False
+1.8000
+[Symbol]
+926
+Drzewo liúciaste - symbol
+≥uk -1,-8 15,8 13,5 13,-5; ≥uk -6,-1 10,15 -1,14 9,11; ≥uk -14,-4 3,12 -13,3 -7,12; ≥uk -14,-12 2,4 -7,-12 -13,-3; ≥uk -6,-15 10,1 9,-11 -1,-14
+False
+1.8000
+[Symbol]
+929
+Drzewo iglaste - pomnik przyrody
+≥uk -5,-5 5,5 0,0 0,0; linia -20,0 -7,-5; linia -7,-5 -6,-19; linia -6,-19 3,-9; linia 3,-9 16,-12; linia 16,-12 9,0; linia 9,0 16,12; linia 16,12 3,9; linia 3,9 -6,19; linia -6,19 -7,5; linia -7,5 -20,0
+False
+1.8000
+[Symbol]
+930
+Drzewo liúciaste - pomnik przyrody
+≥uk 0,-10 20,10 16,8 16,-8; ≥uk -7,0 13,20 -2,18 12,13; ≥uk -18,-4 2,16 -18,3 -8,16; ≥uk -18,-16 2,4 -8,-16 -18,-3; ≥uk -7,-20 13,0 12,-13 -2,-18; ≥uk -5,-5 5,5 0,0 0,0
+False
+1.8000
+[Symbol]
+935
+Las iglasty - symbol
+linia 0,0 0,10; linia 0,0 10,0; linia 10,-10 30,0; linia 30,0 10,10
+False
+1.8000
+[Symbol]
+936
+Las liúciasty - symbol
+linia 0,0 0,10; linia 0,0 10,0; ≥uk 10,-10 30,10 10,2 10,-2
+False
+1.8000
+[Symbol]
+937
+Las mieszany - symbol
+linia 10,-17 10,-7; linia 10,-17 20,-17; linia 20,-27 40,-17; linia 40,-17 20,-7; linia -10,17 -10,27; linia -10,17 0,17; ≥uk 0,7 20,27 0,19 0,15
+False
+1.8000
+[Symbol]
+940
+Trawnik - symbol
+linia 5,-5 -5,-5; linia 5,5 -5,5;
+False
+1.8000
+[Symbol]
+940a
+Trawnik - symbol (trzy elementy rÛwnoczeúnie)
+linia -32, -5 -22,-5; linia -32,5 -22,5; linia 23,-55 33,-55; linia 23,-45 33,-45; linia 23,45 33,45; linia 23,55 33,55
+False
+1.8000
+[Symbol]
+941
+Zakrzewienie - symbol
+≥uk -10,-10 10,10 0,0 0,0;≥uk -10,-10 10,10 0,0 0,0; linia -10,0 -10,10
+False
+1.8000
+[Symbol]
+941a
+Zakrzewienie - symbol (trzy elementy rÛwnoczeúnie)
+≥uk -35,-10 -15,10 -25,1 -25,1; linia -35,0 -35,10; ≥uk 15,-60 35,-40 25,-51 25,-51; linia 15,-50 15,-40; ≥uk 15,40 35,60 25,51 25,51; linia 15,50 15,60
+False
+1.8000
+[Symbol]
+945
+Cmentarz wyznania katolickiego - symbol
+linia -20,0 10,0; linia 0,-10 0,10
+False
+1.8000
+[Symbol]
+945a
+Cmentarz wyznania katolickiego  - symbol (trzy elementy rÛwnoczeúnie)
+linia -35,0 -5,0; linia -15,-10 -15,10; linia 5,-40 35,-40; linia 25,-50 25,-30; linia 5,40 35,40; linia 25,30 25,50
+False
+1.8000
+[Symbol]
+946
+Cmentarz wyznania niechrzeúcijaÒskiego - symbol
+linia -20,0 10,0; linia -20,-10 -20,10
+False
+1.8000
+[Symbol]
+946a
+Cmentarz wyznania niechrzeúcijaÒskiego - symbol (trzy elementy rÛwnoczeúnie)
+linia -35,0 -5,0; linia -35,-10 -35,10; linia 5,-40 35,-40; linia 5,-50 5,-30; linia 5,40 35,40; linia 5,30 5,50
+False
+1.8000
+[Symbol]
+947
+Cmentarz komunalny - symbol
+linia -7,-10 23,-10; linia 13,-20 13,0; linia 7,10 -23,10; linia -23,20 -23,0
+False
+1.8000
+[Symbol]
+949
+Plac sportowy - symbol
+≥uk 30,15 0,-15 0,0 0,0; ≥uk -15,4 15,34 0,0 0,0; ≥uk -15,-34 15,-4 0,0 0,0; ≥uk 0,19 30,49 0,0 0,0; ≥uk 0,-19 30,-49 0,0 0,0
+False
+1.8000
+[Symbol]
+950
+Plac gier i zabaw - symbol
+≥uk -30,-15 0,15 0,0 0,0; ≥uk -15,4 15,34 0,0 0,0; ≥uk -15,-34 15,-4 0,0 0,0
+False
+1.8000
+[Symbol]
+960
+OdbÛj, dalba
+≥uk -15,-13 -5,-3 -10,-8 -10,-8; ≥uk -31,-5 -21,5 -26,0 -26,0; ≥uk -5,13 -15,3 0,0 0,0
+True
+1.8000
+[Symbol]
+961
+Pacho≥, poler
+≥uk -5,-5 5,5 0,0 0,0; linia -5,0 -10,0
+True
+1.8000
+[Symbol]
+991
+Przehaczenie - symbol przynaleønoúci do dzia≥ki
+linia 10,-8 10,8; linia 10,8 -10,-8; linia -10,-8 -10,8
+True
+1.8000
+[Symbol]
+992
+Strza≥ka kierunku wjazdu do podziemia
+linia 0,0 0,30; linia 5,30 0,50; linia -5,30 0,50
+True
+1.8000
+[Symbol]
+993
+Strza≥ka kierunku cieku (rowu, rzeki)
+linia 0,0 0,30; linia 5,30 0,50; linia -5,30 0,50
+True
+1.8000
+[Symbol]
+1000
+Latarnia na s≥upie bez przedwodÛw napowietrznych - DII
+t≥uk -5,-5 5,5 0,0 0,0;≥uk -5,-5 5,5 0,0 0,0; linia 1,-5 5,-25; linia -1,-5 -5,-25; linia -1,5 -5,25; linia 1,5 5,25
+True
+1.8000
+[Symbol]
+1001
+Latarnia na s≥upie bez przedwodÛw napowietrznych - DII dla skali 250
+t≥uk -10,-10 10,10 0,0 0,0;≥uk -10,-10 10,10 0,0 0,0; linia 2,-10 10,-60; linia -2,-10 -10,-60; linia -2,10 -10,60; linia 2,10 10,60
+True
+1.8000
+[Symbol]
+HEKT
+Kulka hektomatraøu na przekroju
+≥uk 0,10 -20,-10 0,0 -20,0;w≥uk 0,10 -20,-10 -20,0 0,0
+False
+1.3000
+[Symbol]
+IT
+Atrubut - it - budynek transformatora
+linia 0,0 18,10; linia 18,10 12,0; linia 12,0 23,7; linia 20,9 30,11; linia 30,11 22,3
+True
+1.8000
+[Symbol]
+KC
+Atrubut - kc - symbol úwiπtyni chrzeúcijaÒskiej
+≥uk -8,-8 8,8 0,0 0,0; linia 8,0 23,0; linia 18,-8 18,8
+False
+1.8000
+[Symbol]
+KN
+Atrybut - kn - symbol úwiπtyni niechrzeúcijaÒskiej
+≥uk -8,-8 8,8 0,0 0,0; linia 8,0 23,0; linia 23,-8 23,8
+False
+1.8000
+[Symbol]
+ST
+Strza≥ka pÛ≥nocy
+linia 0,0 500,0; linia 500,0 200,-80; linia 200,-80 200,80;linia 0,-40 150,-40; linia 150,-40 0,40; linia 0,40 150,40
+True
+3.5000
+[Symbol]
+strz
+Strza≥ka
+wpoly 3 0,0 0,50 15,0;
+True
+1.3000
+[Symbol]
+strz2
+Strza≥ka
+wpoly 3 0,0 0,-50 15,0
+True
+1.3000
+[Symbol]
+12-DII
+Lustro - DII
+≥uk 0,-10 20,10 10,0 10,0; linia 0,0 -15,0; linia -15,-10 -15,10
+False
+1.8000
+[Symbol]
+13-DII
+Zegar uliczny - DII
+≥uk 0,-10 20,10 10,0 10,0; linia 0,0 -15,0; linia -15,-10 -15,10; linia 20,0 10,0; linia 10,0 5,8
+False
+1.8000
+[LINES]
+[Line]
+0
+Ciπg≥a
+
+[Line]
+1
+Przerywana
+20 -20
+[Line]
+2
+Uøytek, dukt leúny, tunel
+10 -10
+[Line]
+3
+Granica obwodu spisowego
+15 -9 2 -8 2 -9
+[Line]
+4
+Blok budynku, budowle, jezdnia
+20 -10
+[Line]
+5
+Granica rejonu spisowego
+20 -10 20 -9 2 -9
+[Line]
+6
+Granica rejonu urbanistycznego
+20 -7 5 -6 5 -7
+[Line]
+7
+Granica bloku zabudowy
+20 -8 4 -6 4 -8
+[Line]
+8
+Granica konturu klasyfikacyjnego, chodnik
+30 -10
+[Line]
+9
+KrawÍdü skarpy
+25 -10
+[Line]
+423
+KrawÍdü chodnika (inna niø krawÍønik jezdni)
+30 -10
+[Line]
+424
+KrawÍdü jezdni, linia zmiany nawierzchni
+20 -10
+[Line]
+12
+Obrys budynku
+40 -10
+[Line]
+13
+Granica paÒstwa
+40 -14 2 -14
+[Line]
+14
+Budynek w ruinie
+40 -20
+[Line]
+15
+Granica miasta, powiatu
+40 -9 2 -9
+[Line]
+354
+Taras
+
+[Line]
+428
+Tor kolejowy wπski (oú)
+
+[Line]
+450
+Mur oporowy
+
+[Line]
+820
+Skarpa - symbol
+
+[Line]
+850
+Rzeka - symbol
+
+[Line]
+901
+Ogrodzenie trwa≥e
+
+[Line]
+903
+Øywop≥ot
+
+[Line]
+956
+Jaz, prÛg wodny
+
+[Line]
+957
+Wodospad
+
+[Line]
+9010
+Ogrodzenie trwa≥e o zmiennej gruboúci
+
+[Line]
+9011
+Ogrodzenie trwa≥e wg. inst. D2
+
+[Line]
+9012
+Ogrodzenie nietrwa≥e wg. instr. D2
+
+[Line]
+9013
+Ogrodzenie na podmurÛwce wg. D2
+
+[Line]
+213
+Granica wojewÛdztwa
+30 -12 2 -12 2 -12
+[Line]
+10
+Granica obrÍbu
+30 -20
+[Line]
+11
+Granica gminy, dzielnicy
+30 -9 2 -9
+[Line]
+952
+RÛw - symbol
+
+[Line]
+1001
+Granica hipoteczna
+
+[Line]
+1002
+Granica hipoteczna jednostronna
+
+[Line]
+1003
+Granica uøytku - symbol poboczny
+
+[Line]
+7956
+Nieprzekraczalna granica zabudowy
+
+[Line]
+7955
+Obowiπzujπca granica zabudowy
+
+[Line]
+9001
+Linia rozgraniczenia drÛg
+
+[Line]
+425
+Droga nie stanowiπca odrÍbnej dzia≥ki - symbol
+
+[OBJECTS]
