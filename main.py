@@ -5,6 +5,7 @@ import pyautogui
 import re
 
 
+
 def piszsprawozdanie():
     """Funkcja kreowania Sprawozdania Technicznego"""
     s = "I love #stackoverflow# because #people# are very #helpful# #helpful#"
