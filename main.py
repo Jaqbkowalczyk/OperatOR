@@ -10,26 +10,47 @@ from tkinter.filedialog import askdirectory, askopenfile
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
+JEDNOSTKAREJESTROWA = ''
+KERG = ''
+FOLDER = ''
 
 
-def openfile():
+def find_kerg(filename):
+    pass
+
+
+def set_kerg(kerg_value: str):
+    global KERG
+    KERG = kerg_value
+    logging.debug(f'KERG został ustawiony na: {KERG}')
+
+
+def set_folder(folder_value: str):
+    global FOLDER
+    FOLDER = folder_value
+    logging.debug(f'FOLDER został ustawiony na: {FOLDER}')
+
+
+def open_folder():
     tk.Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
     filename = askdirectory()  # show an "Open" dialog box and return the path to the selected folder
     return filename
 
 
-def checkprojectdata():
+
+def check_project_data():
     """Function to check for variables used in all future functions"""
     # 1. Select project folder
-    folder = openfile()
-    logging.debug(f'Wybrany folder: {folder}')
-    # 2. Find data from PODGiK (.gml file)
+    folder = open_folder()
+    set_folder(folder)
+    # 2. Find data from PODGiK (.gml file, info o materialach)
     # 3. Search through .gml file to find JEDNOSTKAREJESTROWA and OBREB values
     # 4. Find KERG number
+    
     pass
 
 
-def writereport():
+def write_report():
     """Function to write report file using given values"""
     s = "I love #stackoverflow# because #people# are very #helpful# #helpful#"
     hashtag = re.findall(r"#(\w+)#", s)  # znajdź wszystkie hashtagi w szablonie
@@ -46,8 +67,9 @@ def main():
     x = 400
     y = 200
     pyautogui.moveTo(x, y)
-    checkprojectdata()
-    writereport()
+    check_project_data()
+    write_report()
+    set_kerg('666.2250.2021')
     return 0
 
 
