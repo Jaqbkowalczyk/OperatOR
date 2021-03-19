@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import re
 import logging
 import pyautogui
@@ -37,6 +38,23 @@ def open_folder():
     return filename
 
 
+def get_text_from_doc(filename):
+    doc = docx.Document(filename)
+    fullText = []
+    for para in doc.paragraphs:
+        fullText.append(para.text)
+    return '\n'.join(fullText)
+
+
+def find_info():
+    for subdir, dirs, files in os.walk(FOLDER):
+        for file in files:
+            if file == "info_o_materiałach12.rtf":
+                logging.debug('Znalazłem info o materiałach!')
+                return join(subdir, file)
+            else:
+                pass
+
 
 def check_project_data():
     """Function to check for variables used in all future functions"""
@@ -44,9 +62,11 @@ def check_project_data():
     folder = open_folder()
     set_folder(folder)
     # 2. Find data from PODGiK (.gml file, info o materialach)
+    text = get_text_from_doc(find_info())
+    print(text)
     # 3. Search through .gml file to find JEDNOSTKAREJESTROWA and OBREB values
     # 4. Find KERG number
-    
+    set_kerg('666.2250.2021')
     pass
 
 
@@ -62,6 +82,9 @@ def write_report():
             paragraph.text = 'new text containing ocean'
 
 
+
+
+
 def main():
     """ Main program """
     x = 400
@@ -69,7 +92,7 @@ def main():
     pyautogui.moveTo(x, y)
     check_project_data()
     write_report()
-    set_kerg('666.2250.2021')
+
     return 0
 
 
