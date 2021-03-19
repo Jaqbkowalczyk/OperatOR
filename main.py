@@ -9,6 +9,7 @@ from docx import Document
 import tkinter as tk
 from tkinter.filedialog import askdirectory, askopenfile
 
+
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
 JEDNOSTKAREJESTROWA = ''
@@ -39,11 +40,12 @@ def open_folder():
 
 
 def get_text_from_doc(filename):
-    doc = docx.Document(filename)
+    doc = Document(filename)
     fullText = []
     for para in doc.paragraphs:
         fullText.append(para.text)
     return '\n'.join(fullText)
+
 
 
 def find_info():
@@ -51,18 +53,20 @@ def find_info():
         for file in files:
             if file == "info_o_materiałach12.rtf":
                 logging.debug('Znalazłem info o materiałach!')
-                return join(subdir, file)
+                logging.debug(f'{os.path.join(subdir, file)}')
+                return os.path.join(subdir, file)
             else:
                 pass
 
 
-def check_project_data():
+def check_project_data():   # todo find a way to extract text from .rtf file
     """Function to check for variables used in all future functions"""
     # 1. Select project folder
     folder = open_folder()
     set_folder(folder)
     # 2. Find data from PODGiK (.gml file, info o materialach)
-    text = get_text_from_doc(find_info())
+    # text = get_text_from_doc(find_info())
+
     print(text)
     # 3. Search through .gml file to find JEDNOSTKAREJESTROWA and OBREB values
     # 4. Find KERG number
