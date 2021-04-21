@@ -71,8 +71,8 @@ def get_text_from_doc(filename):
                 print(cell.text)
                 j += 1
             i += 1
+            j = 0
         i = 0
-        j = 0
     return '\n'.join(fullText)
 
 
@@ -147,7 +147,7 @@ def copydocxtemplate(templatefile, outputfile):
     # select only paragraphs or table nodes
     template = Document(templatefile)
     get_text_from_doc(templatefile)
-    output = Document()
+    output = Document(outputfile)
     for child in template.element.body.xpath('w:p | w:tbl'):
         if isinstance(child, CT_P):
             paragraph = Paragraph(child, template)
@@ -158,6 +158,38 @@ def copydocxtemplate(templatefile, outputfile):
             paragraph = output.add_paragraph()
             paragraph._p.addnext(table._tbl)
     output.save(outputfile)
+
+
+def findowners(file, parcelspath):
+    doc = Document(file)
+    table = doc.tables[0]
+    i = 0
+    j = 0
+    parcelsfile = open(parcelspath, 'r')
+    # find target parcels from file
+    parcels = [line.replace('\n', '') for line in parcelsfile.readlines()]
+    print(parcels)
+    for row in table.rows:
+        if i < 1:
+            i += 1
+            continue
+        elif row.cells[0].text == 'Nr działki' or row.cells[0].text == '':
+            i += 1
+            continue
+        # Find parcel name and chceck with target parcels
+        elif row.cells[0].text.split('.')[-1] in parcels:
+            logging.debug('hej')
+            for cell in row.cells:
+                if j == 0:
+                    parcel = cell.text.split('.')
+                    print(parcel[-1])
+                j += 1
+            j = 0
+        else:
+            i += 1
+            continue
+    i = 0
+
 
 class Zawiadomienie:
     def __init__(self, name, surname, address, hour, date, type):
@@ -178,7 +210,8 @@ def main():
     #write_report()
     #ConvertRtfToDocx('C:\\Users\\Jurek\\Documents\\Kuba\\Python\\OperatOR\\docs','info_o_materiałach1.rtf')
     #print(createparcelfile('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\Wyznaczenie\\protokol_wyznaczenia_granic.docx'))
-    copydocxtemplate('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\Wyznaczenie\\protokol_wyznaczenia_granic.docx', 'out.docx')
+    #copydocxtemplate('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\Wyznaczenie\\protokol_wyznaczenia_granic.docx', 'out.docx')
+    findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcels.txt')
     return 0
 
 
