@@ -13,6 +13,8 @@ from docx.oxml.text.paragraph import CT_P
 from docx.oxml.table import CT_Tbl
 from docx.table import Table
 from docx.text.paragraph import Paragraph
+from docx.opc.exceptions import PackageNotFoundError
+from docx.shared import Pt
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
@@ -142,21 +144,52 @@ def createparcelfile(file):
     return output
 
 
-def copydocxtemplate(templatefile, outputfile):
+def filldocxtemplate(templatefile, outputfile, owner=None):
     """function that copies docx template into an end of output file"""
     # select only paragraphs or table nodes
     template = Document(templatefile)
     get_text_from_doc(templatefile)
-    output = Document(outputfile)
+    try:
+        output = Document(outputfile)
+    except PackageNotFoundError:
+        output = Document()
+        output.save(outputfile)
     for child in template.element.body.xpath('w:p | w:tbl'):
         if isinstance(child, CT_P):
             paragraph = Paragraph(child, template)
             outpara = output.add_paragraph()
-            outpara._p.addnext(paragraph._p)
+            for run in paragraph.runs:
+                output_run = outpara.add_run(run.text)
+                # Run's bold data
+                output_run.bold = run.bold
+                # Run's italic data
+                output_run.italic = run.italic
+                # Run's underline data
+                output_run.underline = run.underline
+                # Run's color data
+                output_run.font.color.rgb = run.font.color.rgb
+                # Run's font
+                output_run.font.name = 'Times New Roman'
+                output_run.font.size = run.font.size
+                # Run's font data
+                output_run.style.name = run.style.name
+                # Paragraph's alignment data
+            outpara.paragraph_format.line_spacing = 1.0
+            outpara.paragraph_format.alignment = paragraph.paragraph_format.alignment
+            outpara.paragraph_format.first_line_indent = paragraph.paragraph_format.first_line_indent
+            outpara.paragraph_format.space_before = paragraph.paragraph_format.space_before
+            outpara.paragraph_format.space_after = paragraph.paragraph_format.space_after
+
+
         elif isinstance(child, CT_Tbl):
             table = Table(child, template)
             paragraph = output.add_paragraph()
             paragraph._p.addnext(table._tbl)
+            paragraph.paragraph_format.first_line_indent = 1
+            paragraph.paragraph_format.space_before = 1
+            paragraph.paragraph_format.space_after = 1
+            paragraph.paragraph_format.line_spacing = 1
+
     output.save(outputfile)
 
 
@@ -299,7 +332,7 @@ def main():
     #write_report()
     #ConvertRtfToDocx('C:\\Users\\Jurek\\Documents\\Kuba\\Python\\OperatOR\\docs','info_o_materiałach1.rtf')
     #print(createparcelfile('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\Wyznaczenie\\protokol_wyznaczenia_granic.docx'))
-    copydocxtemplate('\\docs\\Zawiadomienie o przyj granic.docx', 'out.docx')
+    copydocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie o przyj granic.docx', 'out.docx')
     #findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcels.txt')
 
     return 0
