@@ -198,13 +198,12 @@ def filldocxtemplate(templatefile, outputfile, owner=None):
                         else:
                             for hash in hashtag:
                                 if hash == 'imie':
-                                    s.replace('#imie#', 'KOKOSY')
-                                    print(s)
+                                    str(s).replace('#imie#', owner.name)
                                 elif hash == 'imie':
-                                    s.replace('#nazwisko#', owner.surname)
+                                    str(s).replace('#nazwisko#', owner.surname)
                                 elif hash == 'adres':
-                                    s.replace('#adres#', owner.address)
-                        paragraph.text = s
+                                    str(s).replace('#adres#', owner.address)
+
             paragraph = output.add_paragraph()
             print(table._tbl)
             paragraph._p.addnext(table._tbl)
