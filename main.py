@@ -161,6 +161,8 @@ def copydocxtemplate(templatefile, outputfile):
 
 
 def findowners(file, parcelspath):
+    owners = []
+    parcel = ''
     doc = Document(file)
     table = doc.tables[0]
     i = 0
@@ -168,7 +170,7 @@ def findowners(file, parcelspath):
     parcelsfile = open(parcelspath, 'r')
     # find target parcels from file
     parcels = [line.replace('\n', '') for line in parcelsfile.readlines()]
-    print(parcels)
+    parcels = set(parcels)
     for row in table.rows:
         if i < 1:
             i += 1
@@ -176,29 +178,89 @@ def findowners(file, parcelspath):
         elif row.cells[0].text == 'Nr działki' or row.cells[0].text == '':
             i += 1
             continue
+            #todo find addresses and create owners, then add to list
         # Find parcel name and chceck with target parcels
         elif row.cells[0].text.split('.')[-1] in parcels:
-            logging.debug('hej')
             for cell in row.cells:
                 if j == 0:
                     parcel = cell.text.split('.')
                     print(parcel[-1])
+                if j == 6:
+                    logging.debug(f'Text komórki: {cell.text}')
+                    temp = cell.text.split('udział ')
+                    temp.pop(0)
+                    for udz in temp:
+                        temp = udz.split(';')
+                        temp[0] = temp[0].replace('Własność: ', '')
+                        temp[1] = temp[1].replace('Własność: ', '')
+                        logging.debug(f'{temp}')
+                        adr = temp[1].replace('\n', '')
+                        if temp[0].split(' ')[1] == 'Małż.:':
+                            logging.debug(f'Małżeństwo split: {temp}')
+                            adr1 = temp[1].split('\n')[0]
+                            adr2 = temp[2].split('\n')[0]
+                            for item in temp:
+                                item = item.replace('\nWłasność: ', '')
+                                if '\n' in item:
+                                    temp1 = item.split('\n')
+                                    temp1.pop(0)
+                                    temp1 = temp1[0].split(',')
+                                    temp1 = temp1[0].split(' ')
+                                    if len(temp1) == 3:
+                                        logging.debug(f'Kasuje imię {temp1[1]}')
+                                        temp1.pop(1)
+                                        logging.debug(f'Współwlasciciel 2: {temp1}  adres: {adr2}')
+                                        owners.append((temp1[0], temp1[1], adr2))
+                                    else:
+                                        logging.debug(f'Współwlasciciel 2: {temp1} adres: {adr2}')
+                                        owners.append((temp1[0], temp1[1], adr2))
+                            temp = temp[0].split(',')
+                            temp = temp[0].split(' ')
+                            temp.pop(0)
+                            temp.pop(0)
+                            if len(temp) == 3 and temp[1][0].isupper():
+                                logging.debug(f'Kasuje imię {temp[1]}')
+                                temp.pop(1)
+                                logging.debug(f'Wspolwlasciciel 1: {temp} adres: {adr1}')
+                                owners.append((temp[0], temp[1], adr1))
+                            else:
+                                logging.debug(f'Wspolwlasciciel 1: {temp} adres: {adr1}')
+                                owners.append((temp[0], temp[1], adr1))
+
+                        else:
+                            temp = temp[0].split(',')
+                            temp = temp[0].split(' ')
+                            temp.pop(0)
+                            if len(temp) == 3 and temp[1][0].isupper():
+                                logging.debug(f'Kasuje imię {temp[1]}')
+                                temp.pop(1)
+                                logging.debug(f'Wlasciciel: {temp}')
+                                owners.append((temp[0], temp[1], adr))
+                            else:
+                                logging.debug(f'Wlasciciel: {temp}')
+                                owners.append((temp[0], temp[1], adr))
+
                 j += 1
             j = 0
         else:
             i += 1
             continue
     i = 0
+    print(set(owners))
+    return owners
 
-
-class Zawiadomienie:
-    def __init__(self, name, surname, address, hour, date, type):
+class Owner:
+    def __init__(self, name, surname, address, parcel, hour=None, date=None, source=None):
         self.name = name
         self.surname = surname
         self.address = address
         self.hour = hour
         self.date = date
-        self.type = type
+        self.source = source
+        self.parcel = parcel
+
+    def zawiadomienie(self):
+        pass
 
 
 def main():
