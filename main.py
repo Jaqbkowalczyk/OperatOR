@@ -162,6 +162,7 @@ def copydocxtemplate(templatefile, outputfile):
 
 def findowners(file, parcelspath):
     owners = []
+    ownersobj = []
     parcel = ''
     doc = Document(file)
     table = doc.tables[0]
@@ -184,7 +185,8 @@ def findowners(file, parcelspath):
             for cell in row.cells:
                 if j == 0:
                     parcel = cell.text.split('.')
-                    print(parcel[-1])
+                    parcel = parcel[-1]
+                    print(parcel)
                 if j == 6:
                     logging.debug(f'Text komórki: {cell.text}')
                     temp = cell.text.split('udział ')
@@ -195,6 +197,7 @@ def findowners(file, parcelspath):
                         temp[1] = temp[1].replace('Własność: ', '')
                         logging.debug(f'{temp}')
                         adr = temp[1].replace('\n', '')
+                        adr = adr.replace('Władanie: Użytkowanie', '')
                         if temp[0].split(' ')[1] == 'Małż.:':
                             logging.debug(f'Małżeństwo split: {temp}')
                             adr1 = temp[1].split('\n')[0]
@@ -210,10 +213,10 @@ def findowners(file, parcelspath):
                                         logging.debug(f'Kasuje imię {temp1[1]}')
                                         temp1.pop(1)
                                         logging.debug(f'Współwlasciciel 2: {temp1}  adres: {adr2}')
-                                        owners.append((temp1[0], temp1[1], adr2))
+                                        owners.append((temp1[0], temp1[1], adr2, parcel))
                                     else:
                                         logging.debug(f'Współwlasciciel 2: {temp1} adres: {adr2}')
-                                        owners.append((temp1[0], temp1[1], adr2))
+                                        owners.append((temp1[0], ' '.join(temp1[i]for i in range(1, len(temp1))), adr2, parcel))
                             temp = temp[0].split(',')
                             temp = temp[0].split(' ')
                             temp.pop(0)
@@ -222,10 +225,10 @@ def findowners(file, parcelspath):
                                 logging.debug(f'Kasuje imię {temp[1]}')
                                 temp.pop(1)
                                 logging.debug(f'Wspolwlasciciel 1: {temp} adres: {adr1}')
-                                owners.append((temp[0], temp[1], adr1))
+                                owners.append((temp[0], temp[1], adr1, parcel))
                             else:
                                 logging.debug(f'Wspolwlasciciel 1: {temp} adres: {adr1}')
-                                owners.append((temp[0], temp[1], adr1))
+                                owners.append((temp[0], ' '.join(temp[i]for i in range(1, len(temp))), adr1, parcel))
 
                         else:
                             temp = temp[0].split(',')
@@ -235,11 +238,10 @@ def findowners(file, parcelspath):
                                 logging.debug(f'Kasuje imię {temp[1]}')
                                 temp.pop(1)
                                 logging.debug(f'Wlasciciel: {temp}')
-                                owners.append((temp[0], temp[1], adr))
+                                owners.append((temp[0], temp[1], adr, parcel))
                             else:
                                 logging.debug(f'Wlasciciel: {temp}')
-                                owners.append((temp[0], temp[1], adr))
-
+                                owners.append((temp[0], ' '.join(temp[i]for i in range(1, len(temp))), adr, parcel))
                 j += 1
             j = 0
         else:
@@ -247,7 +249,27 @@ def findowners(file, parcelspath):
             continue
     i = 0
     print(set(owners))
-    return owners
+
+    for owner in owners:
+        alreadyin = False
+        if len(ownersobj) == 0:
+            o = Owner(owner[0], owner[1], owner[2], owner[3])
+            ownersobj.append(o)
+        else:
+            for obj in ownersobj:
+                if obj.name == owner[0] and obj.surname == owner[1] and obj.address == owner[2] and owner[3] not in obj.parcels:
+                    obj.addparcels(owner[3])
+                    logging.debug(f'dodano parcele do obiektu: {obj.name} {obj.surname}')
+                    alreadyin = True
+            if not alreadyin:
+                o = Owner(owner[0], owner[1], owner[2], owner[3])
+                ownersobj.append(o)
+
+    for o in ownersobj:
+        print(f'Cześć nazywam się: {o.name} {o.surname}. Mieszkam przy ul.: {o.address},'
+              f' jestem właścicielem działki: {o.parcels}')
+    return ownersobj
+
 
 class Owner:
     def __init__(self, name, surname, address, parcel, hour=None, date=None, source=None):
@@ -258,6 +280,11 @@ class Owner:
         self.date = date
         self.source = source
         self.parcel = parcel
+        self.parcels = []
+        self.addparcels(parcel)
+
+    def addparcels(self, parcel):
+        self.parcels.append(parcel)
 
     def zawiadomienie(self):
         pass
@@ -272,8 +299,9 @@ def main():
     #write_report()
     #ConvertRtfToDocx('C:\\Users\\Jurek\\Documents\\Kuba\\Python\\OperatOR\\docs','info_o_materiałach1.rtf')
     #print(createparcelfile('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\Wyznaczenie\\protokol_wyznaczenia_granic.docx'))
-    #copydocxtemplate('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\Wyznaczenie\\protokol_wyznaczenia_granic.docx', 'out.docx')
-    findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcels.txt')
+    copydocxtemplate('\\docs\\Zawiadomienie o przyj granic.docx', 'out.docx')
+    #findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcels.txt')
+
     return 0
 
 
