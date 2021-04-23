@@ -158,6 +158,9 @@ def filldocxtemplate(templatefile, outputfile, owner=None):
         if isinstance(child, CT_P):
             paragraph = Paragraph(child, template)
             outpara = output.add_paragraph()
+            s = paragraph.text
+            hashtag = re.findall(r"#(\w+)#", s)
+            print(hashtag)
             for run in paragraph.runs:
                 output_run = outpara.add_run(run.text)
                 # Run's bold data
@@ -183,8 +186,29 @@ def filldocxtemplate(templatefile, outputfile, owner=None):
 
         elif isinstance(child, CT_Tbl):
             table = Table(child, template)
+            for row in table.rows:
+                for cell in row.cells:
+                    for paragraph in cell.paragraphs:
+                        s = paragraph.text
+                        logging.debug(f'Text komórki: {s}')
+                        hashtag = re.findall(r"#(\w+)#", s)
+                        print(hashtag)
+                        if len(hashtag) == 0:
+                            pass
+                        else:
+                            for hash in hashtag:
+                                if hash == 'imie':
+                                    s.replace('#imie#', 'KOKOSY')
+                                    print(s)
+                                elif hash == 'imie':
+                                    s.replace('#nazwisko#', owner.surname)
+                                elif hash == 'adres':
+                                    s.replace('#adres#', owner.address)
+                        paragraph.text = s
             paragraph = output.add_paragraph()
+            print(table._tbl)
             paragraph._p.addnext(table._tbl)
+
             paragraph.paragraph_format.first_line_indent = 1
             paragraph.paragraph_format.space_before = 1
             paragraph.paragraph_format.space_after = 1
@@ -332,9 +356,14 @@ def main():
     #write_report()
     #ConvertRtfToDocx('C:\\Users\\Jurek\\Documents\\Kuba\\Python\\OperatOR\\docs','info_o_materiałach1.rtf')
     #print(createparcelfile('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\Wyznaczenie\\protokol_wyznaczenia_granic.docx'))
-    copydocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie o przyj granic.docx', 'out.docx')
-    #findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcels.txt')
 
+    #owners = findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcels.txt')
+    """
+    for owner in owners:
+        filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie o przyj granic.docx', 'out.docx', owner)
+    """
+    o = Owner('Marek','Zbylski','Konieczna 12', '255/12')
+    filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie o przyj granic.docx', 'out.docx', o)
     return 0
 
 
