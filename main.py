@@ -15,6 +15,9 @@ from docx.table import Table
 from docx.text.paragraph import Paragraph
 from docx.opc.exceptions import PackageNotFoundError
 from docx.shared import Pt
+from docx.enum.text import WD_BREAK
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
@@ -120,26 +123,27 @@ def write_report():
 def createparcelfile(file):
     """This function creates parcel text file from .docx table with parcels"""
     doc = Document(file)
+    parcels =[]
     i = 0
     j = 0
-    table = doc.tables[0]
+    newline = lambda x: x + '\n'
     output = open(os.getcwd() + '\\parcels.txt', 'w')
-    print(os.getcwd() + '\\parcels.txt')
-    for row in table.rows:
-        if i < 2:
+    for table in doc.tables:
+        for row in table.rows:
+
+            for cell in row.cells:
+                if j == 1:
+                    cell_parcels = cell.text.split(',')
+                    logging.debug(f'Text komórki: {cell.text}')
+                    for parcel in cell_parcels:
+                        parcel = parcel.replace(' ', '')
+                        parcels.append(parcel)
+                j += 1
             i += 1
-            continue
-        for cell in row.cells:
-            if j == 1:
-                parcels = cell.text.split(',')
-                newline = lambda x: x + '\n'
-                for parcel in parcels:
-                    parcel = parcel.replace(' ', '')
-                    output.write(newline(parcel))
-            j += 1
-        i += 1
-        j = 0
-    i = 0
+            j = 0
+        i = 0
+    for parcel in set(parcels):
+        output.write(newline(parcel))
     output.close()
     return output
 
@@ -160,10 +164,17 @@ def filldocxtemplate(templatefile, outputfile, owner=None):
             outpara = output.add_paragraph()
             s = paragraph.text
             hashtag = re.findall(r"#(\w+)#", s)
-            print(hashtag)
             for run in paragraph.runs:
                 output_run = outpara.add_run(run.text)
                 # Run's bold data
+                for parcel in owner.parcels:
+                    if parcel in output_run.text:
+                        output_run.text = output_run.text.replace(parcel, '')
+                        output_run.text = output_run.text.replace(' ,', '')
+                        parcel_run = outpara.add_run(', ' + parcel)
+                        parcel_run.bold = True
+                        parcel_run.font.name = 'Times New Roman'
+
                 output_run.bold = run.bold
                 # Run's italic data
                 output_run.italic = run.italic
@@ -180,8 +191,8 @@ def filldocxtemplate(templatefile, outputfile, owner=None):
             outpara.paragraph_format.line_spacing = 1.0
             outpara.paragraph_format.alignment = paragraph.paragraph_format.alignment
             outpara.paragraph_format.first_line_indent = paragraph.paragraph_format.first_line_indent
-            outpara.paragraph_format.space_before = paragraph.paragraph_format.space_before
-            outpara.paragraph_format.space_after = paragraph.paragraph_format.space_after
+            outpara.paragraph_format.space_before = 5
+            outpara.paragraph_format.space_after = 5
 
 
         elif isinstance(child, CT_Tbl):
@@ -189,30 +200,43 @@ def filldocxtemplate(templatefile, outputfile, owner=None):
             for row in table.rows:
                 for cell in row.cells:
                     for paragraph in cell.paragraphs:
-                        s = paragraph.text
-                        logging.debug(f'Text komórki: {s}')
-                        hashtag = re.findall(r"#(\w+)#", s)
-                        print(hashtag)
+                        logging.debug(f'Text komórki: {paragraph.text}')
+                        hashtag = re.findall(r"#(\w+)#", paragraph.text)
                         if len(hashtag) == 0:
                             pass
                         else:
                             for hash in hashtag:
                                 if hash == 'imie':
-                                    str(s).replace('#imie#', owner.name)
-                                elif hash == 'imie':
-                                    str(s).replace('#nazwisko#', owner.surname)
+                                    inline = paragraph.runs
+                                    for i in range(len(inline)):
+                                        if 'imie' in inline[i].text:
+                                            text = inline[i].text.replace('#imie#', owner.name)
+                                            inline[i].text = text
+                                            logging.debug(f'hej: {inline[i].text}')
+                                elif hash == 'nazwisko':
+                                    inline = paragraph.runs
+                                    for i in range(len(inline)):
+                                        if 'nazwisko' in inline[i].text:
+                                            text = inline[i].text.replace('#nazwisko#', owner.surname)
+                                            inline[i].text = text
                                 elif hash == 'adres':
-                                    str(s).replace('#adres#', owner.address)
+                                    inline = paragraph.runs
+                                    for i in range(len(inline)):
+                                        if 'adres' in inline[i].text:
+                                            text = inline[i].text.replace('#adres#', owner.address)
+                                            text = text.replace(', ', ',\n')
+                                            inline[i].text = text
 
             paragraph = output.add_paragraph()
-            print(table._tbl)
             paragraph._p.addnext(table._tbl)
 
             paragraph.paragraph_format.first_line_indent = 1
             paragraph.paragraph_format.space_before = 1
             paragraph.paragraph_format.space_after = 1
             paragraph.paragraph_format.line_spacing = 1
-
+    paragraph = output.add_paragraph()
+    run = paragraph.add_run()
+    run.add_break(WD_BREAK.PAGE)
     output.save(outputfile)
 
 
@@ -235,7 +259,6 @@ def findowners(file, parcelspath):
         elif row.cells[0].text == 'Nr działki' or row.cells[0].text == '':
             i += 1
             continue
-            #todo find addresses and create owners, then add to list
         # Find parcel name and chceck with target parcels
         elif row.cells[0].text.split('.')[-1] in parcels:
             for cell in row.cells:
@@ -304,7 +327,6 @@ def findowners(file, parcelspath):
             i += 1
             continue
     i = 0
-    print(set(owners))
 
     for owner in owners:
         alreadyin = False
@@ -327,6 +349,68 @@ def findowners(file, parcelspath):
     return ownersobj
 
 
+def namestofile(owners, filename):
+    i = 0
+    doc = Document()
+    table = doc.add_table(rows=1, cols=4)
+    table.rows[0].cells[0].text = 'Lp.'
+    table.rows[0].cells[1].text = 'Imię i Nazwisko'
+    table.rows[0].cells[2].text = 'Adres'
+    table.rows[0].cells[3].text = 'Numer przesyłki'
+    for owner in owners:
+        row = table.add_row()
+        row.cells[0].text = str(i)
+        row.cells[1].text = owner.fullname
+        row.cells[2].text = owner.address
+        i += 1
+    doc.save(filename)
+
+
+def removeduplicates(file1, file2, outputfile):
+    """Remove duplicates from parcel files"""
+    parcels = []
+    parcelsfile = open(file1, 'r')
+    parcelsw = [line.replace('\n', '') for line in parcelsfile.readlines()]
+    parcelsw = set(parcelsw)
+    parcelsfile.close()
+    parcelsfile = open(file2, 'r')
+    parcelsu = [line.replace('\n', '') for line in parcelsfile.readlines()]
+    parcelsu = set(parcelsu)
+    parcelsfile.close()
+    for parcel in parcelsw:
+        if parcel in parcelsu:
+            logging.debug(f'Wywalam: {parcel}')
+            continue
+        else:
+            parcels.append(parcel)
+    output = open(outputfile, 'w')
+    newline = lambda x: x + '\n'
+    for parcel in parcels:
+        output.write(newline(parcel))
+    output.close()
+
+
+def createstickers(file, outfile):
+    """Create stickers doc for each owner to put on letter"""
+    out = Document()
+    stickerstbl = out.add_table(rows=1, cols=1)
+    section = out.sections[0]
+    sectPr = section._sectPr
+    cols = sectPr.xpath('./w:cols')[0]
+    cols.set(qn('w:num'), '3')
+    doc = Document(file)
+    table = doc.tables[0]
+    text = ''
+    for row in table.rows[1:]:
+        for cell in row.cells[1:2]:
+            text += '\n' + cell.text
+        stickerstbl.add_row()
+        row.cells[0].text = text
+        text = ''
+    out.save(outfile)
+
+
+
 class Owner:
     def __init__(self, name, surname, address, parcel, hour=None, date=None, source=None):
         self.name = name
@@ -338,6 +422,7 @@ class Owner:
         self.parcel = parcel
         self.parcels = []
         self.addparcels(parcel)
+        self.fullname = self.name + ' ' + self.surname
 
     def addparcels(self, parcel):
         self.parcels.append(parcel)
@@ -354,15 +439,17 @@ def main():
     #check_project_data()
     #write_report()
     #ConvertRtfToDocx('C:\\Users\\Jurek\\Documents\\Kuba\\Python\\OperatOR\\docs','info_o_materiałach1.rtf')
-    #print(createparcelfile('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\Wyznaczenie\\protokol_wyznaczenia_granic.docx'))
-
-    #owners = findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcels.txt')
-    """
-    for owner in owners:
-        filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie o przyj granic.docx', 'out.docx', owner)
-    """
-    o = Owner('Marek','Zbylski','Konieczna 12', '255/12')
-    filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie o przyj granic.docx', 'out.docx', o)
+    #print(createparcelfile(os.getcwd() + '\\docs\\protokol_wyznaczenia_granic.docx'))
+    """o = Owner('Jakub', 'Kowwalczyk', 'KRakowska 23, 31-102 KRaków', '512')
+        filldocxtemplate(os.getcwd() + '\\docs\\Zawiad o wyznaczeniu granic.docx', 'wyzn_granic.docx', o)"""
+    """removeduplicates('parcelsw.txt', 'parcelsu.txt', 'parcels.txt')
+    ownersu = findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcelsu.txt')
+    ownersw = findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcels.txt')
+    owners = ownersu + ownersw
+    namestofile(owners, 'nazwiska i adresy.docx')"""
+    createstickers('nazwiska i adresy.docx', 'naklejki.docx')
+    """for owner in owners:
+        filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie wyznaczenie.docx', 'wyzn_granic.docx', owner)"""
     return 0
 
 
