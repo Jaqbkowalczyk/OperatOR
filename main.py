@@ -18,6 +18,7 @@ from docx.shared import Pt
 from docx.enum.text import WD_BREAK
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+import csv
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
@@ -212,7 +213,6 @@ def filldocxtemplate(templatefile, outputfile, owner=None):
                                         if 'imie' in inline[i].text:
                                             text = inline[i].text.replace('#imie#', owner.name)
                                             inline[i].text = text
-                                            logging.debug(f'hej: {inline[i].text}')
                                 elif hash == 'nazwisko':
                                     inline = paragraph.runs
                                     for i in range(len(inline)):
@@ -226,6 +226,17 @@ def filldocxtemplate(templatefile, outputfile, owner=None):
                                             text = inline[i].text.replace('#adres#', owner.address)
                                             text = text.replace(', ', ',\n')
                                             inline[i].text = text
+                                elif hash == 'godzina':
+                                    inline = paragraph.runs
+                                    for i in range(len(inline)):
+                                        if 'godzina' in inline[i].text:
+                                            try:
+                                                text = inline[i].text.replace('#godzina#', owner.hour)
+                                                inline[i].text = text
+                                                logging.debug(f'Wprowadziłem godzinę dla {owner.name} {owner.surname}:'
+                                                              f' {owner.hour} ')
+                                            except:
+                                                pass
 
             paragraph = output.add_paragraph()
             paragraph._p.addnext(table._tbl)
@@ -350,6 +361,7 @@ def findowners(file, parcelspath):
 
 
 def namestofile(owners, filename):
+    """Create names doc from owners data"""
     i = 0
     doc = Document()
     table = doc.add_table(rows=1, cols=4)
@@ -391,24 +403,28 @@ def removeduplicates(file1, file2, outputfile):
 
 
 def createstickers(file, outfile):
-    """Create stickers doc for each owner to put on letter"""
+    """Create stickers doc from names doc for each owner to put on letter"""
     out = Document()
-    stickerstbl = out.add_table(rows=1, cols=1)
+    stickerstbl = out.add_table(rows=0, cols=1)
     section = out.sections[0]
     sectPr = section._sectPr
     cols = sectPr.xpath('./w:cols')[0]
     cols.set(qn('w:num'), '3')
     doc = Document(file)
     table = doc.tables[0]
-    text = ''
     for row in table.rows[1:]:
-        for cell in row.cells[1:2]:
-            text += '\n' + cell.text
-        stickerstbl.add_row()
-        row.cells[0].text = text
-        text = ''
+        text = row.cells[1].text + '\n' + row.cells[2].text
+        strow = stickerstbl.add_row()
+        strow.cells[0].text = text
     out.save(outfile)
 
+
+def parcelfinder(parcel, ownersfile):
+    with open(ownersfile, 'r', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+            if parcel in row[3]:
+                print(' '.join([row[0], row[1], row[2]]))
 
 
 class Owner:
@@ -445,9 +461,14 @@ def main():
     """removeduplicates('parcelsw.txt', 'parcelsu.txt', 'parcels.txt')
     ownersu = findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcelsu.txt')
     ownersw = findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcels.txt')
-    owners = ownersu + ownersw
-    namestofile(owners, 'nazwiska i adresy.docx')"""
-    createstickers('nazwiska i adresy.docx', 'naklejki.docx')
+    owners = ownersu + ownersw"""
+    """with open('owners.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        for owner in owners:
+            writer.writerow([owner.name, owner.surname, owner.address, owner.parcels])"""
+    parcelfinder('583/1', ownersfile='owners.csv')
+    #namestofile(owners, 'nazwiska i adresy.docx')
+    #createstickers('nazwiska i adresy.docx', 'naklejki.docx')
     """for owner in owners:
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie wyznaczenie.docx', 'wyzn_granic.docx', owner)"""
     return 0
