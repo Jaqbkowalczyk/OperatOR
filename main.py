@@ -28,7 +28,13 @@ FOLDER = ''
 
 
 def find_kerg(filename):
-    pass
+    if filename.split('.')[-1] == 'rtf':
+        convertrtftodocx(filename)
+    text = get_text_from_doc(filename)
+    kerg = re.findall(r"[0-9]{4}.[0-9]+.[0-9]{4}", text)
+    kerg = set(kerg)
+    print(kerg)
+
 
 
 def set_kerg(kerg_value: str):
@@ -49,16 +55,23 @@ def open_folder():
     return filename
 
 
-def ConvertRtfToDocx(rootDir, file):
+def open_file():
+    tk.Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
+    filename = askopenfile()  # show an "Open" dialog box and return the path to the selected folder
+    return filename
+
+
+def convertrtftodocx(file):
     word = win32.Dispatch("Word.Application")
     wdFormatDocumentDefault = 16
     wdHeaderFooterPrimary = 1
-    doc = word.Documents.Open(rootDir + "\\" + file)
+    file = file.split('.')[0]
+    doc = word.Documents.Open(file)
     for pic in doc.InlineShapes:
         pic.LinkFormat.SavePictureWithDocument = True
     for hPic in doc.sections(1).headers(wdHeaderFooterPrimary).Range.InlineShapes:
         hPic.LinkFormat.SavePictureWithDocument = True
-    doc.SaveAs(str(rootDir + "\\" + file + ".docx"), FileFormat=wdFormatDocumentDefault)
+    doc.SaveAs(str(file + ".docx"), FileFormat=wdFormatDocumentDefault)
     doc.Close()
     word.Quit()
 
@@ -68,7 +81,6 @@ def get_text_from_doc(filename):
     fullText = []
     i = 0
     j = 0
-    print(len(doc.sections))
     for para in doc.paragraphs:
         fullText.append(para.text)
     for table in doc.tables:
@@ -427,6 +439,117 @@ def parcelfinder(parcel, ownersfile):
                 print(' '.join([row[0], row[1], row[2]]))
 
 
+def changehash(file, owner):
+    doc = Document(file)
+    get_text_from_doc(doc)
+    for child in doc.element.body.xpath('w:p | w:tbl'):
+        if isinstance(child, CT_P):
+            paragraph = Paragraph(child, doc)
+            s = paragraph.text
+            hashtag = re.findall(r"#(\w+)#", s)
+            logging.debug(f'Text komórki: {paragraph.text}')
+            if len(hashtag) == 0:
+                pass
+            else:
+                for hash in hashtag:
+                    if hash == 'imie':
+                        inline = paragraph.runs
+                        for i in range(len(inline)):
+                            if 'imie' in inline[i].text:
+                                text = inline[i].text.replace('#imie#', owner.name)
+                                inline[i].text = text
+                    elif hash == 'nazwisko':
+                        inline = paragraph.runs
+                        for i in range(len(inline)):
+                            if 'nazwisko' in inline[i].text:
+                                text = inline[i].text.replace('#nazwisko#', owner.surname)
+                                inline[i].text = text
+                    elif hash == 'adres':
+                        inline = paragraph.runs
+                        for i in range(len(inline)):
+                            if 'adres' in inline[i].text:
+                                text = inline[i].text.replace('#adres#', owner.address)
+                                text = text.replace(', ', ',\n')
+                                inline[i].text = text
+                    elif hash == 'godzina':
+                        inline = paragraph.runs
+                        for i in range(len(inline)):
+                            if 'godzina' in inline[i].text:
+                                try:
+                                    text = inline[i].text.replace('#godzina#', owner.hour)
+                                    inline[i].text = text
+                                    logging.debug(f'Wprowadziłem godzinę dla {owner.name} {owner.surname}:'
+                                                  f' {owner.hour} ')
+                                except:
+                                    pass
+                    elif hash == 'data':
+                        inline = paragraph.runs
+                        for i in range(len(inline)):
+                            if 'data' in inline[i].text:
+                                try:
+                                    text = inline[i].text.replace('#data#', owner.date)
+                                    inline[i].text = text
+                                    logging.debug(f'Wprowadziłem datę dla {owner.name} {owner.surname}:'
+                                                  f' {owner.date} ')
+                                except:
+                                    pass
+
+
+        elif isinstance(child, CT_Tbl):
+            table = Table(child, doc)
+            for row in table.rows:
+                for cell in row.cells:
+                    for paragraph in cell.paragraphs:
+                        logging.debug(f'Text komórki: {paragraph.text}')
+                        hashtag = re.findall(r"#(\w+)#", paragraph.text)
+                        if len(hashtag) == 0:
+                            pass
+                        else:
+                            for hash in hashtag:
+                                if hash == 'imie':
+                                    inline = paragraph.runs
+                                    for i in range(len(inline)):
+                                        if 'imie' in inline[i].text:
+                                            text = inline[i].text.replace('#imie#', owner.name)
+                                            inline[i].text = text
+                                elif hash == 'nazwisko':
+                                    inline = paragraph.runs
+                                    for i in range(len(inline)):
+                                        if 'nazwisko' in inline[i].text:
+                                            text = inline[i].text.replace('#nazwisko#', owner.surname)
+                                            inline[i].text = text
+                                elif hash == 'adres':
+                                    inline = paragraph.runs
+                                    for i in range(len(inline)):
+                                        if 'adres' in inline[i].text:
+                                            text = inline[i].text.replace('#adres#', owner.address)
+                                            text = text.replace(', ', ',\n')
+                                            inline[i].text = text
+                                elif hash == 'godzina':
+                                    inline = paragraph.runs
+                                    for i in range(len(inline)):
+                                        if 'godzina' in inline[i].text:
+                                            try:
+                                                text = inline[i].text.replace('#godzina#', owner.hour)
+                                                inline[i].text = text
+                                                logging.debug(f'Wprowadziłem godzinę dla {owner.name} {owner.surname}:'
+                                                              f' {owner.hour} ')
+                                            except:
+                                                pass
+                                elif hash == 'data':
+                                    inline = paragraph.runs
+                                    for i in range(len(inline)):
+                                        if 'data' in inline[i].text:
+                                            try:
+                                                text = inline[i].text.replace('#data#', owner.date)
+                                                inline[i].text = text
+                                                logging.debug(f'Wprowadziłem datę dla {owner.name} {owner.surname}:'
+                                                              f' {owner.date} ')
+                                            except:
+                                                pass
+    doc.save(file)
+
+
 class Owner:
     def __init__(self, name, surname, address, parcel, hour=None, date=None, source=None):
         self.name = name
@@ -466,9 +589,11 @@ def main():
         writer = csv.writer(csvfile, delimiter=',')
         for owner in owners:
             writer.writerow([owner.name, owner.surname, owner.address, owner.parcels])"""
-    parcelfinder('583/1', ownersfile='owners.csv')
+    #parcelfinder('581/4', ownersfile='owners.csv')
     #namestofile(owners, 'nazwiska i adresy.docx')
     #createstickers('nazwiska i adresy.docx', 'naklejki.docx')
+    file = open_file()
+    find_kerg(file)
     """for owner in owners:
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie wyznaczenie.docx', 'wyzn_granic.docx', owner)"""
     return 0
