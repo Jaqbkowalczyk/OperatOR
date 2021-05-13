@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
 import os
 import re
 import logging
 import pyautogui
+from PyPDF3 import PdfFileMerger
+import webbrowser as web
 import win32com.client as win32
 from docx import Document
 import tkinter as tk
@@ -27,11 +30,13 @@ KERG = ''
 FOLDER = ''
 
 
-def find_kerg(filename):
+def find_kerg(filename):# todo regex
+    logging.debug(f'{filename}')
     if filename.split('.')[-1] == 'rtf':
-        convertrtftodocx(filename)
-    text = get_text_from_doc(filename)
-    kerg = re.findall(r"[0-9]{4}.[0-9]+.[0-9]{4}", text)
+        filename = convertrtftodocx(filename)
+    text = str(get_text_from_doc(filename))
+    kerg = re.findall(r"Test([\d.]+)", text)
+    print(kerg)
     kerg = set(kerg)
     print(kerg)
 
@@ -56,8 +61,9 @@ def open_folder():
 
 
 def open_file():
+    logging.debug('hej')
     tk.Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
-    filename = askopenfile()  # show an "Open" dialog box and return the path to the selected folder
+    filename = askopenfile('r')  # show an "Open" dialog box and return the path to the selected folder
     return filename
 
 
@@ -65,15 +71,16 @@ def convertrtftodocx(file):
     word = win32.Dispatch("Word.Application")
     wdFormatDocumentDefault = 16
     wdHeaderFooterPrimary = 1
-    file = file.split('.')[0]
     doc = word.Documents.Open(file)
     for pic in doc.InlineShapes:
         pic.LinkFormat.SavePictureWithDocument = True
     for hPic in doc.sections(1).headers(wdHeaderFooterPrimary).Range.InlineShapes:
         hPic.LinkFormat.SavePictureWithDocument = True
+    file = file.split('.')[0]
     doc.SaveAs(str(file + ".docx"), FileFormat=wdFormatDocumentDefault)
     doc.Close()
     word.Quit()
+    return str(file + ".docx")
 
 
 def get_text_from_doc(filename):
@@ -372,6 +379,72 @@ def findowners(file, parcelspath):
     return ownersobj
 
 
+def findkw(file, parcelspath):
+    "find KW for specified parcels from .docx file"
+    kw = []
+    doc = Document(file)
+    table = doc.tables[0]
+    i = 0
+    j = 0
+    parcelsfile = open(parcelspath, 'r')
+    # find target parcels from file
+    parcels = [line.replace('\n', '') for line in parcelsfile.readlines()]
+    parcels = set(parcels)
+    for row in table.rows:
+        if i < 1:
+            i += 1
+            continue
+        elif row.cells[0].text == 'Nr działki' or row.cells[0].text == '':
+            i += 1
+            continue
+        # Find parcel name and chceck with target parcels
+        elif row.cells[0].text.split('.')[-1] in parcels:
+            for cell in row.cells:
+                if j == 0:
+                    parcel = cell.text.split('.')
+                    parcel = parcel[-1]
+                    print(parcel)
+                if j == 7:
+                    logging.debug(f'Text komórki: {cell.text}')
+                    text = cell.text.replace('\t', '')
+                    logging.debug(f'{text}')
+                    kw.append(calccontrolnumber(text))
+                j += 1
+            j = 0
+    print(set(kw))
+    return set(kw)
+
+
+def calccontrolnumber(kw):
+    """Calculate control number for specified KW"""
+    dictionary = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, 'X': 10, 'A': 11,
+                  'B': 12, 'C': 13, 'D': 14, 'E': 15, 'F': 16,'G': 17, 'H': 18, 'I': 19, 'J':20, 'K': 21, 'L': 22,
+                  'M': 23, 'N': 24, 'O': 25, 'P':26, 'R': 27, 'S': 28, 'T': 29, 'U': 30, 'W': 31, 'Y': 32, 'Z': 33}
+    waga = '137137137137'
+    sum = 0
+    i = 0
+    parts = []
+    if len(kw.split('/')) == 3:
+        return kw
+    elif len(kw.split('/')) == 2:
+        parts = kw.split('/')
+        if len(kw.split('/')[1]) < 8:
+            parts[1] = ('0'*(8-len(parts[1]))) + parts[1]
+        kw = parts[0] + parts[1]
+    else:
+        kw = kw.replace(' ', '')
+        kw = kw.replace('KW', '')
+        if len(kw) < 8:
+            kw = ('0'*(8-len(kw))) + kw
+            kw = 'KR1P' + kw
+    for s in kw:
+        sum += dictionary[s.upper()] * int(waga[i])
+        i += 1
+    i = 0
+    kw = kw[:4] + '/' + kw[4:] + '/' + str(sum % 10)
+    return kw
+
+
 def namestofile(owners, filename):
     """Create names doc from owners data"""
     i = 0
@@ -550,6 +623,82 @@ def changehash(file, owner):
     doc.save(file)
 
 
+def kwtopdf(kw):
+    openweb('https://ekw.ms.gov.pl/eukw_ogol/KsiegiWieczyste')
+    if pylocate(os.getcwd() + '\\img\\' + 'kw.png') is not None:
+        pyautogui.click(pylocate(os.getcwd() + '\\img\\' + 'kw.png'))
+        pyautogui.write(kw.split('/')[0])
+        pyautogui.move(40, 0)
+        pyautogui.click()
+        pyautogui.write(kw.split('/')[1])
+        pyautogui.move(100, 0)
+        pyautogui.click()
+        pyautogui.write(kw.split('/')[2])
+        pyautogui.click(pylocate(os.getcwd() + '\\img\\' + 'wyszukaj.png'))
+        pyautogui.click(pylocate(os.getcwd() + '\\img\\' + 'przegladanie.png'))
+        time.sleep(.5)
+        pyautogui.hotkey('ctrlleft', 'p')
+        pyautogui.click(pylocate(os.getcwd() + '\\img\\' + 'zapisz.png'))
+        time.sleep(.5)
+        pyautogui.write(kw.replace('/', '_') + '_1')
+        pyautogui.click(pylocate(os.getcwd() + '\\img\\' + 'zapisz2.png'))
+        time.sleep(2)
+        pyautogui.click(pylocate(os.getcwd() + '\\img\\' + 'dzial2.png'))
+        time.sleep(.5)
+        pyautogui.hotkey('ctrlleft', 'p')
+        pyautogui.click(pylocate(os.getcwd() + '\\img\\' + 'zapisz.png'))
+        pyautogui.write(kw.replace('/', '_') + '_2')
+        pyautogui.click(pylocate(os.getcwd() + '\\img\\' + 'zapisz2.png'))
+        time.sleep(.5)
+        pyautogui.hotkey('ctrlleft', 'w')
+
+
+def pdfmerge(folder):
+    for subdir, dirs, files in os.walk(folder):
+        for file in files:
+            file = file.replace('.pdf', '')
+            print(file)
+            if file.split('_')[-1] == '1':
+                for f2 in files:
+                    if f2.split('.')[-1] != 'pdf':
+                        continue
+                    f2 = f2.replace('.pdf', '')
+                    logging.debug(f'{f2.split("_")[1]} vs {file.split("_")[1]} and {file.split("_")[-1]}')
+                    if f2.split('_')[1] == file.split('_')[1] and f2.split('_')[-1] != '1':
+                        logging.debug('hej')
+                        merger = PdfFileMerger()
+                        input1 = open(folder + '/' + file + '.pdf', 'rb')
+                        input2 = open(folder + '/' + f2 + '.pdf','rb')
+                        merger.append(input1, pages=(0, 1))
+                        merger.append(input2)
+                        name = file[:-2] + '.pdf'
+                        output = open(name, "wb")
+                        merger.write(output.name)
+
+
+
+def openweb(url):
+    """open desired url in basic browser"""
+    web.open_new(url)
+
+
+def pylocate(img):
+    logging.debug(f'{img}')
+    i = 0
+    s = None
+    while i < 5:
+        try:
+            logging.debug(f'próbuję znaleźć obraz')
+            s = pyautogui.locateOnScreen(img, confidence=0.9)
+            logging.debug(f'Znalazłem: {s}')
+            if s is not None:
+                return s
+        except:
+            time.sleep(3)
+        i += 1
+    return s
+
+
 class Owner:
     def __init__(self, name, surname, address, parcel, hour=None, date=None, source=None):
         self.name = name
@@ -581,7 +730,7 @@ def main():
     #print(createparcelfile(os.getcwd() + '\\docs\\protokol_wyznaczenia_granic.docx'))
     """o = Owner('Jakub', 'Kowwalczyk', 'KRakowska 23, 31-102 KRaków', '512')
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiad o wyznaczeniu granic.docx', 'wyzn_granic.docx', o)"""
-    """removeduplicates('parcelsw.txt', 'parcelsu.txt', 'parcels.txt')
+    """removeduplicates('parcelsw.txt', 'parcelsu.txt', 'parcelsw.txt')
     ownersu = findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcelsu.txt')
     ownersw = findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcels.txt')
     owners = ownersu + ownersw"""
@@ -592,8 +741,14 @@ def main():
     #parcelfinder('581/4', ownersfile='owners.csv')
     #namestofile(owners, 'nazwiska i adresy.docx')
     #createstickers('nazwiska i adresy.docx', 'naklejki.docx')
-    file = open_file()
-    find_kerg(file)
+    #file = open_file()
+    #find_kerg(file.name)
+    #kwlist = findkw('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcelsu.txt')
+    #for kw in kwlist:
+    #    kwtopdf(kw)
+    #kwtopdf('KR1P/00516204/5')
+    pdfmerge(open_folder()) #merge first page of _1 file and _2 file
+
     """for owner in owners:
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie wyznaczenie.docx', 'wyzn_granic.docx', owner)"""
     return 0
