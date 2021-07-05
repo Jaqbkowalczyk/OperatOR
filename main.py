@@ -12,6 +12,8 @@ import win32com.client as win32
 from docx import Document
 import tkinter as tk
 from tkinter.filedialog import askdirectory, askopenfile
+from tkinter import Menu, scrolledtext
+from tkinter import messagebox
 from docx.oxml.text.paragraph import CT_P
 from docx.oxml.table import CT_Tbl
 from docx.table import Table
@@ -35,11 +37,11 @@ def find_kerg(filename):# todo regex
     if filename.split('.')[-1] == 'rtf':
         filename = convertrtftodocx(filename)
     text = str(get_text_from_doc(filename))
-    kerg = re.findall(r"Test([\d.]+)", text)
+    logging.debug(f'{text}')
+    kerg = re.findall(r"[\d.]+", text)
     print(kerg)
     kerg = set(kerg)
     print(kerg)
-
 
 
 def set_kerg(kerg_value: str):
@@ -47,6 +49,9 @@ def set_kerg(kerg_value: str):
     KERG = kerg_value
     logging.debug(f'KERG został ustawiony na: {KERG}')
 
+
+def ask_for_kerg():
+    pass
 
 def set_folder(folder_value: str):
     global FOLDER
@@ -93,7 +98,7 @@ def get_text_from_doc(filename):
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
-                print(cell.text)
+                fullText.append(cell.text)
                 j += 1
             i += 1
             j = 0
@@ -140,17 +145,16 @@ def write_report():
             paragraph.text = 'new text containing ocean'
 
 
-def createparcelfile(file):
+def createparcelfilefromdoc(file, parcelsfile):
     """This function creates parcel text file from .docx table with parcels"""
     doc = Document(file)
     parcels =[]
     i = 0
     j = 0
     newline = lambda x: x + '\n'
-    output = open(os.getcwd() + '\\parcels.txt', 'w')
+    output = open(os.getcwd() + '\\' + parcelsfile , 'w')
     for table in doc.tables:
         for row in table.rows:
-
             for cell in row.cells:
                 if j == 1:
                     cell_parcels = cell.text.split(',')
@@ -184,6 +188,7 @@ def filldocxtemplate(templatefile, outputfile, owner=None):
             outpara = output.add_paragraph()
             s = paragraph.text
             hashtag = re.findall(r"#(\w+)#", s)
+            logging.debug(f'Hashtagi: {hashtag}')
             for run in paragraph.runs:
                 output_run = outpara.add_run(run.text)
                 # Run's bold data
@@ -222,6 +227,7 @@ def filldocxtemplate(templatefile, outputfile, owner=None):
                     for paragraph in cell.paragraphs:
                         logging.debug(f'Text komórki: {paragraph.text}')
                         hashtag = re.findall(r"#(\w+)#", paragraph.text)
+                        logging.debug(f'Hashtagi: {hashtag}')
                         if len(hashtag) == 0:
                             pass
                         else:
@@ -230,18 +236,21 @@ def filldocxtemplate(templatefile, outputfile, owner=None):
                                     inline = paragraph.runs
                                     for i in range(len(inline)):
                                         if 'imie' in inline[i].text:
+                                            logging.debug(f'Zamieniam #imie# na {owner.name}')
                                             text = inline[i].text.replace('#imie#', owner.name)
                                             inline[i].text = text
                                 elif hash == 'nazwisko':
                                     inline = paragraph.runs
                                     for i in range(len(inline)):
                                         if 'nazwisko' in inline[i].text:
+                                            logging.debug(f'Zamieniam #nazwisko# na {owner.surname}')
                                             text = inline[i].text.replace('#nazwisko#', owner.surname)
                                             inline[i].text = text
                                 elif hash == 'adres':
                                     inline = paragraph.runs
                                     for i in range(len(inline)):
                                         if 'adres' in inline[i].text:
+                                            logging.debug(f'Zamieniam #adres# na {owner.address}')
                                             text = inline[i].text.replace('#adres#', owner.address)
                                             text = text.replace(', ', ',\n')
                                             inline[i].text = text
@@ -520,6 +529,7 @@ def changehash(file, owner):
             paragraph = Paragraph(child, doc)
             s = paragraph.text
             hashtag = re.findall(r"#(\w+)#", s)
+            logging.debug(f'Hashtagi: {hashtag}')
             logging.debug(f'Text komórki: {paragraph.text}')
             if len(hashtag) == 0:
                 pass
@@ -575,6 +585,7 @@ def changehash(file, owner):
                     for paragraph in cell.paragraphs:
                         logging.debug(f'Text komórki: {paragraph.text}')
                         hashtag = re.findall(r"#(\w+)#", paragraph.text)
+                        logging.debug(f'Hashtagi: {hashtag}')
                         if len(hashtag) == 0:
                             pass
                         else:
@@ -718,28 +729,59 @@ class Owner:
     def zawiadomienie(self):
         pass
 
+class Navbar(tk.Frame): ...
+class Toolbar(tk.Frame): ...
+class Statusbar(tk.Frame): ...
+class Main(tk.Frame): ...
+
+class MainApplication(tk.Frame):
+    def __init__(self, parent, *args, **kwargs):
+        tk.Frame.__init__(self, parent, *args, **kwargs)
+        self.parent = parent
+        self.statusbar = Statusbar(self, ...)
+        self.toolbar = Toolbar(self, ...)
+        self.navbar = Navbar(self, ...)
+        self.main = Main(self, ...)
+
+        self.statusbar.pack(side="bottom", fill="x")
+        self.toolbar.pack(side="top", fill="x")
+        self.navbar.pack(side="left", fill="y")
+        self.main.pack(side="right", fill="both", expand=True)
 
 def main():
+    """root = tk.Tk()
+    MainApplication(root).pack(side="top", fill="both", expand=True)
+    root.mainloop()"""
+    #toplevel = tk.Toplevel(root)
+
+    # create a toplevel menu
+    """  menubar = tk.Menu(toplevel)
+    menubar.add_command(label="Podział")
+    menubar.add_command(label="Quit!", command=root.quit)
+    # display the menu
+    toplevel.config(menu=menubar)
+    root.mainloop()"""
     """ Main program """
     """x = 400
     y = 200
     pyautogui.moveTo(x, y)"""
-    #check_project_data()
+    check_project_data()
     #write_report()
     #ConvertRtfToDocx('C:\\Users\\Jurek\\Documents\\Kuba\\Python\\OperatOR\\docs','info_o_materiałach1.rtf')
-    #print(createparcelfile(os.getcwd() + '\\docs\\protokol_wyznaczenia_granic.docx'))
+    #createparcelfilefromdoc(os.getcwd() + '\\docs\\protokol_wyznaczenia_granic.docx', 'parcels.txt')
     """o = Owner('Jakub', 'Kowwalczyk', 'KRakowska 23, 31-102 KRaków', '512')
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiad o wyznaczeniu granic.docx', 'wyzn_granic.docx', o)"""
-    """removeduplicates('parcelsw.txt', 'parcelsu.txt', 'parcelsw.txt')
-    ownersu = findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcelsu.txt')
-    ownersw = findowners('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcels.txt')
-    owners = ownersu + ownersw"""
+    #removeduplicates('parcelsw.txt', 'parcelsu.txt', 'parcelsw.txt')
+    ownersfile = open_file()
+    ownersu = findowners(ownersfile, 'parcelsu.txt')
+    ownersw = findowners(ownersfile, 'parcelsw.txt')
+    owners = ownersu + ownersw
     """with open('owners.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
-        for owner in owners:
+        for owner in ownersu:
             writer.writerow([owner.name, owner.surname, owner.address, owner.parcels])"""
     #parcelfinder('581/4', ownersfile='owners.csv')
-    #namestofile(owners, 'nazwiska i adresy.docx')
+    namestofile(owners, 'nazwiska i adresy.docx')
     #createstickers('nazwiska i adresy.docx', 'naklejki.docx')
     #file = open_file()
     #find_kerg(file.name)
@@ -747,25 +789,17 @@ def main():
     #for kw in kwlist:
     #    kwtopdf(kw)
     #kwtopdf('KR1P/00516204/5')
-    pdfmerge(open_folder()) #merge first page of _1 file and _2 file
+    #pdfmerge(open_folder()) #merge first page of _1 file and _2 file
 
-    """for owner in owners:
-        filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie wyznaczenie.docx', 'wyzn_granic.docx', owner)"""
+    for owner in ownersu:
+        filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie ustalenie.docx', 'ust_granicKwiatowa.docx', owner)
+    for owner in ownersw:
+        filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie ustalenie.docx', 'ust_granicKwiatowa.docx', owner)
     return 0
 
 
 if __name__ == "__main__":
-    """root = tk.Tk()
-    root.withdraw()
 
-    toplevel = tk.Toplevel(root)
-
-    # create a toplevel menu
-    menubar = tk.Menu(toplevel)
-    menubar.add_command(label="Hello!")
-    menubar.add_command(label="Quit!", command=root.quit)
-    # display the menu
-    toplevel.config(menu=menubar)"""
     main()
-    #root.mainloop()
+
 
