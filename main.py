@@ -24,6 +24,7 @@ from docx.enum.text import WD_BREAK
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 import csv
+from shapely.geometry import Polygon
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
@@ -126,23 +127,25 @@ def check_project_data():   # todo find a way to extract text from .rtf file
     # 2. Find data from PODGiK (.gml file, info o materialach)
     # text = get_text_from_doc(find_info())
 
-    print(text)
+    # print(text)
     # 3. Search through .gml file to find JEDNOSTKAREJESTROWA and OBREB values
     # 4. Find KERG number
-    set_kerg('666.2250.2021')
+    # set_kerg('666.2250.2021')
     pass
 
 
 def write_report():
     """Function to write report file using given values"""
-    s = "I love #stackoverflow# because #people# are very #helpful# #helpful#"
-    hashtag = re.findall(r"#(\w+)#", s)  # znajdź wszystkie hashtagi w szablonie
-    print(set(hashtag))
-    document = Document()
+    file = askopenfile()
+    document = Document(file.name)
     for paragraph in document.paragraphs:
-        if 'sea' in paragraph.text:
+        hashtag = re.findall(r"#(\w+)#", paragraph.text)  # znajdź wszystkie hashtagi w szablonie
+        hashtag = set(hashtag)
+        if len(hashtag) > 0:
+            print(hashtag)
+        """if 'sea' in paragraph.text:
             print(paragraph.text)
-            paragraph.text = 'new text containing ocean'
+            paragraph.text = 'new text containing ocean'"""
 
 
 def createparcelfilefromdoc(file, parcelsfile):
@@ -729,6 +732,41 @@ class Owner:
     def zawiadomienie(self):
         pass
 
+
+class Parcel:
+    def __init__(self,number,owners,points,area,kw=None,calc_area=None):
+        self.number = number
+        self.owners = owners
+        self.points = points
+        self.kw = kw
+        self.area = area
+        self.calc_area = calc_area
+
+    def calculate_area(self):
+        pointlist = []
+        for pointobj in self.points:
+            pointlist.append((pointobj.x,pointobj.y))
+        pgon = Polygon(pointlist)
+        logging.debug(f'Parcel calculated Area: {pgon.area}')
+        return pgon.area
+
+
+
+
+class Point:
+    def __init__(self,id,number,x,y,zrd=None,bpp=None,stb=None,rzg=None,operat=None,sporna=None):
+        self.id = id
+        self.number =number
+        self.x = x
+        self.y = y
+        self.zrd = zrd
+        self.bpp = bpp
+        self.stb = stb
+        self.rzg = rzg
+        self.operat = operat
+        self.sporna = sporna
+
+
 class Navbar(tk.Frame): ...
 class Toolbar(tk.Frame): ...
 class Statusbar(tk.Frame): ...
@@ -749,6 +787,13 @@ class MainApplication(tk.Frame):
         self.main.pack(side="right", fill="both", expand=True)
 
 def main():
+    point1 = Point(1,1,0,0)
+    point2 = Point(2, 2, 13, 0)
+    point3 = Point(3, 3, 10, 12)
+    point4 = Point(4, 4, 110, 10)
+    points = [point1,point2,point3,point4]
+    parc = Parcel(1,[],points,101)
+    parc.calculate_area()
     """root = tk.Tk()
     MainApplication(root).pack(side="top", fill="both", expand=True)
     root.mainloop()"""
@@ -765,23 +810,23 @@ def main():
     """x = 400
     y = 200
     pyautogui.moveTo(x, y)"""
-    check_project_data()
+    #check_project_data()
     #write_report()
     #ConvertRtfToDocx('C:\\Users\\Jurek\\Documents\\Kuba\\Python\\OperatOR\\docs','info_o_materiałach1.rtf')
     #createparcelfilefromdoc(os.getcwd() + '\\docs\\protokol_wyznaczenia_granic.docx', 'parcels.txt')
     """o = Owner('Jakub', 'Kowwalczyk', 'KRakowska 23, 31-102 KRaków', '512')
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiad o wyznaczeniu granic.docx', 'wyzn_granic.docx', o)"""
     #removeduplicates('parcelsw.txt', 'parcelsu.txt', 'parcelsw.txt')
-    ownersfile = open_file()
-    ownersu = findowners(ownersfile, 'parcelsu.txt')
-    ownersw = findowners(ownersfile, 'parcelsw.txt')
-    owners = ownersu + ownersw
+    #ownersfile = open_file()
+    #ownersu = findowners(ownersfile, 'parcelsu.txt')
+    #ownersw = findowners(ownersfile, 'parcelsw.txt')
+    #owners = ownersu + ownersw
     """with open('owners.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         for owner in ownersu:
             writer.writerow([owner.name, owner.surname, owner.address, owner.parcels])"""
     #parcelfinder('581/4', ownersfile='owners.csv')
-    namestofile(owners, 'nazwiska i adresy.docx')
+    #namestofile(owners, 'nazwiska i adresy.docx')
     #createstickers('nazwiska i adresy.docx', 'naklejki.docx')
     #file = open_file()
     #find_kerg(file.name)
@@ -791,10 +836,10 @@ def main():
     #kwtopdf('KR1P/00516204/5')
     #pdfmerge(open_folder()) #merge first page of _1 file and _2 file
 
-    for owner in ownersu:
+    """for owner in ownersu:
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie ustalenie.docx', 'ust_granicKwiatowa.docx', owner)
     for owner in ownersw:
-        filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie ustalenie.docx', 'ust_granicKwiatowa.docx', owner)
+        filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie ustalenie.docx', 'ust_granicKwiatowa.docx', owner)"""
     return 0
 
 
