@@ -713,6 +713,17 @@ def pylocate(img):
     return s
 
 
+def getfeaturesfromgml(gmlfile, feature):
+    content = gmlfile.read()
+    contentlist = content.split('<' + feature)
+    contentlist = contentlist[1:]
+    for i, item in enumerate(contentlist):
+        contentlist[i] = item.split('</' + feature)[0]
+    for item in contentlist:
+        logging.debug(item)
+        logging.debug('\n_____________________________________')
+
+
 class Owner:
     def __init__(self, name, surname, address, parcel, hour=None, date=None, source=None):
         self.name = name
@@ -787,13 +798,15 @@ class MainApplication(tk.Frame):
         self.main.pack(side="right", fill="both", expand=True)
 
 def main():
-    point1 = Point(1,1,0,0)
+    gmlfile = open("Zbiór danych GML.gml", encoding='utf-8')
+    getfeaturesfromgml(gmlfile, 'egb:EGB_DzialkaEwidencyjna')
+    """point1 = Point(1,1,0,0)
     point2 = Point(2, 2, 13, 0)
     point3 = Point(3, 3, 10, 12)
     point4 = Point(4, 4, 110, 10)
     points = [point1,point2,point3,point4]
     parc = Parcel(1,[],points,101)
-    parc.calculate_area()
+    parc.calculate_area()"""
     """root = tk.Tk()
     MainApplication(root).pack(side="top", fill="both", expand=True)
     root.mainloop()"""
