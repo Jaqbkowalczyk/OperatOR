@@ -799,7 +799,7 @@ class Parcel:
         for pointobj in self.points:
             pointlist.append((pointobj.x, pointobj.y))
         pgon = Polygon(pointlist)
-        logging.debug(f'Parcel calculated Area: {round(pgon.area)}')
+        #logging.debug(f'Parcel calculated Area: {round(pgon.area)}')
         return round(pgon.area)
 
 
@@ -900,7 +900,8 @@ def main():
         new_parcel = Parcel(id, gmlid, number, points, area)
         new_parcel.calc_area = new_parcel.calculate_area()
         logging.debug(f'Utworzyłem nową działkę o numerze: {new_parcel.number} id {new_parcel.id}, '
-                      f'gmlid {new_parcel.gmlid}, powierzchni {new_parcel.area}, ')
+                      f'gmlid {new_parcel.gmlid}, powierzchni {new_parcel.area}, '
+                      f'powierzchnia obliczona: {new_parcel.calc_area}')
 
     # getinfofromtags(parcellist[0], 'gml:Point')
     """point1 = Point(1,1,0,0)
