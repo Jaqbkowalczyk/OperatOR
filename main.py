@@ -9,6 +9,7 @@ import pyautogui
 from PyPDF3 import PdfFileMerger
 import webbrowser as web
 import win32com.client as win32
+from decimal import Decimal
 from docx import Document
 import tkinter as tk
 from shapely.geometry import Polygon
@@ -31,9 +32,12 @@ pyautogui.FAILSAFE = True
 JEDNOSTKAREJESTROWA = ''
 KERG = ''
 FOLDER = ''
+XYACCURACY = 2
+HACCURACY = 2
+ANGLEACCURACY = 4
+AREAACCURACY = 0
 
-
-def find_kerg(filename):# todo regex
+def find_kerg(filename):  # todo regex
     logging.debug(f'{filename}')
     if filename.split('.')[-1] == 'rtf':
         filename = convertrtftodocx(filename)
@@ -53,6 +57,7 @@ def set_kerg(kerg_value: str):
 
 def ask_for_kerg():
     pass
+
 
 def set_folder(folder_value: str):
     global FOLDER
@@ -107,7 +112,6 @@ def get_text_from_doc(filename):
     return '\n'.join(fullText)
 
 
-
 def find_info():
     for subdir, dirs, files in os.walk(FOLDER):
         for file in files:
@@ -119,7 +123,7 @@ def find_info():
                 pass
 
 
-def check_project_data():   # todo find a way to extract text from .rtf file
+def check_project_data():  # todo find a way to extract text from .rtf file
     """Function to check for variables used in all future functions"""
     # 1. Select project folder
     folder = open_folder()
@@ -149,11 +153,11 @@ def write_report():
 def createparcelfilefromdoc(file, parcelsfile):
     """This function creates parcel text file from .docx table with parcels"""
     doc = Document(file)
-    parcels =[]
+    parcels = []
     i = 0
     j = 0
     newline = lambda x: x + '\n'
-    output = open(os.getcwd() + '\\' + parcelsfile , 'w')
+    output = open(os.getcwd() + '\\' + parcelsfile, 'w')
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
@@ -219,7 +223,6 @@ def filldocxtemplate(templatefile, outputfile, owner=None):
             outpara.paragraph_format.first_line_indent = paragraph.paragraph_format.first_line_indent
             outpara.paragraph_format.space_before = 5
             outpara.paragraph_format.space_after = 5
-
 
         elif isinstance(child, CT_Tbl):
             table = Table(child, template)
@@ -335,7 +338,8 @@ def findowners(file, parcelspath):
                                         owners.append((temp1[0], temp1[1], adr2, parcel))
                                     else:
                                         logging.debug(f'Współwlasciciel 2: {temp1} adres: {adr2}')
-                                        owners.append((temp1[0], ' '.join(temp1[i]for i in range(1, len(temp1))), adr2, parcel))
+                                        owners.append(
+                                            (temp1[0], ' '.join(temp1[i] for i in range(1, len(temp1))), adr2, parcel))
                             temp = temp[0].split(',')
                             temp = temp[0].split(' ')
                             temp.pop(0)
@@ -347,7 +351,7 @@ def findowners(file, parcelspath):
                                 owners.append((temp[0], temp[1], adr1, parcel))
                             else:
                                 logging.debug(f'Wspolwlasciciel 1: {temp} adres: {adr1}')
-                                owners.append((temp[0], ' '.join(temp[i]for i in range(1, len(temp))), adr1, parcel))
+                                owners.append((temp[0], ' '.join(temp[i] for i in range(1, len(temp))), adr1, parcel))
 
                         else:
                             temp = temp[0].split(',')
@@ -360,7 +364,7 @@ def findowners(file, parcelspath):
                                 owners.append((temp[0], temp[1], adr, parcel))
                             else:
                                 logging.debug(f'Wlasciciel: {temp}')
-                                owners.append((temp[0], ' '.join(temp[i]for i in range(1, len(temp))), adr, parcel))
+                                owners.append((temp[0], ' '.join(temp[i] for i in range(1, len(temp))), adr, parcel))
                 j += 1
             j = 0
         else:
@@ -375,7 +379,8 @@ def findowners(file, parcelspath):
             ownersobj.append(o)
         else:
             for obj in ownersobj:
-                if obj.name == owner[0] and obj.surname == owner[1] and obj.address == owner[2] and owner[3] not in obj.parcels:
+                if obj.name == owner[0] and obj.surname == owner[1] and obj.address == owner[2] and owner[
+                    3] not in obj.parcels:
                     obj.addparcels(owner[3])
                     logging.debug(f'dodano parcele do obiektu: {obj.name} {obj.surname}')
                     alreadyin = True
@@ -428,8 +433,8 @@ def findkw(file, parcelspath):
 def calccontrolnumber(kw):
     """Calculate control number for specified KW"""
     dictionary = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, 'X': 10, 'A': 11,
-                  'B': 12, 'C': 13, 'D': 14, 'E': 15, 'F': 16,'G': 17, 'H': 18, 'I': 19, 'J':20, 'K': 21, 'L': 22,
-                  'M': 23, 'N': 24, 'O': 25, 'P':26, 'R': 27, 'S': 28, 'T': 29, 'U': 30, 'W': 31, 'Y': 32, 'Z': 33}
+                  'B': 12, 'C': 13, 'D': 14, 'E': 15, 'F': 16, 'G': 17, 'H': 18, 'I': 19, 'J': 20, 'K': 21, 'L': 22,
+                  'M': 23, 'N': 24, 'O': 25, 'P': 26, 'R': 27, 'S': 28, 'T': 29, 'U': 30, 'W': 31, 'Y': 32, 'Z': 33}
     waga = '137137137137'
     sum = 0
     i = 0
@@ -439,13 +444,13 @@ def calccontrolnumber(kw):
     elif len(kw.split('/')) == 2:
         parts = kw.split('/')
         if len(kw.split('/')[1]) < 8:
-            parts[1] = ('0'*(8-len(parts[1]))) + parts[1]
+            parts[1] = ('0' * (8 - len(parts[1]))) + parts[1]
         kw = parts[0] + parts[1]
     else:
         kw = kw.replace(' ', '')
         kw = kw.replace('KW', '')
         if len(kw) < 8:
-            kw = ('0'*(8-len(kw))) + kw
+            kw = ('0' * (8 - len(kw))) + kw
             kw = 'KR1P' + kw
     for s in kw:
         sum += dictionary[s.upper()] * int(waga[i])
@@ -481,8 +486,8 @@ def isthesameowner(owner1, owner2):
 
 
 def removefromlist(list, determine):
-
     return list
+
 
 def removeduplicates(file1, file2, outputfile):
     """Remove duplicates from parcel files"""
@@ -691,13 +696,12 @@ def pdfmerge(folder):
                         logging.debug('hej')
                         merger = PdfFileMerger()
                         input1 = open(folder + '/' + file + '.pdf', 'rb')
-                        input2 = open(folder + '/' + f2 + '.pdf','rb')
+                        input2 = open(folder + '/' + f2 + '.pdf', 'rb')
                         merger.append(input1, pages=(0, 1))
                         merger.append(input2)
                         name = file[:-2] + '.pdf'
                         output = open(name, "wb")
                         merger.write(output.name)
-
 
 
 def openweb(url):
@@ -727,21 +731,36 @@ def getfeaturesfromgml(gmlfile, feature):
     contentlist = content.split('<' + feature)[1:]
     for i, item in enumerate(contentlist):
         contentlist[i] = item.split('</gml:featureMember>')[0]
-    for item in contentlist:
+    """for item in contentlist:
         logging.debug(item)
-        logging.debug('\n_____________________________________')
+        logging.debug('\n_____________________________________')"""
     return contentlist
 
+
 def getcontentfromtags(text, tag):
-    #Function to grab everything in between two tags, nested tags included
-    content = text.split(tag)[1] #grab text starting from tag
-    content = re.sub(r'^.*?>', '', content) #delete full tag
-    content = content.split('</')[:-1] #delete exit tag
-    content = '</'.join(content) #join every nested tags
-    print(content)
+    # Function to grab everything in between two tags, nested tags included
+    content = text.split(tag)[1]  # grab text starting from tag
+    content = re.sub(r'^.*?>', '', content)  # delete full tag
+    content = content.split('</')[:-1]  # delete exit tag
+    content = '</'.join(content)  # join every nested tags
     return content
 
 
+def getinfofromtags(text, tag):
+    # Funtion to get meta data from single tags (info) --> <tag/>
+    tags = text.split(tag)[1:-1]
+    print(tags)
+    info = {}
+    for item in tags:
+        content = item.split('>')[0]
+        content = content.split(' ')[1:]
+        for meta in content:
+            key = meta.split('=')[0]
+            data = meta.split('=')[1]
+            data = data.replace('"', '')
+            info[key] = data
+    print(info)
+    return info
 
 
 class Owner:
@@ -765,7 +784,9 @@ class Owner:
 
 
 class Parcel:
-    def __init__(self,number,owners,points,area,kw=None,calc_area=None):
+    def __init__(self, id, gmlid, number, points, area, owners=None, kw=None, calc_area=None):
+        self.id = id
+        self.gmlid = gmlid
         self.number = number
         self.owners = owners
         self.points = points
@@ -776,18 +797,17 @@ class Parcel:
     def calculate_area(self):
         pointlist = []
         for pointobj in self.points:
-            pointlist.append((pointobj.x,pointobj.y))
+            pointlist.append((pointobj.x, pointobj.y))
         pgon = Polygon(pointlist)
-        logging.debug(f'Parcel calculated Area: {pgon.area}')
-        return pgon.area
-
-
+        logging.debug(f'Parcel calculated Area: {round(pgon.area)}')
+        return round(pgon.area)
 
 
 class Point:
-    def __init__(self,id,number,x,y,zrd=None,bpp=None,stb=None,rzg=None,operat=None,sporna=None):
+    def __init__(self, id, gmlid, number, x, y, zrd=None, bpp=None, stb=None, rzg=None, operat=None, sporna=None):
         self.id = id
-        self.number =number
+        self.gmlid = gmlid
+        self.number = number
         self.x = x
         self.y = y
         self.zrd = zrd
@@ -799,9 +819,16 @@ class Point:
 
 
 class Navbar(tk.Frame): ...
+
+
 class Toolbar(tk.Frame): ...
+
+
 class Statusbar(tk.Frame): ...
+
+
 class Main(tk.Frame): ...
+
 
 class MainApplication(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
@@ -817,11 +844,65 @@ class MainApplication(tk.Frame):
         self.navbar.pack(side="left", fill="y")
         self.main.pack(side="right", fill="both", expand=True)
 
+
 def main():
     gmlfile = open("Zbiór danych GML.gml", encoding='utf-8')
+    pointlist = getfeaturesfromgml(gmlfile, 'egb:EGB_PunktGraniczny')
+    pointsobj = []
+    for point in pointlist:
+        id = getcontentfromtags(point, 'egb:idPunktu')
+        number = id.split('.')[-1]
+        gmlid = getcontentfromtags(point, 'bt:lokalnyId')
+        coordinates = getcontentfromtags(point, 'gml:pos')
+        x = float(coordinates.split(' ')[0])
+        y = float(coordinates.split(' ')[1])
+        try:
+            zrd = int(getcontentfromtags(point, 'egb:zrodloDanychZRD'))
+        except ValueError:
+            zrd = 'brak'
+        try:
+            bpp = int(getcontentfromtags(point, 'egb:bladPolozeniaWzgledemOsnowy'))
+        except ValueError:
+            bpp = 'brak'
+        try:
+            stb = int(getcontentfromtags(point, 'egb:kodStabilizacji'))
+        except ValueError:
+            stb = 'brak'
+        try:
+            rzg = int(getcontentfromtags(point, 'egb:kodRzeduGranicy'))
+        except ValueError:
+            rzg = 'brak'
+        new_point = Point(id, gmlid, number, x, y, zrd, bpp, stb, rzg)
+        pointsobj.append(new_point)
+        logging.debug(f'Utworzyłem nowy punkt o numerze: {new_point.number} id {new_point.id}, '
+                      f'gmlid {new_point.gmlid}, wsp: {new_point.x}, {new_point.y}, {new_point.zrd} {new_point.bpp}'
+                      f' {new_point.stb} {new_point.rzg}')
+    gmlfile.seek(0)
     parcellist = getfeaturesfromgml(gmlfile, 'egb:EGB_DzialkaEwidencyjna')
-    for text in parcellist:
-        getcontentfromtags(text, 'egb:punktGranicyDzialki')
+    for parcel in parcellist:
+        id = getcontentfromtags(parcel, 'idDzialki')
+        number = id.split('.')[-1]
+        gmlid = getcontentfromtags(parcel, 'bt:lokalnyId')
+        area = float(getcontentfromtags(parcel, 'egb:powierzchniaEwidencyjna'))
+        poslist = getcontentfromtags(parcel, 'gml:posList')
+        poslist = poslist.split(' ')
+        pointslist = []
+        points = []
+        for i, coordinate in enumerate(poslist):
+            if i%2 == 0:
+                pointslist.append((float(poslist[i]), float(poslist[i+1]))) # Only add correct points
+        pointslist.pop() #remove last point because it's the same as first
+        for point in pointslist:
+            for pt in pointsobj:
+                if pt.x == point[0] and pt.y == point[1]:
+                    points.append(pt)
+
+        new_parcel = Parcel(id, gmlid, number, points, area)
+        new_parcel.calc_area = new_parcel.calculate_area()
+        logging.debug(f'Utworzyłem nową działkę o numerze: {new_parcel.number} id {new_parcel.id}, '
+                      f'gmlid {new_parcel.gmlid}, powierzchni {new_parcel.area}, ')
+
+    # getinfofromtags(parcellist[0], 'gml:Point')
     """point1 = Point(1,1,0,0)
     point2 = Point(2, 2, 13, 0)
     point3 = Point(3, 3, 10, 12)
@@ -832,7 +913,7 @@ def main():
     """root = tk.Tk()
     MainApplication(root).pack(side="top", fill="both", expand=True)
     root.mainloop()"""
-    #toplevel = tk.Toplevel(root)
+    # toplevel = tk.Toplevel(root)
 
     # create a toplevel menu
     """  menubar = tk.Menu(toplevel)
@@ -845,31 +926,31 @@ def main():
     """x = 400
     y = 200
     pyautogui.moveTo(x, y)"""
-    #check_project_data()
-    #write_report()
-    #ConvertRtfToDocx('C:\\Users\\Jurek\\Documents\\Kuba\\Python\\OperatOR\\docs','info_o_materiałach1.rtf')
-    #createparcelfilefromdoc(os.getcwd() + '\\docs\\protokol_wyznaczenia_granic.docx', 'parcels.txt')
+    # check_project_data()
+    # write_report()
+    # ConvertRtfToDocx('C:\\Users\\Jurek\\Documents\\Kuba\\Python\\OperatOR\\docs','info_o_materiałach1.rtf')
+    # createparcelfilefromdoc(os.getcwd() + '\\docs\\protokol_wyznaczenia_granic.docx', 'parcels.txt')
     """o = Owner('Jakub', 'Kowwalczyk', 'KRakowska 23, 31-102 KRaków', '512')
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiad o wyznaczeniu granic.docx', 'wyzn_granic.docx', o)"""
-    #removeduplicates('parcelsw.txt', 'parcelsu.txt', 'parcelsw.txt')
-    #ownersfile = open_file()
-    #ownersu = findowners(ownersfile, 'parcelsu.txt')
-    #ownersw = findowners(ownersfile, 'parcelsw.txt')
-    #owners = ownersu + ownersw
+    # removeduplicates('parcelsw.txt', 'parcelsu.txt', 'parcelsw.txt')
+    # ownersfile = open_file()
+    # ownersu = findowners(ownersfile, 'parcelsu.txt')
+    # ownersw = findowners(ownersfile, 'parcelsw.txt')
+    # owners = ownersu + ownersw
     """with open('owners.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         for owner in ownersu:
             writer.writerow([owner.name, owner.surname, owner.address, owner.parcels])"""
-    #parcelfinder('581/4', ownersfile='owners.csv')
-    #namestofile(owners, 'nazwiska i adresy.docx')
-    #createstickers('nazwiska i adresy.docx', 'naklejki.docx')
-    #file = open_file()
-    #find_kerg(file.name)
-    #kwlist = findkw('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcelsu.txt')
-    #for kw in kwlist:
+    # parcelfinder('581/4', ownersfile='owners.csv')
+    # namestofile(owners, 'nazwiska i adresy.docx')
+    # createstickers('nazwiska i adresy.docx', 'naklejki.docx')
+    # file = open_file()
+    # find_kerg(file.name)
+    # kwlist = findkw('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcelsu.txt')
+    # for kw in kwlist:
     #    kwtopdf(kw)
-    #kwtopdf('KR1P/00516204/5')
-    #pdfmerge(open_folder()) #merge first page of _1 file and _2 file
+    # kwtopdf('KR1P/00516204/5')
+    # pdfmerge(open_folder()) #merge first page of _1 file and _2 file
 
     """for owner in ownersu:
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie ustalenie.docx', 'ust_granicKwiatowa.docx', owner)
@@ -879,7 +960,4 @@ def main():
 
 
 if __name__ == "__main__":
-
     main()
-
-
