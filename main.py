@@ -11,6 +11,7 @@ import webbrowser as web
 import win32com.client as win32
 from docx import Document
 import tkinter as tk
+from shapely.geometry import Polygon
 from tkinter.filedialog import askdirectory, askopenfile
 from tkinter import Menu, scrolledtext
 from tkinter import messagebox
@@ -24,7 +25,6 @@ from docx.enum.text import WD_BREAK
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 import csv
-from shapely.geometry import Polygon
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
@@ -127,25 +127,23 @@ def check_project_data():   # todo find a way to extract text from .rtf file
     # 2. Find data from PODGiK (.gml file, info o materialach)
     # text = get_text_from_doc(find_info())
 
-    # print(text)
+    print(text)
     # 3. Search through .gml file to find JEDNOSTKAREJESTROWA and OBREB values
     # 4. Find KERG number
-    # set_kerg('666.2250.2021')
+    set_kerg('666.2250.2021')
     pass
 
 
 def write_report():
     """Function to write report file using given values"""
-    file = askopenfile()
-    document = Document(file.name)
+    s = "I love #stackoverflow# because #people# are very #helpful# #helpful#"
+    hashtag = re.findall(r"#(\w+)#", s)  # znajdź wszystkie hashtagi w szablonie
+    print(set(hashtag))
+    document = Document()
     for paragraph in document.paragraphs:
-        hashtag = re.findall(r"#(\w+)#", paragraph.text)  # znajdź wszystkie hashtagi w szablonie
-        hashtag = set(hashtag)
-        if len(hashtag) > 0:
-            print(hashtag)
-        """if 'sea' in paragraph.text:
+        if 'sea' in paragraph.text:
             print(paragraph.text)
-            paragraph.text = 'new text containing ocean'"""
+            paragraph.text = 'new text containing ocean'
 
 
 def createparcelfilefromdoc(file, parcelsfile):
@@ -475,6 +473,17 @@ def namestofile(owners, filename):
     doc.save(filename)
 
 
+def isthesameowner(owner1, owner2):
+    if owner1.name == owner2.name and owner1.surname == owner2.surname and owner1.address == owner2.address:
+        return True
+    else:
+        return False
+
+
+def removefromlist(list, determine):
+
+    return list
+
 def removeduplicates(file1, file2, outputfile):
     """Remove duplicates from parcel files"""
     parcels = []
@@ -715,13 +724,24 @@ def pylocate(img):
 
 def getfeaturesfromgml(gmlfile, feature):
     content = gmlfile.read()
-    contentlist = content.split('<' + feature)
-    contentlist = contentlist[1:]
+    contentlist = content.split('<' + feature)[1:]
     for i, item in enumerate(contentlist):
-        contentlist[i] = item.split('</' + feature)[0]
+        contentlist[i] = item.split('</gml:featureMember>')[0]
     for item in contentlist:
         logging.debug(item)
         logging.debug('\n_____________________________________')
+    return contentlist
+
+def getcontentfromtags(text, tag):
+    #Function to grab everything in between two tags, nested tags included
+    content = text.split(tag)[1] #grab text starting from tag
+    content = re.sub(r'^.*?>', '', content) #delete full tag
+    content = content.split('</')[:-1] #delete exit tag
+    content = '</'.join(content) #join every nested tags
+    print(content)
+    return content
+
+
 
 
 class Owner:
@@ -799,7 +819,9 @@ class MainApplication(tk.Frame):
 
 def main():
     gmlfile = open("Zbiór danych GML.gml", encoding='utf-8')
-    getfeaturesfromgml(gmlfile, 'egb:EGB_DzialkaEwidencyjna')
+    parcellist = getfeaturesfromgml(gmlfile, 'egb:EGB_DzialkaEwidencyjna')
+    for text in parcellist:
+        getcontentfromtags(text, 'egb:punktGranicyDzialki')
     """point1 = Point(1,1,0,0)
     point2 = Point(2, 2, 13, 0)
     point3 = Point(3, 3, 10, 12)
