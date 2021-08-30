@@ -13,6 +13,7 @@ from decimal import Decimal
 from docx import Document
 import tkinter as tk
 from shapely.geometry import Polygon
+from shapely.geometry import Point as shapelyPoint
 from tkinter.filedialog import askdirectory, askopenfile
 from tkinter import Menu, scrolledtext
 from tkinter import messagebox
@@ -25,7 +26,10 @@ from docx.shared import Pt
 from docx.enum.text import WD_BREAK
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from numpy import ones, vstack
+from numpy.linalg import lstsq
 import csv
+import math
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
@@ -853,6 +857,65 @@ def populate_points_from_csv(file):
     return pointsobj
 
 
+def distance_from_line(point, line):
+    """Fuction provides distance from point to given line"""
+    x, y = point
+    # ax = by + c
+    # ax - by - c = 0
+    a, b, c = line
+    y0 = 0
+    x0 = (y0 * b + c) / a
+    distance = abs(((-b) * y + a * x - c)) / (math.sqrt((a ** 2) + (b ** 2)))
+    yt = y0 + 500
+    xt = (yt * b + c) / a
+    position = (xt - x0) * (y - y0) - (yt - y0) * (x - x0)
+    if position > 0:
+        sign = 1
+    elif position < 0:
+        sign = -1
+    else:
+        sign = 0
+    distance = distance * -sign
+    # print(f'Distance from line is: {round(distance, 3)}')
+    return round(distance, 3)
+
+
+def line_from_two_points(point1=(0.0, 0.0), point2=(1.0, 1.0)):
+    """Fuction docstring"""
+    points = [point1, point2]
+    x_coords, y_coords = zip(*points)
+    a = vstack([y_coords, ones(len(y_coords))]).T
+    b, c = lstsq(a, x_coords, rcond=None)[0]
+    # print("Line Solution is x = {b}y + {c}".format(b=b, c=c))
+    return (1, b, c)
+
+
+def is_on_border(parcel, point):
+    parcel: Parcel
+    text = 'Parcel points: '
+    logging.debug(f'\n\nParcel: {parcel.number}')
+    for pt in parcel.points:
+        text += f'{pt.number}, '
+    logging.debug(text+'\n\n')
+    i = 0
+    if len(parcel.points) == 0:
+        return False
+    while i < len(parcel.points)-1:
+        border = line_from_two_points((parcel.points[i].x, parcel.points[i].y),(parcel.points[i+1].x, parcel.points[i+1].y))
+        logging.debug(f'Line from points: {parcel.points[i].number}, {parcel.points[i+1].number}')
+        distance = distance_from_line((point.x, point.y), border)
+        logging.debug(f'point number: {point.number}, x: {point.x},y: {point.y}\n'
+                      f'distance from line: {distance}')
+        if abs(distance) < 0.01:
+            logging.debug(f'Point number: {point.number} is on border of parcel: {parcel.number}, on border between '
+                          f'points: {parcel.points[i].number}, and {parcel.points[i+1].number}')
+            return True
+        else:
+            pass
+        i += 1
+    return False
+
+
 class Owner:
     def __init__(self, name, surname, address, parcel, hour=None, date=None, source=None):
         self.name = name
@@ -879,7 +942,7 @@ class Parcel:
         self.gmlid = gmlid
         self.number = number
         self.owners = owners
-        self.points = points
+        self.points = points # List of Point objects
         self.kw = kw
         self.area = area
         try:
@@ -887,6 +950,7 @@ class Parcel:
         except KeyError:
             self.jrg = None
         self.calc_area = calc_area
+        #self.Polygon = Polygon(pointlist) <- inaczej jakoś
 
     def calculate_area(self):
         pointlist = []
@@ -910,6 +974,7 @@ class Point:
         self.rzg = rzg
         self.operat = operat
         self.sporna = sporna
+        self.shapelyPoint = shapelyPoint(self.x, self.y)
 
 
 class Navbar(tk.Frame): ...
@@ -943,6 +1008,10 @@ def main():
     pointsobj = populate_points_from_gml()
     parcelsobj = populate_parcels_from_gml(pointsobj)
     dividepointsobj = populate_points_from_csv(DIVISIONPOINTS)
+    #todo search only in divided parcels, and optimize search.
+    for point in dividepointsobj:
+        for parcel in parcelsobj:
+            is_on_border(parcel, point)
     # getinfofromtags(parcellist[0], 'gml:Point')
     """point1 = Point(1,1,0,0)
     point2 = Point(2, 2, 13, 0)
