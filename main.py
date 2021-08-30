@@ -32,10 +32,12 @@ pyautogui.FAILSAFE = True
 JEDNOSTKAREJESTROWA = ''
 KERG = ''
 FOLDER = ''
+GMLFILE = "Zbiór danych GML.gml"
 XYACCURACY = 2
 HACCURACY = 2
 ANGLEACCURACY = 4
 AREAACCURACY = 0
+DIVISIONPOINTS = 'pkty_podzial.txt'
 
 def find_kerg(filename):  # todo regex
     logging.debug(f'{filename}')
@@ -223,6 +225,7 @@ def filldocxtemplate(templatefile, outputfile, owner=None):
             outpara.paragraph_format.first_line_indent = paragraph.paragraph_format.first_line_indent
             outpara.paragraph_format.space_before = 5
             outpara.paragraph_format.space_after = 5
+
 
         elif isinstance(child, CT_Tbl):
             table = Table(child, template)
@@ -704,6 +707,7 @@ def pdfmerge(folder):
                         merger.write(output.name)
 
 
+
 def openweb(url):
     """open desired url in basic browser"""
     web.open_new(url)
@@ -727,6 +731,7 @@ def pylocate(img):
 
 
 def getfeaturesfromgml(gmlfile, feature):
+    # function that loops through gml file and return features of choice
     content = gmlfile.read()
     contentlist = content.split('<' + feature)[1:]
     for i, item in enumerate(contentlist):
@@ -748,19 +753,104 @@ def getcontentfromtags(text, tag):
 
 def getinfofromtags(text, tag):
     # Funtion to get meta data from single tags (info) --> <tag/>
-    tags = text.split(tag)[1:-1]
-    print(tags)
+    tags = text.split(tag)[1:]
     info = {}
     for item in tags:
-        content = item.split('>')[0]
+        content = item.split('/>')[0]
         content = content.split(' ')[1:]
         for meta in content:
             key = meta.split('=')[0]
             data = meta.split('=')[1]
             data = data.replace('"', '')
             info[key] = data
-    print(info)
     return info
+
+
+def populate_points_from_gml():
+    # Function to search for points in gml file and create Point object for each one.
+    gmlfile = open(GMLFILE, encoding='utf-8')
+    pointlist = getfeaturesfromgml(gmlfile, 'egb:EGB_PunktGraniczny')
+    pointsobj = []
+    for point in pointlist:
+        id = getcontentfromtags(point, 'egb:idPunktu')
+        number = id.split('.')[-1]
+        gmlid = getcontentfromtags(point, 'bt:lokalnyId')
+        coordinates = getcontentfromtags(point, 'gml:pos')
+        x = float(coordinates.split(' ')[0])
+        y = float(coordinates.split(' ')[1])
+        try:
+            zrd = int(getcontentfromtags(point, 'egb:zrodloDanychZRD'))
+        except ValueError:
+            zrd = 'brak'
+        try:
+            bpp = int(getcontentfromtags(point, 'egb:bladPolozeniaWzgledemOsnowy'))
+        except ValueError:
+            bpp = 'brak'
+        try:
+            stb = int(getcontentfromtags(point, 'egb:kodStabilizacji'))
+        except ValueError:
+            stb = 'brak'
+        try:
+            rzg = int(getcontentfromtags(point, 'egb:kodRzeduGranicy'))
+        except ValueError:
+            rzg = 'brak'
+        new_point = Point(id, number, x, y, gmlid, zrd, bpp, stb, rzg)
+        pointsobj.append(new_point)
+        logging.debug(f'Utworzyłem nowy punkt o numerze: {new_point.number} id {new_point.point_id}, '
+                      f'gmlid {new_point.gmlid}, wsp: {new_point.x}, {new_point.y}, {new_point.zrd} {new_point.bpp}'
+                      f' {new_point.stb} {new_point.rzg}')
+    gmlfile.close()
+    return pointsobj
+
+
+def populate_parcels_from_gml(pointsobj):
+    # function to search through gml file looking for parcels, and then create Parcel object for each parcel.
+    gmlfile = open(GMLFILE, encoding='utf-8')
+    parcellist = getfeaturesfromgml(gmlfile, 'egb:EGB_DzialkaEwidencyjna')
+    parcelsobj = []
+    for parcel in parcellist:
+        id = getcontentfromtags(parcel, 'idDzialki')
+        number = id.split('.')[-1]
+        gmlid = getcontentfromtags(parcel, 'bt:lokalnyId')
+        area = float(getcontentfromtags(parcel, 'egb:powierzchniaEwidencyjna'))
+        jrg = getinfofromtags(parcel, 'egb:JRG2')
+        poslist = getcontentfromtags(parcel, 'gml:posList')
+        poslist = poslist.split(' ')
+        pointslist = []
+        points = []
+        for i, coordinate in enumerate(poslist):
+            if i % 2 == 0:
+                pointslist.append((float(poslist[i]), float(poslist[i + 1])))  # Only add correct points
+        pointslist.pop()  # remove last point because it's the same as first
+        for point in pointslist:
+            for pt in pointsobj:
+                if pt.x == point[0] and pt.y == point[1]:  # find point objects basing on coordinates
+                    points.append(pt)
+
+        new_parcel = Parcel(id, number, points, gmlid, area, jrg)
+        new_parcel.calc_area = new_parcel.calculate_area()
+        parcelsobj.append(new_parcel)
+        logging.debug(f'Utworzyłem nową działkę o numerze: {new_parcel.number} id {new_parcel.parcel_id}, '
+                      f'gmlid {new_parcel.gmlid}, powierzchni {new_parcel.area}, '
+                      f'powierzchnia obliczona: {new_parcel.calc_area}, '
+                      f'Jednostka Rejestracji Gruntów: {new_parcel.jrg}')
+    gmlfile.close()
+    return parcelsobj
+
+
+def populate_points_from_csv(file):
+    """Fuction used to import points from .csv file"""
+    pointsobj = []
+    with open(str(file)) as csvfile:
+        data = {num: (float(x), float(y))
+                for num, x, y in csv.reader(csvfile, delimiter=' ')}
+    # print(f'Zaimportowano punkty: {data}')
+    for number, coordinates in data.items():
+        x, y = coordinates
+        new_point = Point(number, number, x, y)
+        pointsobj.append(new_point)
+        logging.debug(f'Utworzyłem nowy punkt o numerze: {new_point.number} id {new_point.point_id}')
+    return pointsobj
 
 
 class Owner:
@@ -784,14 +874,18 @@ class Owner:
 
 
 class Parcel:
-    def __init__(self, id, gmlid, number, points, area, owners=None, kw=None, calc_area=None):
-        self.id = id
+    def __init__(self, parcel_id, number, points, gmlid=None, area=None, jrg=None, owners=None, kw=None, calc_area=None):
+        self.parcel_id = parcel_id
         self.gmlid = gmlid
         self.number = number
         self.owners = owners
         self.points = points
         self.kw = kw
         self.area = area
+        try:
+            self.jrg = jrg['xlink:href']
+        except KeyError:
+            self.jrg = None
         self.calc_area = calc_area
 
     def calculate_area(self):
@@ -804,8 +898,8 @@ class Parcel:
 
 
 class Point:
-    def __init__(self, id, gmlid, number, x, y, zrd=None, bpp=None, stb=None, rzg=None, operat=None, sporna=None):
-        self.id = id
+    def __init__(self, point_id, number, x, y, gmlid=None, zrd=None, bpp=None, stb=None, rzg=None, operat=None, sporna=None):
+        self.point_id = point_id
         self.gmlid = gmlid
         self.number = number
         self.x = x
@@ -846,63 +940,9 @@ class MainApplication(tk.Frame):
 
 
 def main():
-    gmlfile = open("Zbiór danych GML.gml", encoding='utf-8')
-    pointlist = getfeaturesfromgml(gmlfile, 'egb:EGB_PunktGraniczny')
-    pointsobj = []
-    for point in pointlist:
-        id = getcontentfromtags(point, 'egb:idPunktu')
-        number = id.split('.')[-1]
-        gmlid = getcontentfromtags(point, 'bt:lokalnyId')
-        coordinates = getcontentfromtags(point, 'gml:pos')
-        x = float(coordinates.split(' ')[0])
-        y = float(coordinates.split(' ')[1])
-        try:
-            zrd = int(getcontentfromtags(point, 'egb:zrodloDanychZRD'))
-        except ValueError:
-            zrd = 'brak'
-        try:
-            bpp = int(getcontentfromtags(point, 'egb:bladPolozeniaWzgledemOsnowy'))
-        except ValueError:
-            bpp = 'brak'
-        try:
-            stb = int(getcontentfromtags(point, 'egb:kodStabilizacji'))
-        except ValueError:
-            stb = 'brak'
-        try:
-            rzg = int(getcontentfromtags(point, 'egb:kodRzeduGranicy'))
-        except ValueError:
-            rzg = 'brak'
-        new_point = Point(id, gmlid, number, x, y, zrd, bpp, stb, rzg)
-        pointsobj.append(new_point)
-        logging.debug(f'Utworzyłem nowy punkt o numerze: {new_point.number} id {new_point.id}, '
-                      f'gmlid {new_point.gmlid}, wsp: {new_point.x}, {new_point.y}, {new_point.zrd} {new_point.bpp}'
-                      f' {new_point.stb} {new_point.rzg}')
-    gmlfile.seek(0)
-    parcellist = getfeaturesfromgml(gmlfile, 'egb:EGB_DzialkaEwidencyjna')
-    for parcel in parcellist:
-        id = getcontentfromtags(parcel, 'idDzialki')
-        number = id.split('.')[-1]
-        gmlid = getcontentfromtags(parcel, 'bt:lokalnyId')
-        area = float(getcontentfromtags(parcel, 'egb:powierzchniaEwidencyjna'))
-        poslist = getcontentfromtags(parcel, 'gml:posList')
-        poslist = poslist.split(' ')
-        pointslist = []
-        points = []
-        for i, coordinate in enumerate(poslist):
-            if i%2 == 0:
-                pointslist.append((float(poslist[i]), float(poslist[i+1]))) # Only add correct points
-        pointslist.pop() #remove last point because it's the same as first
-        for point in pointslist:
-            for pt in pointsobj:
-                if pt.x == point[0] and pt.y == point[1]:
-                    points.append(pt)
-
-        new_parcel = Parcel(id, gmlid, number, points, area)
-        new_parcel.calc_area = new_parcel.calculate_area()
-        logging.debug(f'Utworzyłem nową działkę o numerze: {new_parcel.number} id {new_parcel.id}, '
-                      f'gmlid {new_parcel.gmlid}, powierzchni {new_parcel.area}, '
-                      f'powierzchnia obliczona: {new_parcel.calc_area}')
-
+    pointsobj = populate_points_from_gml()
+    parcelsobj = populate_parcels_from_gml(pointsobj)
+    dividepointsobj = populate_points_from_csv(DIVISIONPOINTS)
     # getinfofromtags(parcellist[0], 'gml:Point')
     """point1 = Point(1,1,0,0)
     point2 = Point(2, 2, 13, 0)
