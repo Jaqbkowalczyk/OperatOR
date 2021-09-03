@@ -901,7 +901,8 @@ def is_on_border(parcel, point):
     if len(parcel.points) == 0:
         return False
     while i < len(parcel.points)-1:
-        border = line_from_two_points((parcel.points[i].x, parcel.points[i].y),(parcel.points[i+1].x, parcel.points[i+1].y))
+        border = line_from_two_points((parcel.points[i].x, parcel.points[i].y),
+                                      (parcel.points[i+1].x, parcel.points[i+1].y))
         logging.debug(f'Line from points: {parcel.points[i].number}, {parcel.points[i+1].number}')
         distance = distance_from_line((point.x, point.y), border)
         logging.debug(f'point number: {point.number}, x: {point.x},y: {point.y}\n'
@@ -913,7 +914,26 @@ def is_on_border(parcel, point):
         else:
             pass
         i += 1
+        if i == len(parcel.points)-1:
+            border = line_from_two_points((parcel.points[i].x, parcel.points[i].y),
+                                          (parcel.points[0].x, parcel.points[0].y))
+            logging.debug(f'Line from points: {parcel.points[i].number}, {parcel.points[0].number}')
+            distance = distance_from_line((point.x, point.y), border)
+            logging.debug(f'point number: {point.number}, x: {point.x},y: {point.y}\n'
+                          f'distance from line: {distance}')
+            if abs(distance) < 0.01:
+                logging.debug(
+                    f'Point number: {point.number} is on border of parcel: {parcel.number}, on border between '
+                    f'points: {parcel.points[i].number}, and {parcel.points[0].number}')
     return False
+
+
+def list_from_csv(csvfile):
+    with open(csvfile, 'r', newline='') as file:
+        reader = csv.reader(file, delimiter=',')
+        data = list(reader)
+    logging.debug(f'Data: {data[0]}')
+    return data[0]
 
 
 class Owner:
@@ -1008,10 +1028,35 @@ def main():
     pointsobj = populate_points_from_gml()
     parcelsobj = populate_parcels_from_gml(pointsobj)
     dividepointsobj = populate_points_from_csv(DIVISIONPOINTS)
+    parcels_to_divide = list_from_csv('dzialki do podzialu.txt')
+    divideparcelsobj = []
+    connection_list = []
+    for parcel in parcels_to_divide:
+        for object in parcelsobj:
+            if parcel == object.number:
+                divideparcelsobj.append(object)
+                logging.debug(f'Dorzucam do działek dzielonych działkę: {parcel}')
     #todo search only in divided parcels, and optimize search.
     for point in dividepointsobj:
-        for parcel in parcelsobj:
-            is_on_border(parcel, point)
+        for parcel in divideparcelsobj:
+            if is_on_border(parcel, point):
+                is_present = False
+                for item in connection_list:
+                    if item[0] == parcel:
+                        item.append(point)
+                        is_present = True
+                        break
+                if not is_present:
+                    connection = [parcel, point]
+                    connection_list.append(connection)
+    text=''
+    for c in connection_list:
+        text = ''
+        for i in c:
+            text += f'{i.number}, '
+        text += '\n'
+        logging.debug(text)
+
     # getinfofromtags(parcellist[0], 'gml:Point')
     """point1 = Point(1,1,0,0)
     point2 = Point(2, 2, 13, 0)
