@@ -1056,6 +1056,7 @@ def main():
             text += f'{i.number}, '
         text += '\n'
         logging.debug(text)
+
     # getinfofromtags(parcellist[0], 'gml:Point')
     """point1 = Point(1,1,0,0)
     point2 = Point(2, 2, 13, 0)
