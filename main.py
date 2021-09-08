@@ -904,10 +904,17 @@ def is_on_border(parcel, point):
         border = line_from_two_points((parcel.points[i].x, parcel.points[i].y),
                                       (parcel.points[i+1].x, parcel.points[i+1].y))
         logging.debug(f'Line from points: {parcel.points[i].number}, {parcel.points[i+1].number}')
-        distance = distance_from_line((point.x, point.y), border)
+        distance_line = distance_from_line((point.x, point.y), border)
         logging.debug(f'point number: {point.number}, x: {point.x},y: {point.y}\n'
-                      f'distance from line: {distance}')
-        if abs(distance) < 0.01:
+                      f'distance from line: {distance_line}')
+        if abs(distance_line) < 0.05:
+            border_length = math.dist([parcel.points[i].x, parcel.points[i].y],
+                                      [parcel.points[i+1].x, parcel.points[i+1].y])
+            dist1 = math.dist([parcel.points[i].x, parcel.points[i].y], [point.x, point.y])
+            dist2 = math.dist([parcel.points[i+1].x, parcel.points[i+1].y], [point.x, point.y])
+            if border_length < dist1 or border_length < dist2:
+                logging.debug(f'Point number: {point.number} is on BORDER EXTENSION not actual border')
+                return False
             logging.debug(f'Point number: {point.number} is on border of parcel: {parcel.number}, on border between '
                           f'points: {parcel.points[i].number}, and {parcel.points[i+1].number}')
             return True
