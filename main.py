@@ -42,6 +42,7 @@ HACCURACY = 2
 ANGLEACCURACY = 4
 AREAACCURACY = 0
 DIVISIONPOINTS = 'pkty_podzial.txt'
+MAINPARCEL = '38/1'
 
 def find_kerg(filename):  # todo regex
     logging.debug(f'{filename}')
@@ -798,11 +799,16 @@ def populate_points_from_gml():
             rzg = int(getcontentfromtags(point, 'egb:kodRzeduGranicy'))
         except ValueError:
             rzg = 'brak'
-        new_point = Point(id, number, x, y, gmlid, zrd, bpp, stb, rzg)
+
+        operat = getcontentfromtags(point, 'egb:dodatkoweInformacje')
+        operat = operat.replace('operat punktu:', '')
+        operat = operat.split(' ')[0]
+
+        new_point = Point(id, number, x, y, gmlid, zrd, bpp, stb, rzg, operat)
         pointsobj.append(new_point)
         logging.debug(f'Utworzyłem nowy punkt o numerze: {new_point.number} id {new_point.point_id}, '
                       f'gmlid {new_point.gmlid}, wsp: {new_point.x}, {new_point.y}, {new_point.zrd} {new_point.bpp}'
-                      f' {new_point.stb} {new_point.rzg}')
+                      f' {new_point.stb} {new_point.rzg}, operat: {new_point.operat}')
     gmlfile.close()
     return pointsobj
 
@@ -935,9 +941,9 @@ def is_on_border(parcel, point):
     return False
 
 
-def list_from_csv(csvfile):
+def list_from_csv(csvfile, delimiter=','):
     with open(csvfile, 'r', newline='') as file:
-        reader = csv.reader(file, delimiter=',')
+        reader = csv.reader(file, delimiter=delimiter)
         data = list(reader)
     logging.debug(f'Data: {data[0]}')
     return data[0]
@@ -1038,13 +1044,68 @@ def main():
     parcels_to_divide = list_from_csv('dzialki do podzialu.txt')
     divideparcelsobj = []
     connection_list = []
+    main_points = []
     for parcel in parcels_to_divide:
         for object in parcelsobj:
             if parcel == object.number:
                 divideparcelsobj.append(object)
+                if parcel == MAINPARCEL:
+                    main_points = object.points
+                    divideparcelsobj.pop()
                 logging.debug(f'Dorzucam do działek dzielonych działkę: {parcel}')
-    #todo search only in divided parcels, and optimize search.
-    for point in dividepointsobj:
+    # todo search only in divided parcels, and optimize search.
+    with open('atrybuty.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        pointlist = []
+        for parcel in divideparcelsobj:
+            for point in parcel.points:
+                if point in main_points:
+                    logging.debug(f'{parcel.number}')
+                    if point.number not in pointlist:
+                        writer.writerow([point.number,
+                                         point.zrd, point.bpp,
+                                         point.stb, point.rzg, point.operat])
+                        pointlist.append(point.number)
+    """with open('atrybuty.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        pointlist = []
+        for parcel in divideparcelsobj:
+            for i, point in enumerate(parcel.points):
+                if 0 < i < len(parcel.points)-1:
+                    if point in main_points:
+                        logging.debug(f'{parcel.number}')
+                        for k in range(-1, 2):
+                            if parcel.points[i+k].number not in pointlist:
+                                writer.writerow([parcel.points[i+k].number,
+                                                 parcel.points[i+k].zrd, parcel.points[i+k].bpp,
+                                                 parcel.points[i+k].stb, parcel.points[i+k].rzg])
+                                pointlist.append(parcel.points[i+k].number)
+                elif i == 0:
+                    if point in main_points:
+                        logging.debug(f'{parcel.number}')
+                        for k in [len(parcel.points)-1, 0, 1]:
+                            if parcel.points[i+k].number not in pointlist:
+                                writer.writerow([parcel.points[i+k].number,
+                                                 parcel.points[i+k].zrd, parcel.points[i+k].bpp,
+                                                 parcel.points[i+k].stb, parcel.points[i+k].rzg])
+                                pointlist.append(parcel.points[i+k].number)
+                elif i == len(parcel.points)-1:
+                    if point in main_points:
+                        logging.debug(f'{parcel.number}')
+                        for k in [-1, 0, -(len(parcel.points)-1)]:
+                            if parcel.points[i+k].number not in pointlist:
+                                writer.writerow([parcel.points[i+k].number,
+                                                 parcel.points[i+k].zrd, parcel.points[i+k].bpp,
+                                                 parcel.points[i+k].stb, parcel.points[i+k].rzg])
+                                pointlist.append(parcel.points[i+k].number)
+
+    
+    ^
+    |
+    |
+    Moduł do wykazu punktów granicznych dla granic odchodzących od drogi prostopadle
+"""
+    """for point in dividepointsobj:
         for parcel in divideparcelsobj:
             if is_on_border(parcel, point):
                 is_present = False
@@ -1062,7 +1123,8 @@ def main():
         for i in c:
             text += f'{i.number}, '
         text += '\n'
-        logging.debug(text)
+        logging.debug(text)"""
+
 
     # getinfofromtags(parcellist[0], 'gml:Point')
     """point1 = Point(1,1,0,0)
