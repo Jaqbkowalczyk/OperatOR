@@ -749,7 +749,11 @@ def getfeaturesfromgml(gmlfile, feature):
 
 def getcontentfromtags(text, tag):
     # Function to grab everything in between two tags, nested tags included
-    content = text.split(tag)[1]  # grab text starting from tag
+    try:
+        content = text.split(tag)[1]  # grab text starting from tag
+    except IndexError:
+        content = 'brak'
+        return content
     content = re.sub(r'^.*?>', '', content)  # delete full tag
     content = content.split('</')[:-1]  # delete exit tag
     content = '</'.join(content)  # join every nested tags
@@ -818,13 +822,19 @@ def populate_parcels_from_gml(pointsobj):
     gmlfile = open(GMLFILE, encoding='utf-8')
     parcellist = getfeaturesfromgml(gmlfile, 'egb:EGB_DzialkaEwidencyjna')
     parcelsobj = []
-    for parcel in parcellist:
-        id = getcontentfromtags(parcel, 'idDzialki')
+    for parcel_text in parcellist:
+        id = getcontentfromtags(parcel_text, 'idDzialki')
         number = id.split('.')[-1]
-        gmlid = getcontentfromtags(parcel, 'bt:lokalnyId')
-        area = float(getcontentfromtags(parcel, 'egb:powierzchniaEwidencyjna'))
-        jrg = getinfofromtags(parcel, 'egb:JRG2')
-        poslist = getcontentfromtags(parcel, 'gml:posList')
+        gmlid = getcontentfromtags(parcel_text, 'bt:lokalnyId')
+        area = float(getcontentfromtags(parcel_text, 'egb:powierzchniaEwidencyjna'))
+        jrg = getinfofromtags(parcel_text, 'egb:JRG2')
+        kw = getcontentfromtags(parcel_text, 'egb:numerElektronicznejKW')
+        if kw == 'brak':
+            kw = getcontentfromtags(parcel_text, 'egb:numerKW')
+        if kw != 'brak':
+            kw = calccontrolnumber(kw)
+
+        poslist = getcontentfromtags(parcel_text, 'gml:posList')
         poslist = poslist.split(' ')
         pointslist = []
         points = []
@@ -837,13 +847,13 @@ def populate_parcels_from_gml(pointsobj):
                 if pt.x == point[0] and pt.y == point[1]:  # find point objects basing on coordinates
                     points.append(pt)
 
-        new_parcel = Parcel(id, number, points, gmlid, area, jrg)
+        new_parcel = Parcel(id, number, points, gmlid, area, jrg, kw=kw)
         new_parcel.calc_area = new_parcel.calculate_area()
         parcelsobj.append(new_parcel)
         logging.debug(f'Utworzyłem nową działkę o numerze: {new_parcel.number} id {new_parcel.parcel_id}, '
                       f'gmlid {new_parcel.gmlid}, powierzchni {new_parcel.area}, '
                       f'powierzchnia obliczona: {new_parcel.calc_area}, '
-                      f'Jednostka Rejestracji Gruntów: {new_parcel.jrg}')
+                      f'Jednostka Rejestracji Gruntów: {new_parcel.jrg}, nr KW: {new_parcel.kw}')
     gmlfile.close()
     return parcelsobj
 
@@ -1060,12 +1070,15 @@ def main():
         for parcel in divideparcelsobj:
             for point in parcel.points:
                 if point in main_points:
-                    logging.debug(f'{parcel.number}')
                     if point.number not in pointlist:
                         writer.writerow([point.number,
                                          point.zrd, point.bpp,
                                          point.stb, point.rzg, point.operat])
                         pointlist.append(point.number)
+    with open('dzialka_kw.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        for parcel in divideparcelsobj:
+            writer.writerow([parcel.number,parcel.kw])
     """with open('atrybuty.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         pointlist = []
@@ -1098,7 +1111,6 @@ def main():
                                                  parcel.points[i+k].zrd, parcel.points[i+k].bpp,
                                                  parcel.points[i+k].stb, parcel.points[i+k].rzg])
                                 pointlist.append(parcel.points[i+k].number)
-
     
     ^
     |
