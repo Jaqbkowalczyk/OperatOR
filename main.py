@@ -572,6 +572,8 @@ def changehash(templatefile, outputfile, hashdict):
             outpara = output.add_paragraph()
             s = paragraph.text
             hashtag = re.findall(r"#(\w+)#", s)
+            inline = []
+            i = 0
             #logging.debug(f'Text komórki: {paragraph.text}')
             if len(hashtag) == 0:
                 pass
@@ -612,6 +614,8 @@ def changehash(templatefile, outputfile, hashdict):
             outpara.paragraph_format.space_after = paragraph.paragraph_format.space_after
         elif isinstance(child, CT_Tbl):
             table = Table(child, template)
+            inline = []
+            i = 0
             for row in table.rows:
                 for cell in row.cells:
                     for paragraph in cell.paragraphs:
@@ -738,6 +742,9 @@ def getcontentfromtags(text, tag):
     try:
         content = text.split(tag)[1]  # grab text starting from tag
     except IndexError:
+        content = 'brak'
+        return content
+    if '/>' in content.split('<')[0]:
         content = 'brak'
         return content
     content = re.sub(r'^.*?>', '', content)  # delete full tag
@@ -870,6 +877,56 @@ def populate_parcels_from_gml(pointsobj):
     return parcelsobj
 
 
+def populate_owners_from_gml():
+    # function to search through gml file looking for parcels, and then create Parcel object for each parcel.
+    gmlfile = open(GMLFILE, encoding='utf-8')
+    ownerslist = getfeaturesfromgml(gmlfile, 'egb:EGB_OsobaFizyczna')
+    gmlfile.seek(0)
+    addresslist = getfeaturesfromgml(gmlfile, 'egb:EGB_Adres')
+    ownersobj = []
+    address = ''
+    for owner_text in ownerslist:
+        id = getcontentfromtags(owner_text, 'bt:lokalnyId')
+        name = getcontentfromtags(owner_text, 'egb:pierwszeImie')
+        name2 = getcontentfromtags(owner_text, 'egb:drugieImie')
+        if name2 == 'brak':
+            name2 = None
+        surname = getcontentfromtags(owner_text, 'egb:pierwszyCzlonNazwiska')
+        surname2 = getcontentfromtags(owner_text, 'egb:drugiCzlonNazwiska')
+        if surname2 == 'brak':
+            surname2 = None
+        pesel = getcontentfromtags(owner_text, 'egb:pesel')
+        fathername = getcontentfromtags(owner_text, 'egb:imieOjca')
+        mothername = getcontentfromtags(owner_text, 'egb:imieMatki')
+
+        # get address id from xlink:href tag. It's the last part of link that matters
+        address_link = getinfofromtags(owner_text, 'egb:adresOsobyFizycznej')['xlink:href'].split(':')[-1]
+        for address_text in addresslist:
+            if getcontentfromtags(address_text, 'bt:lokalnyId') == address_link:
+                country = getcontentfromtags(address_text, 'egb:kraj')
+                code = getcontentfromtags(address_text, 'egb:kodPocztowy')
+                town = getcontentfromtags(address_text, 'egb:miejscowosc')
+                number = getcontentfromtags(address_text, 'egb:numerPorzadkowy')
+                localnum = getcontentfromtags(address_text, 'egb:nrLokalu')
+                street = getcontentfromtags(address_text, 'egb:ulica')
+                if country =='brak':
+                    country = ''
+                if localnum != 'brak':
+                    address = street + ' ' + number + '/' + localnum + '\n' + code + ' ' + town + ' ' + country
+                elif street != 'brak':
+                    address = street + ' ' + number + '\n' + code + ' ' + town + ' ' + country
+                else:
+                    address = town + ' ' + number + '\n' + code + ' ' + town + ' ' + country
+        new_owner = Owner(id, name, surname, pesel, fathername, mothername, address, name2=name2, surname2=surname2)
+        ownersobj.append(new_owner)
+        logging.debug(f'Utworzyłem nowego właściciela: {new_owner.name} {new_owner.surname} id {new_owner.id},\n'
+                      f'PESEL {new_owner.pesel}, imiona rodziców: {new_owner.fathername} i {new_owner.mothername},\n'
+                      f'Adres: {new_owner.address}')
+    gmlfile.close()
+    return ownersobj
+
+
+
 def populate_points_from_csv(file):
     """Fuction used to import points from .csv file"""
     pointsobj = []
@@ -996,16 +1053,21 @@ def write_parcel_points_to_file(parcels, file):
 
 
 class Owner:
-    def __init__(self, name, surname, address, parcel, hour=None, date=None, source=None):
+    def __init__(self, id, name, surname, pesel, fathername, mothername, address, parcels=[], name2=None, surname2=None, hour=None,
+                 date=None, source=None):
+        self.id = id
         self.name = name
         self.surname = surname
         self.address = address
+        self.name2 = name2
+        self.surname2 = surname2
+        self.pesel = pesel
+        self.fathername = fathername
+        self.mothername = mothername
         self.hour = hour
         self.date = date
         self.source = source
-        self.parcel = parcel
-        self.parcels = []
-        self.addparcels(parcel)
+        self.parcels = parcels
         self.fullname = self.name + ' ' + self.surname
 
     def addparcels(self, parcel):
@@ -1094,6 +1156,7 @@ class MainApplication(tk.Frame):
 def main():
     pointsobj = populate_points_from_gml()
     parcelsobj = populate_parcels_from_gml(pointsobj)
+    ownersobj = populate_owners_from_gml()
     dividepointsobj = populate_points_from_csv(DIVISIONPOINTS)
     parcels_to_divide = list_from_csv('dzialki do podzialu.txt')
     divideparcelsobj = []
@@ -1110,7 +1173,7 @@ def main():
     #write_area_to_file(divideparcelsobj, 'powierzchnie_ewid.csv')
     for parcel in divideparcelsobj:
         number = parcel.number.replace('/', '_')
-        filename ='9. Wykaz zmian ' + number + '.docx'
+        filename ='Mapa tabelka ' + number + '.docx'
         wykazdict = {'jrg': parcel.jrg, 'kw': parcel.kw, 'pow_ewid': str(parcel.area), 'parcel_id': parcel.parcel_id}
         for i, landcat in enumerate(parcel.landcat):
             ofukey = 'ofu' + str(i)
