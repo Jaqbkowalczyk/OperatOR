@@ -744,7 +744,7 @@ def getcontentfromtags(text, tag):
     except IndexError:
         content = 'brak'
         return content
-    if '/>' in content.split('<')[0]:
+    if 'xsi:nil="true"' in content.split('<')[0]:
         content = 'brak'
         return content
     content = re.sub(r'^.*?>', '', content)  # delete full tag
@@ -810,7 +810,7 @@ def populate_points_from_gml():
     return pointsobj
 
 
-def populate_parcels_from_gml(pointsobj):
+def populate_parcels_from_gml(pointsobj, ownersobj):
     # function to search through gml file looking for parcels, and then create Parcel object for each parcel.
     gmlfile = open(GMLFILE, encoding='utf-8')
     parcellist = getfeaturesfromgml(gmlfile, 'egb:EGB_DzialkaEwidencyjna')
@@ -819,7 +819,14 @@ def populate_parcels_from_gml(pointsobj):
     parcelsobj = []
     gmlfile.seek(0)
     landcatlist = getfeaturesfromgml(gmlfile, 'egb:EGB_Klasouzytek')
+    gmlfile.seek(0)
+    sharelist = getfeaturesfromgml(gmlfile, 'egb:EGB_UdzialWlasnosci')
+    gmlfile.seek(0)
+    marriagelist = getfeaturesfromgml(gmlfile, 'egb:EGB_Malzenstwo')
+    gmlfile.seek(0)
+    institutionlist = getfeaturesfromgml(gmlfile, 'egb:EGB_Instytucja')
     for parcel_text in parcellist:
+        owners = []
         id = getcontentfromtags(parcel_text, 'idDzialki')
         number = id.split('.')[-1]
         gmlid = getcontentfromtags(parcel_text, 'bt:lokalnyId')
@@ -847,6 +854,35 @@ def populate_parcels_from_gml(pointsobj):
         for jrg_text in jrglist:
             if getcontentfromtags(jrg_text, 'bt:lokalnyId') == jrg_link:
                 jrg = getcontentfromtags(jrg_text, 'egb:idJednostkiRejestrowej')
+        for share_text in sharelist:
+            if getinfofromtags(share_text, 'egb:JRG')['xlink:href'].split(':')[-1] == jrg_link:
+                entity = getcontentfromtags(share_text, 'egb:EGB_Podmiot')
+                counter = getcontentfromtags(share_text, 'egb:licznikUlamkaOkreslajacegoWartoscUdzialu')
+                denominator = getcontentfromtags(share_text, 'egb:mianownikUlamkaOkreslajacegoWartoscUdzialu')
+                if 'egb:osobaFizyczna5' in entity:
+                    for owner in ownersobj:
+                        if owner.id == getinfofromtags(entity, 'egb:osobaFizyczna5')['xlink:href'].split(':')[-1]:
+                            owners.append((counter + '/' + denominator, [owner]))
+                elif 'egb:malzenstwo4' in entity:
+                    marriage_link = getinfofromtags(entity, 'egb:malzenstwo4')['xlink:href'].split(':')[-1]
+                    for marriage_text in marriagelist:
+                        if getcontentfromtags(marriage_text, 'bt:lokalnyId') == marriage_link:
+                            owner1 = ''
+                            owner2 = ''
+                            for owner in ownersobj:
+                                if owner.id == getinfofromtags(marriage_text, 'egb:osobaFizyczna2')['xlink:href'].split(':')[-1]:
+                                    owner1 = owner
+                                if owner.id == getinfofromtags(marriage_text, 'egb:osobaFizyczna3')['xlink:href'].split(':')[-1]:
+                                    owner2 = owner
+                            owners.append((counter + '/' + denominator, [owner1, owner2]))
+                elif 'egb:instytucja3' in entity:
+                    institution_link = getinfofromtags(entity, 'egb:instytucja3')['xlink:href'].split(':')[-1]
+                    for institution_text in institutionlist:
+                        if getcontentfromtags(institution_text, 'bt:lokalnyId') == institution_link:
+                            for owner in ownersobj:
+                                if owner.id == institution_link:
+                                    owners.append((counter + '/' + denominator, [owner]))
+
         kw = getcontentfromtags(parcel_text, 'egb:numerElektronicznejKW')
         if kw == 'brak':
             kw = getcontentfromtags(parcel_text, 'egb:numerKW')
@@ -866,13 +902,14 @@ def populate_parcels_from_gml(pointsobj):
                 if pt.x == point[0] and pt.y == point[1]:  # find point objects basing on coordinates
                     points.append(pt)
 
-        new_parcel = Parcel(id, number, points, landcat, gmlid, area, jrg, kw=kw)
+        new_parcel = Parcel(id, number, points, landcat, gmlid, area, jrg, owners=owners, kw=kw)
         new_parcel.calc_area = new_parcel.calculate_area()
         parcelsobj.append(new_parcel)
         logging.debug(f'Utworzyłem nową działkę o numerze: {new_parcel.number} id {new_parcel.parcel_id}, '
                       f'gmlid {new_parcel.gmlid}, powierzchni {new_parcel.area}, '
                       f'powierzchnia obliczona: {new_parcel.calc_area}, '
-                      f'Jednostka Rejestracji Gruntów: {new_parcel.jrg}, nr KW: {new_parcel.kw}')
+                      f'Jednostka Rejestracji Gruntów: {new_parcel.jrg}, nr KW: {new_parcel.kw} '
+                      f'Właściciel: {new_parcel.get_owners()}')
     gmlfile.close()
     return parcelsobj
 
@@ -885,6 +922,7 @@ def populate_owners_from_gml():
     addresslist = getfeaturesfromgml(gmlfile, 'egb:EGB_Adres')
     ownersobj = []
     address = ''
+    iaddress = ''
     for owner_text in ownerslist:
         id = getcontentfromtags(owner_text, 'bt:lokalnyId')
         name = getcontentfromtags(owner_text, 'egb:pierwszeImie')
@@ -917,10 +955,40 @@ def populate_owners_from_gml():
                     address = street + ' ' + number + '\n' + code + ' ' + town + ' ' + country
                 else:
                     address = town + ' ' + number + '\n' + code + ' ' + town + ' ' + country
-        new_owner = Owner(id, name, surname, pesel, fathername, mothername, address, name2=name2, surname2=surname2)
+        new_owner = Owner(id, name, address, surname=surname, pesel=pesel, fathername=fathername, mothername=mothername,
+                          name2=name2, surname2=surname2)
         ownersobj.append(new_owner)
         logging.debug(f'Utworzyłem nowego właściciela: {new_owner.name} {new_owner.surname} id {new_owner.id},\n'
                       f'PESEL {new_owner.pesel}, imiona rodziców: {new_owner.fathername} i {new_owner.mothername},\n'
+                      f'Adres: {new_owner.address}')
+    gmlfile.seek(0)
+    institutionlist = getfeaturesfromgml(gmlfile, 'egb:EGB_Instytucja')
+    for institution_text in institutionlist:
+        id = getcontentfromtags(institution_text, 'bt:lokalnyId')
+        name = getcontentfromtags(institution_text, 'nazwaPelna')
+        regon = getcontentfromtags(institution_text, 'egb:regon')
+        nip = getcontentfromtags(institution_text, 'egb:nip')
+        address_link = getinfofromtags(institution_text, 'egb:adresInstytucji')['xlink:href'].split(':')[-1]
+        for address_text in addresslist:
+            if getcontentfromtags(address_text, 'bt:lokalnyId') == address_link:
+                country = getcontentfromtags(address_text, 'egb:kraj')
+                code = getcontentfromtags(address_text, 'egb:kodPocztowy')
+                town = getcontentfromtags(address_text, 'egb:miejscowosc')
+                number = getcontentfromtags(address_text, 'egb:numerPorzadkowy')
+                localnum = getcontentfromtags(address_text, 'egb:nrLokalu')
+                street = getcontentfromtags(address_text, 'egb:ulica')
+                if country =='brak':
+                    country = ''
+                if localnum != 'brak':
+                    iaddress = street + ' ' + number + '/' + localnum + '\n' + code + ' ' + town + ' ' + country
+                elif street != 'brak':
+                    iaddress = street + ' ' + number + '\n' + code + ' ' + town + ' ' + country
+                else:
+                    iaddress = town + ' ' + number + '\n' + code + ' ' + town + ' ' + country
+        new_owner = Owner(id, name, iaddress, nip=nip, regon=regon)
+        ownersobj.append(new_owner)
+        logging.debug(f'Utworzyłem nową instytucję: {new_owner.name} id {new_owner.id}\n'
+                      f'NIP: {new_owner.nip} REGON: {new_owner.regon}\n'
                       f'Adres: {new_owner.address}')
     gmlfile.close()
     return ownersobj
@@ -1053,7 +1121,8 @@ def write_parcel_points_to_file(parcels, file):
 
 
 class Owner:
-    def __init__(self, id, name, surname, pesel, fathername, mothername, address, parcels=[], name2=None, surname2=None, hour=None,
+    def __init__(self, id, name, address, surname=None, pesel=None, fathername=None, mothername=None, parcels=[],
+                 name2=None, surname2=None, nip=None, regon=None, hour=None,
                  date=None, source=None):
         self.id = id
         self.name = name
@@ -1064,12 +1133,16 @@ class Owner:
         self.pesel = pesel
         self.fathername = fathername
         self.mothername = mothername
+        self.nip = nip
+        self.regon = regon
         self.hour = hour
         self.date = date
         self.source = source
         self.parcels = parcels
-        self.fullname = self.name + ' ' + self.surname
-
+        try:
+            self.fullname = self.name + ' ' + self.surname
+        except TypeError:
+            pass
     def addparcels(self, parcel):
         self.parcels.append(parcel)
 
@@ -1098,6 +1171,23 @@ class Parcel:
         pgon = Polygon(pointlist)
         #logging.debug(f'Parcel calculated Area: {round(pgon.area)}')
         return round(pgon.area)
+
+    def get_owners(self):
+        text = ''
+        for owner in self.owners:
+            text += '\n'
+            if owner[1][0].surname is not None:
+                if len(owner[1]) == 1:
+                    text += owner[1][0].name + ' ' + owner[1][0].surname + ' Udziały w części:' + ' ' + owner[0]
+                elif len(owner[1]) == 2:
+                    text += 'Małż:' + ' ' + owner[1][0].name + ' ' + owner[1][0].surname + \
+                           ' Udziały w części:' + ' ' + owner[0] + ' ' + '\n' + ' ' + \
+                           owner[1][1].name + ' ' + owner[1][1].surname + ' Udziały w części:' + ' ' + owner[0]
+                else:
+                    text = 'brak'
+            else:
+                text += owner[1][0].name + ' Udziały w części:' + ' ' + owner[0]
+        return text
 
 
 class Point:
@@ -1155,8 +1245,8 @@ class MainApplication(tk.Frame):
 
 def main():
     pointsobj = populate_points_from_gml()
-    parcelsobj = populate_parcels_from_gml(pointsobj)
     ownersobj = populate_owners_from_gml()
+    parcelsobj = populate_parcels_from_gml(pointsobj, ownersobj)
     dividepointsobj = populate_points_from_csv(DIVISIONPOINTS)
     parcels_to_divide = list_from_csv('dzialki do podzialu.txt')
     divideparcelsobj = []
