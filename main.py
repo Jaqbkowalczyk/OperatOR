@@ -855,34 +855,36 @@ def populate_parcels_from_gml(pointsobj, ownersobj):
             if getcontentfromtags(jrg_text, 'bt:lokalnyId') == jrg_link:
                 jrg = getcontentfromtags(jrg_text, 'egb:idJednostkiRejestrowej')
         for share_text in sharelist:
-            if getinfofromtags(share_text, 'egb:JRG')['xlink:href'].split(':')[-1] == jrg_link:
-                entity = getcontentfromtags(share_text, 'egb:EGB_Podmiot')
-                counter = getcontentfromtags(share_text, 'egb:licznikUlamkaOkreslajacegoWartoscUdzialu')
-                denominator = getcontentfromtags(share_text, 'egb:mianownikUlamkaOkreslajacegoWartoscUdzialu')
-                if 'egb:osobaFizyczna5' in entity:
-                    for owner in ownersobj:
-                        if owner.id == getinfofromtags(entity, 'egb:osobaFizyczna5')['xlink:href'].split(':')[-1]:
-                            owners.append((counter + '/' + denominator, [owner]))
-                elif 'egb:malzenstwo4' in entity:
-                    marriage_link = getinfofromtags(entity, 'egb:malzenstwo4')['xlink:href'].split(':')[-1]
-                    for marriage_text in marriagelist:
-                        if getcontentfromtags(marriage_text, 'bt:lokalnyId') == marriage_link:
-                            owner1 = ''
-                            owner2 = ''
-                            for owner in ownersobj:
-                                if owner.id == getinfofromtags(marriage_text, 'egb:osobaFizyczna2')['xlink:href'].split(':')[-1]:
-                                    owner1 = owner
-                                if owner.id == getinfofromtags(marriage_text, 'egb:osobaFizyczna3')['xlink:href'].split(':')[-1]:
-                                    owner2 = owner
-                            owners.append((counter + '/' + denominator, [owner1, owner2]))
-                elif 'egb:instytucja3' in entity:
-                    institution_link = getinfofromtags(entity, 'egb:instytucja3')['xlink:href'].split(':')[-1]
-                    for institution_text in institutionlist:
-                        if getcontentfromtags(institution_text, 'bt:lokalnyId') == institution_link:
-                            for owner in ownersobj:
-                                if owner.id == institution_link:
-                                    owners.append((counter + '/' + denominator, [owner]))
-
+            try:
+                if getinfofromtags(share_text, 'egb:JRG')['xlink:href'].split(':')[-1] == jrg_link:
+                    entity = getcontentfromtags(share_text, 'egb:EGB_Podmiot')
+                    counter = getcontentfromtags(share_text, 'egb:licznikUlamkaOkreslajacegoWartoscUdzialu')
+                    denominator = getcontentfromtags(share_text, 'egb:mianownikUlamkaOkreslajacegoWartoscUdzialu')
+                    if 'egb:osobaFizyczna5' in entity:
+                        for owner in ownersobj:
+                            if owner.id == getinfofromtags(entity, 'egb:osobaFizyczna5')['xlink:href'].split(':')[-1]:
+                                owners.append((counter + '/' + denominator, [owner]))
+                    elif 'egb:malzenstwo4' in entity:
+                        marriage_link = getinfofromtags(entity, 'egb:malzenstwo4')['xlink:href'].split(':')[-1]
+                        for marriage_text in marriagelist:
+                            if getcontentfromtags(marriage_text, 'bt:lokalnyId') == marriage_link:
+                                owner1 = ''
+                                owner2 = ''
+                                for owner in ownersobj:
+                                    if owner.id == getinfofromtags(marriage_text, 'egb:osobaFizyczna2')['xlink:href'].split(':')[-1]:
+                                        owner1 = owner
+                                    if owner.id == getinfofromtags(marriage_text, 'egb:osobaFizyczna3')['xlink:href'].split(':')[-1]:
+                                        owner2 = owner
+                                owners.append((counter + '/' + denominator, [owner1, owner2]))
+                    elif 'egb:instytucja3' in entity:
+                        institution_link = getinfofromtags(entity, 'egb:instytucja3')['xlink:href'].split(':')[-1]
+                        for institution_text in institutionlist:
+                            if getcontentfromtags(institution_text, 'bt:lokalnyId') == institution_link:
+                                for owner in ownersobj:
+                                    if owner.id == institution_link:
+                                        owners.append((counter + '/' + denominator, [owner]))
+            except KeyError:
+                pass
         kw = getcontentfromtags(parcel_text, 'egb:numerElektronicznejKW')
         if kw == 'brak':
             kw = getcontentfromtags(parcel_text, 'egb:numerKW')
@@ -968,7 +970,10 @@ def populate_owners_from_gml():
         name = getcontentfromtags(institution_text, 'nazwaPelna')
         regon = getcontentfromtags(institution_text, 'egb:regon')
         nip = getcontentfromtags(institution_text, 'egb:nip')
-        address_link = getinfofromtags(institution_text, 'egb:adresInstytucji')['xlink:href'].split(':')[-1]
+        try:
+            address_link = getinfofromtags(institution_text, 'egb:adresInstytucji')['xlink:href'].split(':')[-1]
+        except KeyError:
+            address_link = ''
         for address_text in addresslist:
             if getcontentfromtags(address_text, 'bt:lokalnyId') == address_link:
                 country = getcontentfromtags(address_text, 'egb:kraj')
@@ -1175,18 +1180,18 @@ class Parcel:
     def get_owners(self):
         text = ''
         for owner in self.owners:
-            text += '\n'
             if owner[1][0].surname is not None:
                 if len(owner[1]) == 1:
-                    text += owner[1][0].name + ' ' + owner[1][0].surname + ' Udziały w części:' + ' ' + owner[0]
+                    text += owner[1][0].name + ' ' + owner[1][0].surname + ' w części:' + ' ' + owner[0]
                 elif len(owner[1]) == 2:
                     text += 'Małż:' + ' ' + owner[1][0].name + ' ' + owner[1][0].surname + \
-                           ' Udziały w części:' + ' ' + owner[0] + ' ' + '\n' + ' ' + \
-                           owner[1][1].name + ' ' + owner[1][1].surname + ' Udziały w części:' + ' ' + owner[0]
+                           ' w części:' + ' ' + owner[0] + ' ' + '\n' + \
+                           owner[1][1].name + ' ' + owner[1][1].surname + ' w części:' + ' ' + owner[0]
                 else:
                     text = 'brak'
             else:
                 text += owner[1][0].name + ' Udziały w części:' + ' ' + owner[0]
+            text += '\n'
         return text
 
 
@@ -1264,7 +1269,23 @@ def main():
     for parcel in divideparcelsobj:
         number = parcel.number.replace('/', '_')
         filename ='Mapa tabelka ' + number + '.docx'
-        wykazdict = {'jrg': parcel.jrg, 'kw': parcel.kw, 'pow_ewid': str(parcel.area), 'parcel_id': parcel.parcel_id}
+        wykazdict = {'number': parcel.number, 'kw': parcel.kw, 'owner': parcel.get_owners()}
+        ha = int(parcel.area)  # round down parcel area to get ha
+        a = int((parcel.area - ha) * 100)
+        m2 = int((((parcel.area - ha) * 100) - a) * 100)
+        ha = str(ha)
+        a = str(a)
+        m2 = str(m2)
+        if len(a) < 2:
+            a = '0' + a
+        if len(m2) < 2:
+            m2 = '0' + m2
+            if m2 == '00':
+                m2 = '--'
+        wykazdict['ha'] = ha
+        wykazdict['a'] = a
+        wykazdict['m2'] = m2
+        """
         for i, landcat in enumerate(parcel.landcat):
             ofukey = 'ofu' + str(i)
             ozukey = 'ozu' + str(i)
@@ -1274,8 +1295,9 @@ def main():
             wykazdict[ozukey] = landcat.ozu
             wykazdict[ozkkey] = landcat.ozk
             wykazdict[areakey] = str(landcat.area)
+        """
         # print(wykazdict)
-        changehash(os.getcwd() + '\\docs\\9. Wykaz zmian.docx', filename, hashdict=wykazdict)
+        changehash(os.getcwd() + '\\docs\\Mapa podziału wieś tabelka.docx', filename, hashdict=wykazdict)
     #write_parcel_points_to_file(temp, 'punkty_32_4.csv')
     # todo search only in divided parcels, and optimize search.
     """with open('atrybuty.csv', 'w', newline='') as csvfile:
