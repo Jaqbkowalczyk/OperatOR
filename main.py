@@ -42,6 +42,7 @@ HACCURACY = 2
 ANGLEACCURACY = 4
 AREAACCURACY = 0
 DIVISIONPOINTS = 'pkty_podzial.txt'
+MAINPARCEL = '38/1'
 
 def find_kerg(filename):  # todo regex
     logging.debug(f'{filename}')
@@ -169,7 +170,7 @@ def createparcelfilefromdoc(file, parcelsfile):
             for cell in row.cells:
                 if j == 1:
                     cell_parcels = cell.text.split(',')
-                    logging.debug(f'Text komórki: {cell.text}')
+                    #logging.debug(f'Text komórki: {cell.text}')
                     for parcel in cell_parcels:
                         parcel = parcel.replace(' ', '')
                         parcels.append(parcel)
@@ -236,7 +237,7 @@ def filldocxtemplate(templatefile, outputfile, owner=None):
             for row in table.rows:
                 for cell in row.cells:
                     for paragraph in cell.paragraphs:
-                        logging.debug(f'Text komórki: {paragraph.text}')
+                        #logging.debug(f'Text komórki: {paragraph.text}')
                         hashtag = re.findall(r"#(\w+)#", paragraph.text)
                         logging.debug(f'Hashtagi: {hashtag}')
                         if len(hashtag) == 0:
@@ -317,7 +318,7 @@ def findowners(file, parcelspath):
                     parcel = parcel[-1]
                     print(parcel)
                 if j == 6:
-                    logging.debug(f'Text komórki: {cell.text}')
+                    #logging.debug(f'Text komórki: {cell.text}')
                     temp = cell.text.split('udział ')
                     temp.pop(0)
                     for udz in temp:
@@ -427,7 +428,7 @@ def findkw(file, parcelspath):
                     parcel = parcel[-1]
                     print(parcel)
                 if j == 7:
-                    logging.debug(f'Text komórki: {cell.text}')
+                    #logging.debug(f'Text komórki: {cell.text}')
                     text = cell.text.replace('\t', '')
                     logging.debug(f'{text}')
                     kw.append(calccontrolnumber(text))
@@ -545,117 +546,107 @@ def parcelfinder(parcel, ownersfile):
                 print(' '.join([row[0], row[1], row[2]]))
 
 
-def changehash(file, owner):
-    doc = Document(file)
-    get_text_from_doc(doc)
-    for child in doc.element.body.xpath('w:p | w:tbl'):
+def changehash(templatefile, outputfile, hashdict):
+    template = Document(templatefile)
+    get_text_from_doc(templatefile)
+    try:
+        output = Document(outputfile)
+    except PackageNotFoundError:
+        output = Document()
+        output.save(outputfile)
+    current_section = template.sections[-1]
+    new_height, new_width = current_section.page_height, current_section.page_width
+    new_section = output.sections[-1]
+    new_section.orientation = current_section.orientation
+    new_section.page_width = current_section.page_width
+    new_section.page_height = current_section.page_height
+    new_section.top_margin = current_section.top_margin
+    new_section.bottom_margin = current_section.bottom_margin
+    new_section.left_margin = current_section.left_margin
+    new_section.right_margin = current_section.right_margin
+    new_section.header.paragraphs[0].text = current_section.header.paragraphs[0].text
+
+    for child in template.element.body.xpath('w:p | w:tbl'):
         if isinstance(child, CT_P):
-            paragraph = Paragraph(child, doc)
+            paragraph = Paragraph(child, template)
+            outpara = output.add_paragraph()
             s = paragraph.text
             hashtag = re.findall(r"#(\w+)#", s)
-            logging.debug(f'Hashtagi: {hashtag}')
-            logging.debug(f'Text komórki: {paragraph.text}')
+            inline = []
+            i = 0
+            #logging.debug(f'Text komórki: {paragraph.text}')
             if len(hashtag) == 0:
                 pass
             else:
+                logging.debug(f'Hashtagi: {hashtag}')
                 for hash in hashtag:
-                    if hash == 'imie':
+                    try:
                         inline = paragraph.runs
                         for i in range(len(inline)):
-                            if 'imie' in inline[i].text:
-                                text = inline[i].text.replace('#imie#', owner.name)
-                                inline[i].text = text
-                    elif hash == 'nazwisko':
-                        inline = paragraph.runs
-                        for i in range(len(inline)):
-                            if 'nazwisko' in inline[i].text:
-                                text = inline[i].text.replace('#nazwisko#', owner.surname)
-                                inline[i].text = text
-                    elif hash == 'adres':
-                        inline = paragraph.runs
-                        for i in range(len(inline)):
-                            if 'adres' in inline[i].text:
-                                text = inline[i].text.replace('#adres#', owner.address)
-                                text = text.replace(', ', ',\n')
-                                inline[i].text = text
-                    elif hash == 'godzina':
-                        inline = paragraph.runs
-                        for i in range(len(inline)):
-                            if 'godzina' in inline[i].text:
-                                try:
-                                    text = inline[i].text.replace('#godzina#', owner.hour)
+                            inline[i].text = inline[i].text.replace('#', '')
+                            if hash in inline[i].text:
+                                if hashdict[hash] != 'brak':
+                                    text = inline[i].text.replace(hash, hashdict[hash])
                                     inline[i].text = text
-                                    logging.debug(f'Wprowadziłem godzinę dla {owner.name} {owner.surname}:'
-                                                  f' {owner.hour} ')
-                                except:
-                                    pass
-                    elif hash == 'data':
-                        inline = paragraph.runs
-                        for i in range(len(inline)):
-                            if 'data' in inline[i].text:
-                                try:
-                                    text = inline[i].text.replace('#data#', owner.date)
-                                    inline[i].text = text
-                                    logging.debug(f'Wprowadziłem datę dla {owner.name} {owner.surname}:'
-                                                  f' {owner.date} ')
-                                except:
-                                    pass
-
-
+                                else:
+                                    inline[i].text = ''
+                    except KeyError:
+                        inline[i].text = ''
+            for run in paragraph.runs:
+                output_run = outpara.add_run(run.text)
+                output_run.bold = run.bold
+                # Run's italic data
+                output_run.italic = run.italic
+                # Run's underline data
+                output_run.underline = run.underline
+                # Run's color data
+                output_run.font.color.rgb = run.font.color.rgb
+                # Run's font
+                output_run.font.name = 'Times New Roman'
+                output_run.font.size = run.font.size
+                # Run's font data
+                output_run.style.name = run.style.name
+                # Paragraph's alignment data
+            outpara.paragraph_format.line_spacing = 0.8
+            outpara.paragraph_format.alignment = paragraph.paragraph_format.alignment
+            outpara.paragraph_format.first_line_indent = paragraph.paragraph_format.first_line_indent
+            outpara.paragraph_format.space_before = paragraph.paragraph_format.space_before
+            outpara.paragraph_format.space_after = paragraph.paragraph_format.space_after
         elif isinstance(child, CT_Tbl):
-            table = Table(child, doc)
+            table = Table(child, template)
+            inline = []
+            i = 0
             for row in table.rows:
                 for cell in row.cells:
                     for paragraph in cell.paragraphs:
-                        logging.debug(f'Text komórki: {paragraph.text}')
+                        #logging.debug(f'Text komórki: {paragraph.text}')
                         hashtag = re.findall(r"#(\w+)#", paragraph.text)
-                        logging.debug(f'Hashtagi: {hashtag}')
                         if len(hashtag) == 0:
                             pass
                         else:
+                            logging.debug(f'Hashtagi: {hashtag}')
                             for hash in hashtag:
-                                if hash == 'imie':
+                                try:
                                     inline = paragraph.runs
                                     for i in range(len(inline)):
-                                        if 'imie' in inline[i].text:
-                                            text = inline[i].text.replace('#imie#', owner.name)
-                                            inline[i].text = text
-                                elif hash == 'nazwisko':
-                                    inline = paragraph.runs
-                                    for i in range(len(inline)):
-                                        if 'nazwisko' in inline[i].text:
-                                            text = inline[i].text.replace('#nazwisko#', owner.surname)
-                                            inline[i].text = text
-                                elif hash == 'adres':
-                                    inline = paragraph.runs
-                                    for i in range(len(inline)):
-                                        if 'adres' in inline[i].text:
-                                            text = inline[i].text.replace('#adres#', owner.address)
-                                            text = text.replace(', ', ',\n')
-                                            inline[i].text = text
-                                elif hash == 'godzina':
-                                    inline = paragraph.runs
-                                    for i in range(len(inline)):
-                                        if 'godzina' in inline[i].text:
-                                            try:
-                                                text = inline[i].text.replace('#godzina#', owner.hour)
+                                        inline[i].text = inline[i].text.replace('#', '')
+                                        logging.debug(f'inine run: {inline[i].text}')
+                                        if hash in inline[i].text:
+                                            if hashdict[hash] != 'brak':
+                                                text = inline[i].text.replace(hash, hashdict[hash])
                                                 inline[i].text = text
-                                                logging.debug(f'Wprowadziłem godzinę dla {owner.name} {owner.surname}:'
-                                                              f' {owner.hour} ')
-                                            except:
-                                                pass
-                                elif hash == 'data':
-                                    inline = paragraph.runs
-                                    for i in range(len(inline)):
-                                        if 'data' in inline[i].text:
-                                            try:
-                                                text = inline[i].text.replace('#data#', owner.date)
-                                                inline[i].text = text
-                                                logging.debug(f'Wprowadziłem datę dla {owner.name} {owner.surname}:'
-                                                              f' {owner.date} ')
-                                            except:
-                                                pass
-    doc.save(file)
+                                            else:
+                                                inline[i].text = ''
+
+                                except KeyError:
+                                    inline[i].text = ''
+            paragraph = output.add_paragraph()
+            paragraph._p.addnext(table._tbl)
+            paragraph.paragraph_format.first_line_indent = 0
+            paragraph.paragraph_format.space_before = 0
+            paragraph.paragraph_format.space_after = 0
+            paragraph.paragraph_format.line_spacing = 0
+    output.save(outputfile)
 
 
 def kwtopdf(kw):
@@ -692,15 +683,15 @@ def pdfmerge(folder):
     for subdir, dirs, files in os.walk(folder):
         for file in files:
             file = file.replace('.pdf', '')
-            print(file)
+            # print(file)
             if file.split('_')[-1] == '1':
                 for f2 in files:
                     if f2.split('.')[-1] != 'pdf':
                         continue
                     f2 = f2.replace('.pdf', '')
-                    logging.debug(f'{f2.split("_")[1]} vs {file.split("_")[1]} and {file.split("_")[-1]}')
+                    # logging.debug(f'{f2.split("_")[1]} vs {file.split("_")[1]} and {file.split("_")[-1]}')
                     if f2.split('_')[1] == file.split('_')[1] and f2.split('_')[-1] != '1':
-                        logging.debug('hej')
+                        # logging.debug('hej')
                         merger = PdfFileMerger()
                         input1 = open(folder + '/' + file + '.pdf', 'rb')
                         input2 = open(folder + '/' + f2 + '.pdf', 'rb')
@@ -748,7 +739,14 @@ def getfeaturesfromgml(gmlfile, feature):
 
 def getcontentfromtags(text, tag):
     # Function to grab everything in between two tags, nested tags included
-    content = text.split(tag)[1]  # grab text starting from tag
+    try:
+        content = text.split(tag)[1]  # grab text starting from tag
+    except IndexError:
+        content = 'brak'
+        return content
+    if 'xsi:nil="true"' in content.split('<')[0]:
+        content = 'brak'
+        return content
     content = re.sub(r'^.*?>', '', content)  # delete full tag
     content = content.split('</')[:-1]  # delete exit tag
     content = '</'.join(content)  # join every nested tags
@@ -798,27 +796,102 @@ def populate_points_from_gml():
             rzg = int(getcontentfromtags(point, 'egb:kodRzeduGranicy'))
         except ValueError:
             rzg = 'brak'
-        new_point = Point(id, number, x, y, gmlid, zrd, bpp, stb, rzg)
+
+        operat = getcontentfromtags(point, 'egb:dodatkoweInformacje')
+        operat = operat.replace('operat punktu:', '')
+        operat = operat.split(' ')[0]
+
+        new_point = Point(id, number, x, y, gmlid, zrd, bpp, stb, rzg, operat)
         pointsobj.append(new_point)
         logging.debug(f'Utworzyłem nowy punkt o numerze: {new_point.number} id {new_point.point_id}, '
                       f'gmlid {new_point.gmlid}, wsp: {new_point.x}, {new_point.y}, {new_point.zrd} {new_point.bpp}'
-                      f' {new_point.stb} {new_point.rzg}')
+                      f' {new_point.stb} {new_point.rzg}, operat: {new_point.operat}')
     gmlfile.close()
     return pointsobj
 
 
-def populate_parcels_from_gml(pointsobj):
+def populate_parcels_from_gml(pointsobj, ownersobj):
     # function to search through gml file looking for parcels, and then create Parcel object for each parcel.
     gmlfile = open(GMLFILE, encoding='utf-8')
     parcellist = getfeaturesfromgml(gmlfile, 'egb:EGB_DzialkaEwidencyjna')
+    gmlfile.seek(0)
+    jrglist = getfeaturesfromgml(gmlfile, 'egb:EGB_JednostkaRejestrowaGruntow')
     parcelsobj = []
-    for parcel in parcellist:
-        id = getcontentfromtags(parcel, 'idDzialki')
+    gmlfile.seek(0)
+    landcatlist = getfeaturesfromgml(gmlfile, 'egb:EGB_Klasouzytek')
+    gmlfile.seek(0)
+    sharelist = getfeaturesfromgml(gmlfile, 'egb:EGB_UdzialWlasnosci')
+    gmlfile.seek(0)
+    marriagelist = getfeaturesfromgml(gmlfile, 'egb:EGB_Malzenstwo')
+    gmlfile.seek(0)
+    institutionlist = getfeaturesfromgml(gmlfile, 'egb:EGB_Instytucja')
+    for parcel_text in parcellist:
+        owners = []
+        id = getcontentfromtags(parcel_text, 'idDzialki')
         number = id.split('.')[-1]
-        gmlid = getcontentfromtags(parcel, 'bt:lokalnyId')
-        area = float(getcontentfromtags(parcel, 'egb:powierzchniaEwidencyjna'))
-        jrg = getinfofromtags(parcel, 'egb:JRG2')
-        poslist = getcontentfromtags(parcel, 'gml:posList')
+        gmlid = getcontentfromtags(parcel_text, 'bt:lokalnyId')
+        area = float(getcontentfromtags(parcel_text, 'egb:powierzchniaEwidencyjna'))
+        # get jrg id from xlink:href tag. It's the last part of link that matters
+        jrg_link = getinfofromtags(parcel_text, 'egb:JRG2')['xlink:href'].split(':')[-1]
+        landcat_links = []
+        for item in parcel_text.split('egb:klasouzytekWGranicachDzialki')[1:]:
+            item = 'egb:klasouzytekWGranicachDzialki' + item
+            item = item.split('/>')[0]
+            landcat_links.append(getinfofromtags(item, 'egb:klasouzytekWGranicachDzialki')['xlink:href'].split(':')[-1])
+        jrg = ''
+        landcat = []
+        for landcat_text in landcatlist:
+             for landcat_link in landcat_links:
+                if getcontentfromtags(landcat_text, 'bt:lokalnyId') == landcat_link:
+                    class_id = getcontentfromtags(landcat_text, 'bt:lokalnyId')
+                    ofu = getcontentfromtags(landcat_text, 'egb:OFU')
+                    ozu = getcontentfromtags(landcat_text, 'egb:OZU')
+                    ozk = getcontentfromtags(landcat_text, 'egb:OZK')
+                    landcat_area = float(getcontentfromtags(landcat_text, 'egb:powierzchniaEwidencyjnaKlasouzytku'))
+                    new_landcat = Landcat(class_id, ofu, ozu, ozk, landcat_area)
+                    landcat.append(new_landcat)
+                    logging.debug(f'new landcat: {new_landcat.ofu}, {new_landcat.ozu}{new_landcat.ozk} powierzchnia: {new_landcat.area}')
+        for jrg_text in jrglist:
+            if getcontentfromtags(jrg_text, 'bt:lokalnyId') == jrg_link:
+                jrg = getcontentfromtags(jrg_text, 'egb:idJednostkiRejestrowej')
+        for share_text in sharelist:
+            try:
+                if getinfofromtags(share_text, 'egb:JRG')['xlink:href'].split(':')[-1] == jrg_link:
+                    entity = getcontentfromtags(share_text, 'egb:EGB_Podmiot')
+                    counter = getcontentfromtags(share_text, 'egb:licznikUlamkaOkreslajacegoWartoscUdzialu')
+                    denominator = getcontentfromtags(share_text, 'egb:mianownikUlamkaOkreslajacegoWartoscUdzialu')
+                    if 'egb:osobaFizyczna5' in entity:
+                        for owner in ownersobj:
+                            if owner.id == getinfofromtags(entity, 'egb:osobaFizyczna5')['xlink:href'].split(':')[-1]:
+                                owners.append((counter + '/' + denominator, [owner]))
+                    elif 'egb:malzenstwo4' in entity:
+                        marriage_link = getinfofromtags(entity, 'egb:malzenstwo4')['xlink:href'].split(':')[-1]
+                        for marriage_text in marriagelist:
+                            if getcontentfromtags(marriage_text, 'bt:lokalnyId') == marriage_link:
+                                owner1 = ''
+                                owner2 = ''
+                                for owner in ownersobj:
+                                    if owner.id == getinfofromtags(marriage_text, 'egb:osobaFizyczna2')['xlink:href'].split(':')[-1]:
+                                        owner1 = owner
+                                    if owner.id == getinfofromtags(marriage_text, 'egb:osobaFizyczna3')['xlink:href'].split(':')[-1]:
+                                        owner2 = owner
+                                owners.append((counter + '/' + denominator, [owner1, owner2]))
+                    elif 'egb:instytucja3' in entity:
+                        institution_link = getinfofromtags(entity, 'egb:instytucja3')['xlink:href'].split(':')[-1]
+                        for institution_text in institutionlist:
+                            if getcontentfromtags(institution_text, 'bt:lokalnyId') == institution_link:
+                                for owner in ownersobj:
+                                    if owner.id == institution_link:
+                                        owners.append((counter + '/' + denominator, [owner]))
+            except KeyError:
+                pass
+        kw = getcontentfromtags(parcel_text, 'egb:numerElektronicznejKW')
+        if kw == 'brak':
+            kw = getcontentfromtags(parcel_text, 'egb:numerKW')
+        if kw != 'brak':
+            kw = calccontrolnumber(kw)
+
+        poslist = getcontentfromtags(parcel_text, 'gml:posList')
         poslist = poslist.split(' ')
         pointslist = []
         points = []
@@ -831,15 +904,100 @@ def populate_parcels_from_gml(pointsobj):
                 if pt.x == point[0] and pt.y == point[1]:  # find point objects basing on coordinates
                     points.append(pt)
 
-        new_parcel = Parcel(id, number, points, gmlid, area, jrg)
+        new_parcel = Parcel(id, number, points, landcat, gmlid, area, jrg, owners=owners, kw=kw)
         new_parcel.calc_area = new_parcel.calculate_area()
         parcelsobj.append(new_parcel)
         logging.debug(f'Utworzyłem nową działkę o numerze: {new_parcel.number} id {new_parcel.parcel_id}, '
                       f'gmlid {new_parcel.gmlid}, powierzchni {new_parcel.area}, '
                       f'powierzchnia obliczona: {new_parcel.calc_area}, '
-                      f'Jednostka Rejestracji Gruntów: {new_parcel.jrg}')
+                      f'Jednostka Rejestracji Gruntów: {new_parcel.jrg}, nr KW: {new_parcel.kw} '
+                      f'Właściciel: {new_parcel.get_owners()}')
     gmlfile.close()
     return parcelsobj
+
+
+def populate_owners_from_gml():
+    # function to search through gml file looking for parcels, and then create Parcel object for each parcel.
+    gmlfile = open(GMLFILE, encoding='utf-8')
+    ownerslist = getfeaturesfromgml(gmlfile, 'egb:EGB_OsobaFizyczna')
+    gmlfile.seek(0)
+    addresslist = getfeaturesfromgml(gmlfile, 'egb:EGB_Adres')
+    ownersobj = []
+    address = ''
+    iaddress = ''
+    for owner_text in ownerslist:
+        id = getcontentfromtags(owner_text, 'bt:lokalnyId')
+        name = getcontentfromtags(owner_text, 'egb:pierwszeImie')
+        name2 = getcontentfromtags(owner_text, 'egb:drugieImie')
+        if name2 == 'brak':
+            name2 = None
+        surname = getcontentfromtags(owner_text, 'egb:pierwszyCzlonNazwiska')
+        surname2 = getcontentfromtags(owner_text, 'egb:drugiCzlonNazwiska')
+        if surname2 == 'brak':
+            surname2 = None
+        pesel = getcontentfromtags(owner_text, 'egb:pesel')
+        fathername = getcontentfromtags(owner_text, 'egb:imieOjca')
+        mothername = getcontentfromtags(owner_text, 'egb:imieMatki')
+
+        # get address id from xlink:href tag. It's the last part of link that matters
+        address_link = getinfofromtags(owner_text, 'egb:adresOsobyFizycznej')['xlink:href'].split(':')[-1]
+        for address_text in addresslist:
+            if getcontentfromtags(address_text, 'bt:lokalnyId') == address_link:
+                country = getcontentfromtags(address_text, 'egb:kraj')
+                code = getcontentfromtags(address_text, 'egb:kodPocztowy')
+                town = getcontentfromtags(address_text, 'egb:miejscowosc')
+                number = getcontentfromtags(address_text, 'egb:numerPorzadkowy')
+                localnum = getcontentfromtags(address_text, 'egb:nrLokalu')
+                street = getcontentfromtags(address_text, 'egb:ulica')
+                if country =='brak':
+                    country = ''
+                if localnum != 'brak':
+                    address = street + ' ' + number + '/' + localnum + '\n' + code + ' ' + town + ' ' + country
+                elif street != 'brak':
+                    address = street + ' ' + number + '\n' + code + ' ' + town + ' ' + country
+                else:
+                    address = town + ' ' + number + '\n' + code + ' ' + town + ' ' + country
+        new_owner = Owner(id, name, address, surname=surname, pesel=pesel, fathername=fathername, mothername=mothername,
+                          name2=name2, surname2=surname2)
+        ownersobj.append(new_owner)
+        logging.debug(f'Utworzyłem nowego właściciela: {new_owner.name} {new_owner.surname} id {new_owner.id},\n'
+                      f'PESEL {new_owner.pesel}, imiona rodziców: {new_owner.fathername} i {new_owner.mothername},\n'
+                      f'Adres: {new_owner.address}')
+    gmlfile.seek(0)
+    institutionlist = getfeaturesfromgml(gmlfile, 'egb:EGB_Instytucja')
+    for institution_text in institutionlist:
+        id = getcontentfromtags(institution_text, 'bt:lokalnyId')
+        name = getcontentfromtags(institution_text, 'nazwaPelna')
+        regon = getcontentfromtags(institution_text, 'egb:regon')
+        nip = getcontentfromtags(institution_text, 'egb:nip')
+        try:
+            address_link = getinfofromtags(institution_text, 'egb:adresInstytucji')['xlink:href'].split(':')[-1]
+        except KeyError:
+            address_link = ''
+        for address_text in addresslist:
+            if getcontentfromtags(address_text, 'bt:lokalnyId') == address_link:
+                country = getcontentfromtags(address_text, 'egb:kraj')
+                code = getcontentfromtags(address_text, 'egb:kodPocztowy')
+                town = getcontentfromtags(address_text, 'egb:miejscowosc')
+                number = getcontentfromtags(address_text, 'egb:numerPorzadkowy')
+                localnum = getcontentfromtags(address_text, 'egb:nrLokalu')
+                street = getcontentfromtags(address_text, 'egb:ulica')
+                if country =='brak':
+                    country = ''
+                if localnum != 'brak':
+                    iaddress = street + ' ' + number + '/' + localnum + '\n' + code + ' ' + town + ' ' + country
+                elif street != 'brak':
+                    iaddress = street + ' ' + number + '\n' + code + ' ' + town + ' ' + country
+                else:
+                    iaddress = town + ' ' + number + '\n' + code + ' ' + town + ' ' + country
+        new_owner = Owner(id, name, iaddress, nip=nip, regon=regon)
+        ownersobj.append(new_owner)
+        logging.debug(f'Utworzyłem nową instytucję: {new_owner.name} id {new_owner.id}\n'
+                      f'NIP: {new_owner.nip} REGON: {new_owner.regon}\n'
+                      f'Adres: {new_owner.address}')
+    gmlfile.close()
+    return ownersobj
+
 
 
 def populate_points_from_csv(file):
@@ -903,11 +1061,18 @@ def is_on_border(parcel, point):
     while i < len(parcel.points)-1:
         border = line_from_two_points((parcel.points[i].x, parcel.points[i].y),
                                       (parcel.points[i+1].x, parcel.points[i+1].y))
-        logging.debug(f'Line from points: {parcel.points[i].number}, {parcel.points[i+1].number}')
-        distance = distance_from_line((point.x, point.y), border)
-        logging.debug(f'point number: {point.number}, x: {point.x},y: {point.y}\n'
-                      f'distance from line: {distance}')
-        if abs(distance) < 0.01:
+        #logging.debug(f'Line from points: {parcel.points[i].number}, {parcel.points[i+1].number}')
+        distance_line = abs(distance_from_line((point.x, point.y), border))
+        logging.debug(f'point number: {point.number}, line: {parcel.points[i].number}, {parcel.points[i+1].number} \n'
+                      f'distance from line: {distance_line}')
+        if abs(distance_line) < 0.05:
+            border_length = abs(math.dist([parcel.points[i].x, parcel.points[i].y],
+                                      [parcel.points[i+1].x, parcel.points[i+1].y]))
+            dist1 = abs(math.dist([parcel.points[i].x, parcel.points[i].y], [point.x, point.y]))
+            dist2 = abs(math.dist([parcel.points[i+1].x, parcel.points[i+1].y], [point.x, point.y]))
+            if border_length < dist1 or border_length < dist2:
+                logging.debug(f'Point number: {point.number} is on BORDER EXTENSION not actual border')
+                return False
             logging.debug(f'Point number: {point.number} is on border of parcel: {parcel.number}, on border between '
                           f'points: {parcel.points[i].number}, and {parcel.points[i+1].number}')
             return True
@@ -921,34 +1086,68 @@ def is_on_border(parcel, point):
             distance = distance_from_line((point.x, point.y), border)
             logging.debug(f'point number: {point.number}, x: {point.x},y: {point.y}\n'
                           f'distance from line: {distance}')
-            if abs(distance) < 0.01:
+            if abs(distance) < 0.05:
+                border_length = abs(math.dist([parcel.points[i].x, parcel.points[i].y],
+                                              [parcel.points[0].x, parcel.points[0].y]))
+                dist1 = abs(math.dist([parcel.points[i].x, parcel.points[i].y], [point.x, point.y]))
+                dist2 = abs(math.dist([parcel.points[0].x, parcel.points[0].y], [point.x, point.y]))
+                if border_length < dist1 or border_length < dist2:
+                    logging.debug(f'Point number: {point.number} is on BORDER EXTENSION not actual border')
+                    return False
                 logging.debug(
                     f'Point number: {point.number} is on border of parcel: {parcel.number}, on border between '
                     f'points: {parcel.points[i].number}, and {parcel.points[0].number}')
+                return True
+
     return False
 
 
-def list_from_csv(csvfile):
+def list_from_csv(csvfile, delimiter=','):
     with open(csvfile, 'r', newline='') as file:
-        reader = csv.reader(file, delimiter=',')
+        reader = csv.reader(file, delimiter=delimiter)
         data = list(reader)
     logging.debug(f'Data: {data[0]}')
     return data[0]
 
 
+def write_area_to_file(parcels, file):
+    with open(file, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        for parcel in parcels:
+            writer.writerow([parcel.number, parcel.area, float(parcel.calc_area)/10000])
+
+
+def write_parcel_points_to_file(parcels, file):
+    with open(file, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        for parcel in parcels:
+            for point in parcel.points:
+                writer.writerow([point.number, point.x, point.y])
+
+
 class Owner:
-    def __init__(self, name, surname, address, parcel, hour=None, date=None, source=None):
+    def __init__(self, id, name, address, surname=None, pesel=None, fathername=None, mothername=None, parcels=[],
+                 name2=None, surname2=None, nip=None, regon=None, hour=None,
+                 date=None, source=None):
+        self.id = id
         self.name = name
         self.surname = surname
         self.address = address
+        self.name2 = name2
+        self.surname2 = surname2
+        self.pesel = pesel
+        self.fathername = fathername
+        self.mothername = mothername
+        self.nip = nip
+        self.regon = regon
         self.hour = hour
         self.date = date
         self.source = source
-        self.parcel = parcel
-        self.parcels = []
-        self.addparcels(parcel)
-        self.fullname = self.name + ' ' + self.surname
-
+        self.parcels = parcels
+        try:
+            self.fullname = self.name + ' ' + self.surname
+        except TypeError:
+            pass
     def addparcels(self, parcel):
         self.parcels.append(parcel)
 
@@ -957,18 +1156,16 @@ class Owner:
 
 
 class Parcel:
-    def __init__(self, parcel_id, number, points, gmlid=None, area=None, jrg=None, owners=None, kw=None, calc_area=None):
+    def __init__(self, parcel_id, number, points, landcat, gmlid=None, area=None, jrg=None, owners=None, kw=None, calc_area=None):
         self.parcel_id = parcel_id
         self.gmlid = gmlid
         self.number = number
         self.owners = owners
-        self.points = points # List of Point objects
+        self.points = points  # List of Point objects
+        self.landcat = landcat  # List of Landcat objects
         self.kw = kw
         self.area = area
-        try:
-            self.jrg = jrg['xlink:href']
-        except KeyError:
-            self.jrg = None
+        self.jrg = jrg
         self.calc_area = calc_area
         #self.Polygon = Polygon(pointlist) <- inaczej jakoś
 
@@ -979,6 +1176,23 @@ class Parcel:
         pgon = Polygon(pointlist)
         #logging.debug(f'Parcel calculated Area: {round(pgon.area)}')
         return round(pgon.area)
+
+    def get_owners(self):
+        text = ''
+        for owner in self.owners:
+            if owner[1][0].surname is not None:
+                if len(owner[1]) == 1:
+                    text += owner[1][0].name + ' ' + owner[1][0].surname + ' w części:' + ' ' + owner[0]
+                elif len(owner[1]) == 2:
+                    text += 'Małż:' + ' ' + owner[1][0].name + ' ' + owner[1][0].surname + \
+                           ' w części:' + ' ' + owner[0] + ' ' + '\n' + \
+                           owner[1][1].name + ' ' + owner[1][1].surname + ' w części:' + ' ' + owner[0]
+                else:
+                    text = 'brak'
+            else:
+                text += owner[1][0].name + ' Udziały w części:' + ' ' + owner[0]
+            text += '\n'
+        return text
 
 
 class Point:
@@ -995,6 +1209,16 @@ class Point:
         self.operat = operat
         self.sporna = sporna
         self.shapelyPoint = shapelyPoint(self.x, self.y)
+
+
+class Landcat:
+    def __init__(self, class_id, ofu, ozu, ozk, area):
+        self.class_id = class_id
+        self.ofu = ofu
+        self.ozu = ozu
+        self.ozk = ozk
+        self.area = area
+        self.classification = ozu + ozk
 
 
 class Navbar(tk.Frame): ...
@@ -1026,19 +1250,113 @@ class MainApplication(tk.Frame):
 
 def main():
     pointsobj = populate_points_from_gml()
-    parcelsobj = populate_parcels_from_gml(pointsobj)
+    ownersobj = populate_owners_from_gml()
+    parcelsobj = populate_parcels_from_gml(pointsobj, ownersobj)
     dividepointsobj = populate_points_from_csv(DIVISIONPOINTS)
     parcels_to_divide = list_from_csv('dzialki do podzialu.txt')
     divideparcelsobj = []
     connection_list = []
+    main_points = []
     for parcel in parcels_to_divide:
         for object in parcelsobj:
             if parcel == object.number:
                 divideparcelsobj.append(object)
+                if parcel == MAINPARCEL:
+                    main_points = object.points
+                    divideparcelsobj.pop()
                 logging.debug(f'Dorzucam do działek dzielonych działkę: {parcel}')
-    #todo search only in divided parcels, and optimize search.
-    for point in dividepointsobj:
+    #write_area_to_file(divideparcelsobj, 'powierzchnie_ewid.csv')
+    for parcel in divideparcelsobj:
+        number = parcel.number.replace('/', '_')
+        filename ='Mapa tabelka ' + number + '.docx'
+        wykazdict = {'number': parcel.number, 'kw': parcel.kw, 'owner': parcel.get_owners()}
+        ha = int(parcel.area)  # round down parcel area to get ha
+        a = int((parcel.area - ha) * 100)
+        m2 = int((((parcel.area - ha) * 100) - a) * 100)
+        ha = str(ha)
+        a = str(a)
+        m2 = str(m2)
+        if len(a) < 2:
+            a = '0' + a
+        if len(m2) < 2:
+            m2 = '0' + m2
+            if m2 == '00':
+                m2 = '--'
+        wykazdict['ha'] = ha
+        wykazdict['a'] = a
+        wykazdict['m2'] = m2
+        """
+        for i, landcat in enumerate(parcel.landcat):
+            ofukey = 'ofu' + str(i)
+            ozukey = 'ozu' + str(i)
+            ozkkey = 'ozk' + str(i)
+            areakey = 'landcat_area' + str(i)
+            wykazdict[ofukey] = landcat.ofu
+            wykazdict[ozukey] = landcat.ozu
+            wykazdict[ozkkey] = landcat.ozk
+            wykazdict[areakey] = str(landcat.area)
+        """
+        # print(wykazdict)
+        changehash(os.getcwd() + '\\docs\\Mapa podziału wieś tabelka.docx', filename, hashdict=wykazdict)
+    #write_parcel_points_to_file(temp, 'punkty_32_4.csv')
+    # todo search only in divided parcels, and optimize search.
+    """with open('atrybuty.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        pointlist = []
         for parcel in divideparcelsobj:
+            for point in parcel.points:
+                if point in main_points:
+                    if point.number not in pointlist:
+                        writer.writerow([point.number,
+                                         point.zrd, point.bpp,
+                                         point.stb, point.rzg, point.operat])
+                        pointlist.append(point.number)
+    pdfmerge(open_folder()"""
+    # Write kw to file with parcel
+    """with open('dzialka_kw.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        for parcel in divideparcelsobj:
+            writer.writerow([parcel.number,parcel.kw])"""
+    """with open('atrybuty.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        pointlist = []
+        for parcel in divideparcelsobj:
+            for i, point in enumerate(parcel.points):
+                if 0 < i < len(parcel.points)-1:
+                    if point in main_points:
+                        logging.debug(f'{parcel.number}')
+                        for k in range(-1, 2):
+                            if parcel.points[i+k].number not in pointlist:
+                                writer.writerow([parcel.points[i+k].number,
+                                                 parcel.points[i+k].zrd, parcel.points[i+k].bpp,
+                                                 parcel.points[i+k].stb, parcel.points[i+k].rzg])
+                                pointlist.append(parcel.points[i+k].number)
+                elif i == 0:
+                    if point in main_points:
+                        logging.debug(f'{parcel.number}')
+                        for k in [len(parcel.points)-1, 0, 1]:
+                            if parcel.points[i+k].number not in pointlist:
+                                writer.writerow([parcel.points[i+k].number,
+                                                 parcel.points[i+k].zrd, parcel.points[i+k].bpp,
+                                                 parcel.points[i+k].stb, parcel.points[i+k].rzg])
+                                pointlist.append(parcel.points[i+k].number)
+                elif i == len(parcel.points)-1:
+                    if point in main_points:
+                        logging.debug(f'{parcel.number}')
+                        for k in [-1, 0, -(len(parcel.points)-1)]:
+                            if parcel.points[i+k].number not in pointlist:
+                                writer.writerow([parcel.points[i+k].number,
+                                                 parcel.points[i+k].zrd, parcel.points[i+k].bpp,
+                                                 parcel.points[i+k].stb, parcel.points[i+k].rzg])
+                                pointlist.append(parcel.points[i+k].number)
+    
+    ^
+    |
+    |
+    Moduł do wykazu punktów granicznych dla granic odchodzących od drogi prostopadle
+"""
+    """for parcel in divideparcelsobj:
+        for point in dividepointsobj:
             if is_on_border(parcel, point):
                 is_present = False
                 for item in connection_list:
@@ -1049,13 +1367,13 @@ def main():
                 if not is_present:
                     connection = [parcel, point]
                     connection_list.append(connection)
-    text=''
+    text = ''
     for c in connection_list:
-        text = ''
         for i in c:
             text += f'{i.number}, '
         text += '\n'
-        logging.debug(text)
+    logging.debug(text)"""
+
 
     # getinfofromtags(parcellist[0], 'gml:Point')
     """point1 = Point(1,1,0,0)
