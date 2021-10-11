@@ -34,6 +34,7 @@ import math
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
 JEDNOSTKAREJESTROWA = ''
+OBREB = ''
 KERG = ''
 FOLDER = ''
 GMLFILE = "Zbiór danych GML.gml"
@@ -42,7 +43,7 @@ HACCURACY = 2
 ANGLEACCURACY = 4
 AREAACCURACY = 0
 DIVISIONPOINTS = 'pkty_podzial.txt'
-MAINPARCEL = '38/1'
+MAINPARCEL = '68/1'
 
 def find_kerg(filename):  # todo regex
     logging.debug(f'{filename}')
@@ -60,6 +61,24 @@ def set_kerg(kerg_value: str):
     global KERG
     KERG = kerg_value
     logging.debug(f'KERG został ustawiony na: {KERG}')
+
+
+def set_jedn(jedn_value: str):
+    global JEDNOSTKAREJESTROWA
+    JEDNOSTKAREJESTROWA = jedn_value
+    logging.debug(f'Jednostka została ustawiona na: {JEDNOSTKAREJESTROWA}')
+
+
+def set_obr(obr_value: str):
+    global OBREB
+    OBREB = obr_value
+    logging.debug(f'OBREB został ustawiony na: {OBREB}')
+
+
+def set_gmlfile(gml_value: str):
+    global GMLFILE
+    GMLFILE = GML_value
+    logging.debug(f'GMLFILE został ustawiony na: {GMLFILE}')
 
 
 def ask_for_kerg():
@@ -1125,6 +1144,10 @@ def write_parcel_points_to_file(parcels, file):
                 writer.writerow([point.number, point.x, point.y])
 
 
+def fill_ustalenie():
+    pass
+
+
 class Owner:
     def __init__(self, id, name, address, surname=None, pesel=None, fathername=None, mothername=None, parcels=[],
                  name2=None, surname2=None, nip=None, regon=None, hour=None,
@@ -1249,10 +1272,13 @@ class MainApplication(tk.Frame):
 
 
 def main():
+    set_kerg('6640.9602.2021')
+    set_jedn('120617_2 Zielonki')
+    set_obr('0003 Bosutów')
     pointsobj = populate_points_from_gml()
     ownersobj = populate_owners_from_gml()
     parcelsobj = populate_parcels_from_gml(pointsobj, ownersobj)
-    dividepointsobj = populate_points_from_csv(DIVISIONPOINTS)
+    # dividepointsobj = populate_points_from_csv(DIVISIONPOINTS)
     parcels_to_divide = list_from_csv('dzialki do podzialu.txt')
     divideparcelsobj = []
     connection_list = []
@@ -1265,8 +1291,9 @@ def main():
                     main_points = object.points
                     divideparcelsobj.pop()
                 logging.debug(f'Dorzucam do działek dzielonych działkę: {parcel}')
+    write_parcel_points_to_file(divideparcelsobj, '139_pinkty.txt')
     #write_area_to_file(divideparcelsobj, 'powierzchnie_ewid.csv')
-    for parcel in divideparcelsobj:
+    """for parcel in divideparcelsobj:
         number = parcel.number.replace('/', '_')
         filename ='Mapa tabelka ' + number + '.docx'
         wykazdict = {'number': parcel.number, 'kw': parcel.kw, 'owner': parcel.get_owners()}
@@ -1285,7 +1312,6 @@ def main():
         wykazdict['ha'] = ha
         wykazdict['a'] = a
         wykazdict['m2'] = m2
-        """
         for i, landcat in enumerate(parcel.landcat):
             ofukey = 'ofu' + str(i)
             ozukey = 'ozu' + str(i)
@@ -1295,23 +1321,33 @@ def main():
             wykazdict[ozukey] = landcat.ozu
             wykazdict[ozkkey] = landcat.ozk
             wykazdict[areakey] = str(landcat.area)
-        """
+        
         # print(wykazdict)
         changehash(os.getcwd() + '\\docs\\Mapa podziału wieś tabelka.docx', filename, hashdict=wykazdict)
+        """
     #write_parcel_points_to_file(temp, 'punkty_32_4.csv')
     # todo search only in divided parcels, and optimize search.
-    """with open('atrybuty.csv', 'w', newline='') as csvfile:
+    with open('atrybuty.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         pointlist = []
         for parcel in divideparcelsobj:
             for point in parcel.points:
-                if point in main_points:
-                    if point.number not in pointlist:
-                        writer.writerow([point.number,
-                                         point.zrd, point.bpp,
-                                         point.stb, point.rzg, point.operat])
-                        pointlist.append(point.number)
-    pdfmerge(open_folder()"""
+                if point.number not in pointlist:
+                    writer.writerow([point.number,
+                                     point.zrd, point.bpp,
+                                     point.stb, point.rzg, point.operat])
+                    pointlist.append(point.number)
+    with open('wspolrzedne.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        pointlist = []
+        for parcel in divideparcelsobj:
+            for point in parcel.points:
+                if point.number not in pointlist:
+                    writer.writerow([point.number, point.x, point.y,
+                                     point.zrd, point.bpp,
+                                     point.stb, point.rzg])
+                    pointlist.append(point.number)
+    #pdfmerge(open_folder()
     # Write kw to file with parcel
     """with open('dzialka_kw.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
