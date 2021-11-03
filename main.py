@@ -36,7 +36,7 @@ pyautogui.FAILSAFE = True
 JEDNOSTKAREJESTROWA = ''
 KERG = ''
 FOLDER = ''
-GMLFILE = "Zbiór danych GML.gml"
+GMLFILE = "GD-13.6640.8414.2021_40901011.gml"
 XYACCURACY = 2
 HACCURACY = 2
 ANGLEACCURACY = 4
@@ -51,9 +51,9 @@ def find_kerg(filename):  # todo regex
     text = str(get_text_from_doc(filename))
     logging.debug(f'{text}')
     kerg = re.findall(r"[\d.]+", text)
-    print(kerg)
+    #print(kerg)
     kerg = set(kerg)
-    print(kerg)
+    #print(kerg)
 
 
 def set_kerg(kerg_value: str):
@@ -138,7 +138,7 @@ def check_project_data():  # todo find a way to extract text from .rtf file
     # 2. Find data from PODGiK (.gml file, info o materialach)
     # text = get_text_from_doc(find_info())
 
-    print(text)
+    #print(text)
     # 3. Search through .gml file to find JEDNOSTKAREJESTROWA and OBREB values
     # 4. Find KERG number
     set_kerg('666.2250.2021')
@@ -149,11 +149,11 @@ def write_report():
     """Function to write report file using given values"""
     s = "I love #stackoverflow# because #people# are very #helpful# #helpful#"
     hashtag = re.findall(r"#(\w+)#", s)  # znajdź wszystkie hashtagi w szablonie
-    print(set(hashtag))
+    #print(set(hashtag))
     document = Document()
     for paragraph in document.paragraphs:
         if 'sea' in paragraph.text:
-            print(paragraph.text)
+            #print(paragraph.text)
             paragraph.text = 'new text containing ocean'
 
 
@@ -316,7 +316,7 @@ def findowners(file, parcelspath):
                 if j == 0:
                     parcel = cell.text.split('.')
                     parcel = parcel[-1]
-                    print(parcel)
+                    #print(parcel)
                 if j == 6:
                     #logging.debug(f'Text komórki: {cell.text}')
                     temp = cell.text.split('udział ')
@@ -387,8 +387,7 @@ def findowners(file, parcelspath):
             ownersobj.append(o)
         else:
             for obj in ownersobj:
-                if obj.name == owner[0] and obj.surname == owner[1] and obj.address == owner[2] and owner[
-                    3] not in obj.parcels:
+                if obj.name == owner[0] and obj.surname == owner[1] and obj.address == owner[2] and owner[3] not in obj.parcels:
                     obj.addparcels(owner[3])
                     logging.debug(f'dodano parcele do obiektu: {obj.name} {obj.surname}')
                     alreadyin = True
@@ -426,7 +425,7 @@ def findkw(file, parcelspath):
                 if j == 0:
                     parcel = cell.text.split('.')
                     parcel = parcel[-1]
-                    print(parcel)
+                    #print(parcel)
                 if j == 7:
                     #logging.debug(f'Text komórki: {cell.text}')
                     text = cell.text.replace('\t', '')
@@ -434,7 +433,7 @@ def findkw(file, parcelspath):
                     kw.append(calccontrolnumber(text))
                 j += 1
             j = 0
-    print(set(kw))
+    #print(set(kw))
     return set(kw)
 
 
@@ -610,8 +609,8 @@ def changehash(templatefile, outputfile, hashdict):
             outpara.paragraph_format.line_spacing = 0.8
             outpara.paragraph_format.alignment = paragraph.paragraph_format.alignment
             outpara.paragraph_format.first_line_indent = paragraph.paragraph_format.first_line_indent
-            outpara.paragraph_format.space_before = paragraph.paragraph_format.space_before
-            outpara.paragraph_format.space_after = paragraph.paragraph_format.space_after
+            outpara.paragraph_format.space_before = 0
+            outpara.paragraph_format.space_after = 0
         elif isinstance(child, CT_Tbl):
             table = Table(child, template)
             inline = []
@@ -640,12 +639,13 @@ def changehash(templatefile, outputfile, hashdict):
 
                                 except KeyError:
                                     inline[i].text = ''
-            paragraph = output.add_paragraph()
-            paragraph._p.addnext(table._tbl)
-            paragraph.paragraph_format.first_line_indent = 0
-            paragraph.paragraph_format.space_before = 0
-            paragraph.paragraph_format.space_after = 0
-            paragraph.paragraph_format.line_spacing = 0
+                    paragraph = output.add_paragraph()
+                    paragraph.paragraph_format.first_line_indent = 0
+                    paragraph.paragraph_format.space_before = 0
+                    paragraph.paragraph_format.space_after = 0
+                    paragraph.paragraph_format.line_spacing = 0
+                    paragraph._p.addnext(table._tbl)
+
     output.save(outputfile)
 
 
@@ -822,6 +822,9 @@ def populate_parcels_from_gml(pointsobj, ownersobj):
     gmlfile.seek(0)
     sharelist = getfeaturesfromgml(gmlfile, 'egb:EGB_UdzialWlasnosci')
     gmlfile.seek(0)
+    sharelist2 = getfeaturesfromgml(gmlfile, 'egb:EGB_UdzialWeWladaniuNieruchomosciaSPLubJST')
+    sharelist = sharelist + sharelist2
+    gmlfile.seek(0)
     marriagelist = getfeaturesfromgml(gmlfile, 'egb:EGB_Malzenstwo')
     gmlfile.seek(0)
     institutionlist = getfeaturesfromgml(gmlfile, 'egb:EGB_Instytucja')
@@ -875,7 +878,10 @@ def populate_parcels_from_gml(pointsobj, ownersobj):
                                         owner1 = owner
                                     if owner.id == getinfofromtags(marriage_text, 'egb:osobaFizyczna3')['xlink:href'].split(':')[-1]:
                                         owner2 = owner
-                                owners.append((counter + '/' + denominator, [owner1, owner2]))
+                                if owner1 and owner2 == '':
+                                    owners = None
+                                else:
+                                    owners.append((counter + '/' + denominator, [owner1, owner2]))
                     elif 'egb:instytucja3' in entity:
                         institution_link = getinfofromtags(entity, 'egb:instytucja3')['xlink:href'].split(':')[-1]
                         for institution_text in institutionlist:
@@ -893,11 +899,21 @@ def populate_parcels_from_gml(pointsobj, ownersobj):
 
         poslist = getcontentfromtags(parcel_text, 'gml:posList')
         poslist = poslist.split(' ')
+        if poslist[0] == '':
+            poslist.pop(0)
         pointslist = []
         points = []
         for i, coordinate in enumerate(poslist):
-            if i % 2 == 0:
-                pointslist.append((float(poslist[i]), float(poslist[i + 1])))  # Only add correct points
+            if len(poslist[i]) == 0:
+                continue
+            if i % 2 == 0 and i<len(poslist):
+                try:
+                    pointslist.append((float(poslist[i]), float(poslist[i + 1])))  # Only add correct points
+                    logging.debug(f'Punkt: {(float(poslist[i]), float(poslist[i + 1]))}')
+                except ValueError:
+                    print(number + ' ' + poslist[i] + ' ' + poslist[i+1])
+                except IndexError:
+                    print(number + ' ' + str(i) + str(len(poslist)))
         pointslist.pop()  # remove last point because it's the same as first
         for point in pointslist:
             for pt in pointsobj:
@@ -920,18 +936,23 @@ def populate_owners_from_gml():
     # function to search through gml file looking for parcels, and then create Parcel object for each parcel.
     gmlfile = open(GMLFILE, encoding='utf-8')
     ownerslist = getfeaturesfromgml(gmlfile, 'egb:EGB_OsobaFizyczna')
+    # print(ownerslist)
     gmlfile.seek(0)
     addresslist = getfeaturesfromgml(gmlfile, 'egb:EGB_Adres')
     ownersobj = []
     address = ''
     iaddress = ''
     for owner_text in ownerslist:
+        # print(owner_text)
         id = getcontentfromtags(owner_text, 'bt:lokalnyId')
         name = getcontentfromtags(owner_text, 'egb:pierwszeImie')
         name2 = getcontentfromtags(owner_text, 'egb:drugieImie')
         if name2 == 'brak':
             name2 = None
         surname = getcontentfromtags(owner_text, 'egb:pierwszyCzlonNazwiska')
+
+        if surname == 'brak':
+            surname = None
         surname2 = getcontentfromtags(owner_text, 'egb:drugiCzlonNazwiska')
         if surname2 == 'brak':
             surname2 = None
@@ -940,7 +961,11 @@ def populate_owners_from_gml():
         mothername = getcontentfromtags(owner_text, 'egb:imieMatki')
 
         # get address id from xlink:href tag. It's the last part of link that matters
-        address_link = getinfofromtags(owner_text, 'egb:adresOsobyFizycznej')['xlink:href'].split(':')[-1]
+        try:
+            address_link = getinfofromtags(owner_text, 'egb:adresOsobyFizycznej')['xlink:href'].split(':')[-1]
+        except KeyError:
+            address = 'brak'
+            address_link = ''
         for address_text in addresslist:
             if getcontentfromtags(address_text, 'bt:lokalnyId') == address_link:
                 country = getcontentfromtags(address_text, 'egb:kraj')
@@ -973,6 +998,7 @@ def populate_owners_from_gml():
         try:
             address_link = getinfofromtags(institution_text, 'egb:adresInstytucji')['xlink:href'].split(':')[-1]
         except KeyError:
+            iaddress = 'brak'
             address_link = ''
         for address_text in addresslist:
             if getcontentfromtags(address_text, 'bt:lokalnyId') == address_link:
@@ -1124,6 +1150,40 @@ def write_parcel_points_to_file(parcels, file):
             for point in parcel.points:
                 writer.writerow([point.number, point.x, point.y])
 
+def fill_changes_report(parcel):
+    number = parcel.number.replace('/', '_')
+    filename = 'Wykaz zmian ' + number + '.rtf'
+    origfile = 'Wykaz zmian.docx'
+    wykazdict = {'enter': '\n' * 30, "nr_dz": str(parcel.number).split('/')[0], 'kw': parcel.kw, 'owner': parcel.get_owners(), 'parcel_id': parcel.parcel_id,
+                 "pow_ewid": str(parcel.area), "jed_ewid": parcel.jed_ewid, "obr": parcel.obr, "jrg": parcel.jrg}
+    ha = int(parcel.area)  # round down parcel area to get ha
+    a = int((parcel.area - ha) * 100)
+    m2 = int((((parcel.area - ha) * 100) - a) * 100)
+    ha = str(ha)
+    a = str(a)
+    m2 = str(m2)
+    if len(a) < 2:
+        a = '0' + a
+    if len(m2) < 2:
+        m2 = '0' + m2
+        if m2 == '00':
+            m2 = '--'
+    wykazdict['ha'] = ha
+    wykazdict['a'] = a
+    wykazdict['m2'] = m2
+
+    for i, landcat in enumerate(parcel.landcat):
+        ofukey = 'ofu' + str(i)
+        ozukey = 'ozu' + str(i)
+        ozkkey = 'ozk' + str(i)
+        areakey = 'landcat_area' + str(i)
+        wykazdict[ofukey] = landcat.ofu
+        wykazdict[ozukey] = landcat.ozu
+        wykazdict[ozkkey] = landcat.ozk
+        wykazdict[areakey] = str(landcat.area)
+
+    changehash(os.getcwd() + '\\docs\\' + origfile, filename, hashdict=wykazdict)
+
 
 class Owner:
     def __init__(self, id, name, address, surname=None, pesel=None, fathername=None, mothername=None, parcels=[],
@@ -1147,7 +1207,7 @@ class Owner:
         try:
             self.fullname = self.name + ' ' + self.surname
         except TypeError:
-            pass
+            self.fullname = self.name
     def addparcels(self, parcel):
         self.parcels.append(parcel)
 
@@ -1156,7 +1216,8 @@ class Owner:
 
 
 class Parcel:
-    def __init__(self, parcel_id, number, points, landcat, gmlid=None, area=None, jrg=None, owners=None, kw=None, calc_area=None):
+    def __init__(self, parcel_id, number, points, landcat, gmlid=None, area=None, jrg=None, owners=None, kw=None,
+                 calc_area=None, jed_ewid=None, obr=None):
         self.parcel_id = parcel_id
         self.gmlid = gmlid
         self.number = number
@@ -1167,6 +1228,14 @@ class Parcel:
         self.area = area
         self.jrg = jrg
         self.calc_area = calc_area
+        if jed_ewid is not None:
+            self.jed_ewid = jed_ewid
+        else:
+            self.jed_ewid = self.parcel_id.split('.')[0]
+        if obr is not None:
+            self.obr = obr
+        else:
+            self.obr = self.parcel_id.split('.')[1]
         #self.Polygon = Polygon(pointlist) <- inaczej jakoś
 
     def calculate_area(self):
@@ -1180,18 +1249,21 @@ class Parcel:
     def get_owners(self):
         text = ''
         for owner in self.owners:
-            if owner[1][0].surname is not None:
-                if len(owner[1]) == 1:
-                    text += owner[1][0].name + ' ' + owner[1][0].surname + ' w części:' + ' ' + owner[0]
-                elif len(owner[1]) == 2:
-                    text += 'Małż:' + ' ' + owner[1][0].name + ' ' + owner[1][0].surname + \
-                           ' w części:' + ' ' + owner[0] + ' ' + '\n' + \
-                           owner[1][1].name + ' ' + owner[1][1].surname + ' w części:' + ' ' + owner[0]
+            if isinstance(owner[1][0], Owner):
+                if owner[1][0].surname is not None:
+                    if len(owner[1]) == 1:
+                        text += owner[1][0].name + ' ' + owner[1][0].surname + '\nim. rodziców: ' + owner[1][0].fathername \
+                                + ' i ' + owner[1][0].mothername
+                    elif len(owner[1]) == 2:
+                        text += 'Małż:' + ' ' + owner[1][0].name + ' ' + owner[1][0].surname + \
+                               ' im. rodziców: ' + owner[1][0].fathername + ' i ' + owner[1][0].mothername + '\n' + \
+                               owner[1][1].name + ' ' + owner[1][1].surname + ' im. rodziców: ' + owner[1][1].fathername + \
+                                ' i ' + owner[1][1].mothername
+                    else:
+                        text = 'brak'
                 else:
-                    text = 'brak'
-            else:
-                text += owner[1][0].name + ' Udziały w części:' + ' ' + owner[0]
-            text += '\n'
+                    text += owner[1][0].name + ' Udziały w części:' + ' ' + owner[0]
+                text += '\n'
         return text
 
 
@@ -1252,9 +1324,10 @@ def main():
     pointsobj = populate_points_from_gml()
     ownersobj = populate_owners_from_gml()
     parcelsobj = populate_parcels_from_gml(pointsobj, ownersobj)
-    dividepointsobj = populate_points_from_csv(DIVISIONPOINTS)
+    #dividepointsobj = populate_points_from_csv(DIVISIONPOINTS)
     parcels_to_divide = list_from_csv('dzialki do podzialu.txt')
     divideparcelsobj = []
+    divideownersobj = []
     connection_list = []
     main_points = []
     for parcel in parcels_to_divide:
@@ -1265,53 +1338,37 @@ def main():
                     main_points = object.points
                     divideparcelsobj.pop()
                 logging.debug(f'Dorzucam do działek dzielonych działkę: {parcel}')
+    for parcel in divideparcelsobj:
+        print(parcel.owners)
+        for share in parcel.owners:
+            for owner in share[1]:
+                ispresent = False
+                for obj in divideownersobj:
+                    if obj.id == owner.id:
+                        ispresent = True
+                if not ispresent:
+                    logging.debug(f'Dzialka: {parcel.number} Wlasciciel: {owner.fullname} Adres: {owner.address}')
+                    divideownersobj.append(owner)
+    #namestofile(divideownersobj, 'nazwiska i adresy.docx')
+    #createstickers('nazwiska i adresy.docx', 'naklejki.docx')
     #write_area_to_file(divideparcelsobj, 'powierzchnie_ewid.csv')
     for parcel in divideparcelsobj:
-        number = parcel.number.replace('/', '_')
-        filename ='Mapa tabelka ' + number + '.docx'
-        wykazdict = {'number': parcel.number, 'kw': parcel.kw, 'owner': parcel.get_owners()}
-        ha = int(parcel.area)  # round down parcel area to get ha
-        a = int((parcel.area - ha) * 100)
-        m2 = int((((parcel.area - ha) * 100) - a) * 100)
-        ha = str(ha)
-        a = str(a)
-        m2 = str(m2)
-        if len(a) < 2:
-            a = '0' + a
-        if len(m2) < 2:
-            m2 = '0' + m2
-            if m2 == '00':
-                m2 = '--'
-        wykazdict['ha'] = ha
-        wykazdict['a'] = a
-        wykazdict['m2'] = m2
-        """
-        for i, landcat in enumerate(parcel.landcat):
-            ofukey = 'ofu' + str(i)
-            ozukey = 'ozu' + str(i)
-            ozkkey = 'ozk' + str(i)
-            areakey = 'landcat_area' + str(i)
-            wykazdict[ofukey] = landcat.ofu
-            wykazdict[ozukey] = landcat.ozu
-            wykazdict[ozkkey] = landcat.ozk
-            wykazdict[areakey] = str(landcat.area)
-        """
-        # print(wykazdict)
-        changehash(os.getcwd() + '\\docs\\Mapa podziału wieś tabelka.docx', filename, hashdict=wykazdict)
+        fill_changes_report(parcel)
+
     #write_parcel_points_to_file(temp, 'punkty_32_4.csv')
     # todo search only in divided parcels, and optimize search.
-    """with open('atrybuty.csv', 'w', newline='') as csvfile:
+    with open('wykaz wspolrzednych.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         pointlist = []
         for parcel in divideparcelsobj:
             for point in parcel.points:
-                if point in main_points:
                     if point.number not in pointlist:
-                        writer.writerow([point.number,
+                        """writer.writerow([point.number, str(round(point.x, 2)), str(round(point.y, 2)),
                                          point.zrd, point.bpp,
-                                         point.stb, point.rzg, point.operat])
+                                         point.stb, point.rzg])"""
+                        writer.writerow([point.number, str(round(point.x, 2)), str(round(point.y, 2))])
                         pointlist.append(point.number)
-    pdfmerge(open_folder()"""
+    # pdfmerge(open_folder())
     # Write kw to file with parcel
     """with open('dzialka_kw.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
