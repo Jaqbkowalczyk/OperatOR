@@ -1060,6 +1060,39 @@ def populate_points_from_csv(file):
     return pointsobj
 
 
+def populate_base():
+    pointsobj = populate_points_from_gml()
+    ownersobj = populate_owners_from_gml()
+    parcelsobj = populate_parcels_from_gml(pointsobj, ownersobj)
+    return pointsobj, ownersobj, parcelsobj
+
+
+def populate_divide_base(parcelsobj,parcels_to_divide):
+    divideparcelsobj = []
+    divideownersobj = []
+    # connection_list = []
+    # main_points = []
+    for parcel in parcels_to_divide:
+        for object in parcelsobj:
+            if parcel == object.number:
+                divideparcelsobj.append(object)
+                """if parcel == MAINPARCEL:
+                    main_points = object.points
+                    divideparcelsobj.pop()"""
+                logging.debug(f'Dorzucam do działek dzielonych działkę: {parcel}')
+    for parcel in divideparcelsobj:
+        for share in parcel.owners:
+            for owner in share[1]:
+                ispresent = False
+                for obj in divideownersobj:
+                    if obj.id == owner.id:
+                        ispresent = True
+                if not ispresent:
+                    logging.debug(f'Dzialka: {parcel.number} Wlasciciel: {owner.fullname} Adres: {owner.address}')
+                    divideownersobj.append(owner)
+    return divideparcelsobj, divideownersobj
+
+
 def distance_from_line(point, line):
     """Fuction provides distance from point to given line"""
     x, y = point
@@ -1162,7 +1195,7 @@ def write_area_to_file(parcels, file):
             writer.writerow([parcel.number, parcel.area, float(parcel.calc_area)/10000])
 
 
-def write_parcel_points_to_file(parcels, file, write_atributes):
+def write_parcel_points_to_file(parcels, file, write_atributes=False):
     with open(file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         for parcel in parcels:
@@ -1348,53 +1381,18 @@ def main():
     set_kerg('6640.9602.2021')
     set_jedn('120617_2 Zielonki')
     set_obr('0003 Bosutów')
-    pointsobj = populate_points_from_gml()
-    ownersobj = populate_owners_from_gml()
-    parcelsobj = populate_parcels_from_gml(pointsobj, ownersobj)
+    pointsobj, ownersobj, parcelsobj = populate_base()
     #dividepointsobj = populate_points_from_csv(DIVISIONPOINTS)
     parcels_to_divide = list_from_csv('dzialki do podzialu.txt')
-    divideparcelsobj = []
-    divideownersobj = []
-    connection_list = []
-    main_points = []
-    for parcel in parcels_to_divide:
-        for object in parcelsobj:
-            if parcel == object.number:
-                divideparcelsobj.append(object)
-                if parcel == MAINPARCEL:
-                    main_points = object.points
-                    divideparcelsobj.pop()
-                logging.debug(f'Dorzucam do działek dzielonych działkę: {parcel}')
-    for parcel in divideparcelsobj:
-        print(parcel.owners)
-        for share in parcel.owners:
-            for owner in share[1]:
-                ispresent = False
-                for obj in divideownersobj:
-                    if obj.id == owner.id:
-                        ispresent = True
-                if not ispresent:
-                    logging.debug(f'Dzialka: {parcel.number} Wlasciciel: {owner.fullname} Adres: {owner.address}')
-                    divideownersobj.append(owner)
+    divideparcelsobj, divideownersobj = populate_divide_base(parcelsobj, parcels_to_divide)
     #namestofile(divideownersobj, 'nazwiska i adresy.docx')
     #createstickers('nazwiska i adresy.docx', 'naklejki.docx')
     #write_area_to_file(divideparcelsobj, 'powierzchnie_ewid.csv')
-    for parcel in divideparcelsobj:
-        fill_changes_report(parcel)
+    """for parcel in divideparcelsobj:
+        fill_changes_report(parcel)"""
 
-    write_parcel_points_to_file(divideparcelsobj, 'punkty_32_4.csv', write_atributes=False)
+    write_parcel_points_to_file(divideparcelsobj, 'wykaz_wspolrzednych.csv', write_atributes=True)
     # todo search only in divided parcels, and optimize search.
-    with open('wykaz wspolrzednych.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=',')
-        pointlist = []
-        for parcel in divideparcelsobj:
-            for point in parcel.points:
-                    if point.number not in pointlist:
-                        """writer.writerow([point.number, str(round(point.x, 2)), str(round(point.y, 2)),
-                                         point.zrd, point.bpp,
-                                         point.stb, point.rzg])"""
-                        writer.writerow([point.number, str(round(point.x, 2)), str(round(point.y, 2))])
-                        pointlist.append(point.number)
     # pdfmerge(open_folder())
     # Write kw to file with parcel
     """with open('dzialka_kw.csv', 'w', newline='') as csvfile:
