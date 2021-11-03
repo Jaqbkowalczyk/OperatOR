@@ -34,6 +34,7 @@ import math
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
 JEDNOSTKAREJESTROWA = ''
+OBREB = ''
 KERG = ''
 FOLDER = ''
 GMLFILE = "GD-13.6640.8414.2021_40901011.gml"
@@ -60,6 +61,24 @@ def set_kerg(kerg_value: str):
     global KERG
     KERG = kerg_value
     logging.debug(f'KERG został ustawiony na: {KERG}')
+
+
+def set_jedn(jedn_value: str):
+    global JEDNOSTKAREJESTROWA
+    JEDNOSTKAREJESTROWA = jedn_value
+    logging.debug(f'Jednostka została ustawiona na: {JEDNOSTKAREJESTROWA}')
+
+
+def set_obr(obr_value: str):
+    global OBREB
+    OBREB = obr_value
+    logging.debug(f'OBREB został ustawiony na: {OBREB}')
+
+
+def set_gmlfile(gml_value: str):
+    global GMLFILE
+    GMLFILE = GML_value
+    logging.debug(f'GMLFILE został ustawiony na: {GMLFILE}')
 
 
 def ask_for_kerg():
@@ -1321,6 +1340,9 @@ class MainApplication(tk.Frame):
 
 
 def main():
+    set_kerg('6640.9602.2021')
+    set_jedn('120617_2 Zielonki')
+    set_obr('0003 Bosutów')
     pointsobj = populate_points_from_gml()
     ownersobj = populate_owners_from_gml()
     parcelsobj = populate_parcels_from_gml(pointsobj, ownersobj)
