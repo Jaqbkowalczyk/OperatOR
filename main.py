@@ -1162,12 +1162,17 @@ def write_area_to_file(parcels, file):
             writer.writerow([parcel.number, parcel.area, float(parcel.calc_area)/10000])
 
 
-def write_parcel_points_to_file(parcels, file):
+def write_parcel_points_to_file(parcels, file, write_atributes):
     with open(file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         for parcel in parcels:
             for point in parcel.points:
-                writer.writerow([point.number, point.x, point.y])
+                if write_atributes:
+                    writer.writerow([point.number, str(round(point.x, 2)), str(round(point.y, 2)),
+                                         point.zrd, point.bpp,
+                                         point.stb, point.rzg])
+                else:
+                    writer.writerow([point.number, str(round(point.x, 2)), str(round(point.y, 2))])
 
 def fill_changes_report(parcel):
     number = parcel.number.replace('/', '_')
@@ -1377,7 +1382,7 @@ def main():
     for parcel in divideparcelsobj:
         fill_changes_report(parcel)
 
-    #write_parcel_points_to_file(temp, 'punkty_32_4.csv')
+    write_parcel_points_to_file(divideparcelsobj, 'punkty_32_4.csv', write_atributes=False)
     # todo search only in divided parcels, and optimize search.
     with open('wykaz wspolrzednych.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
