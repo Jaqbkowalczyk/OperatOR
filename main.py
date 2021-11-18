@@ -37,7 +37,7 @@ JEDNOSTKAREJESTROWA = ''
 OBREB = ''
 KERG = ''
 FOLDER = ''
-GMLFILE = "GD-13.6640.8414.2021_40901011.gml"
+GMLFILE = "GD-13.6640.8939.2021_40901011.gml"
 XYACCURACY = 2
 HACCURACY = 2
 ANGLEACCURACY = 4
@@ -697,8 +697,13 @@ def kwtopdf(kw):
         time.sleep(.5)
         pyautogui.hotkey('ctrlleft', 'w')
 
-
+# todo Change pdf merge to merge more pages than two
 def pdfmerge(folder):
+    try:
+        os.mkdir(folder + '/' + 'merged')
+    except FileExistsError:
+        pass
+    outputdir = folder + '/' + 'merged'
     for subdir, dirs, files in os.walk(folder):
         for file in files:
             file = file.replace('.pdf', '')
@@ -708,18 +713,28 @@ def pdfmerge(folder):
                     if f2.split('.')[-1] != 'pdf':
                         continue
                     f2 = f2.replace('.pdf', '')
-                    # logging.debug(f'{f2.split("_")[1]} vs {file.split("_")[1]} and {file.split("_")[-1]}')
-                    if f2.split('_')[1] == file.split('_')[1] and f2.split('_')[-1] != '1':
-                        # logging.debug('hej')
+                    filename1 = file.split('_')
+                    part1 = filename1.pop()
+                    filename2 = f2.split('_')
+                    part2 = filename2.pop()
+                    logging.debug(f'{filename1} vs {filename2} and {part1} and '
+                                  f'{part2}')
+                    if filename1 == filename2 \
+                            and part1 == '1' \
+                            and part2 == '2':
+                        logging.debug('hej')
                         merger = PdfFileMerger()
                         input1 = open(folder + '/' + file + '.pdf', 'rb')
                         input2 = open(folder + '/' + f2 + '.pdf', 'rb')
-                        merger.append(input1, pages=(0, 1))
+                        merger.append(input1)
                         merger.append(input2)
-                        name = file[:-2] + '.pdf'
+
+                        name = outputdir + '/' + '_'.join(filename1) + '.pdf'
                         output = open(name, "wb")
                         merger.write(output.name)
-
+                        output.close()
+                        input1.close()
+                        input2.close()
 
 
 def openweb(url):
@@ -1047,7 +1062,7 @@ def populate_owners_from_gml():
 
 def populate_points_from_csv(file):
     """Fuction used to import points from .csv file"""
-    pointsobj = []
+    pointsobj = [] 
     with open(str(file)) as csvfile:
         data = {num: (float(x), float(y))
                 for num, x, y in csv.reader(csvfile, delimiter=' ')}
@@ -1391,14 +1406,14 @@ def main():
     """for parcel in divideparcelsobj:
         fill_changes_report(parcel)"""
 
-    write_parcel_points_to_file(divideparcelsobj, 'wykaz_wspolrzednych.csv', write_atributes=True)
+    # write_parcel_points_to_file(divideparcelsobj, 'wykaz_wspolrzednych.csv', write_atributes=True)
     # todo search only in divided parcels, and optimize search.
     # pdfmerge(open_folder())
     # Write kw to file with parcel
-    """with open('dzialka_kw.csv', 'w', newline='') as csvfile:
+    with open('dzialka_kw.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         for parcel in divideparcelsobj:
-            writer.writerow([parcel.number,parcel.kw])"""
+            writer.writerow([parcel.number, parcel.kw])
     """with open('atrybuty.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         pointlist = []
@@ -1505,7 +1520,7 @@ def main():
     # for kw in kwlist:
     #    kwtopdf(kw)
     # kwtopdf('KR1P/00516204/5')
-    # pdfmerge(open_folder()) #merge first page of _1 file and _2 file
+    pdfmerge(open_folder()) #merge first page of _1 file and _2 file
 
     """for owner in ownersu:
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie ustalenie.docx', 'ust_granicKwiatowa.docx', owner)
