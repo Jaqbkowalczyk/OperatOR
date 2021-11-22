@@ -28,8 +28,19 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from numpy import ones, vstack
 from numpy.linalg import lstsq
+from kivy.app import App
+from kivy.uix.label import Label
+from kivy.uix.widget import Widget
+from kivy.uix.button import Button
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.properties import ObjectProperty
+from kivy.lang import Builder
 import csv
 import math
+
+# designate our kivy design file:
+Builder.load_file('operator.kv')
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
@@ -1062,7 +1073,7 @@ def populate_owners_from_gml():
 
 def populate_points_from_csv(file):
     """Fuction used to import points from .csv file"""
-    pointsobj = [] 
+    pointsobj = []
     with open(str(file)) as csvfile:
         data = {num: (float(x), float(y))
                 for num, x, y in csv.reader(csvfile, delimiter=' ')}
@@ -1210,15 +1221,19 @@ def write_area_to_file(parcels, file):
             writer.writerow([parcel.number, parcel.area, float(parcel.calc_area)/10000])
 
 
-def write_parcel_points_to_file(parcels, file, write_atributes=False):
+def write_parcel_points_to_file(parcels, file, write_atributes=False, header=False):
     with open(file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
+        if header and write_atributes:
+            writer.writerow(["Number", "X", "Y", "ZRD", "BPP", "STB", "RZG", "Operat"])
+        elif header:
+            writer.writerow(["Number", "X", "Y"])
         for parcel in parcels:
             for point in parcel.points:
                 if write_atributes:
                     writer.writerow([point.number, str(round(point.x, 2)), str(round(point.y, 2)),
                                          point.zrd, point.bpp,
-                                         point.stb, point.rzg])
+                                         point.stb, point.rzg, point.operat])
                 else:
                     writer.writerow([point.number, str(round(point.x, 2)), str(round(point.y, 2))])
 
@@ -1255,6 +1270,15 @@ def fill_changes_report(parcel):
         wykazdict[areakey] = str(landcat.area)
 
     changehash(os.getcwd() + '\\docs\\' + origfile, filename, hashdict=wykazdict)
+
+
+class MyBoxLayout(Widget):
+    pass
+
+
+class Operator(App):
+    def build(self):
+        return MyBoxLayout()
 
 
 class Owner:
@@ -1406,7 +1430,7 @@ def main():
     """for parcel in divideparcelsobj:
         fill_changes_report(parcel)"""
 
-    # write_parcel_points_to_file(divideparcelsobj, 'wykaz_wspolrzednych.csv', write_atributes=True)
+    write_parcel_points_to_file(divideparcelsobj, 'wykaz_wspolrzednych.csv', write_atributes=True)
     # todo search only in divided parcels, and optimize search.
     # pdfmerge(open_folder())
     # Write kw to file with parcel
@@ -1520,7 +1544,7 @@ def main():
     # for kw in kwlist:
     #    kwtopdf(kw)
     # kwtopdf('KR1P/00516204/5')
-    pdfmerge(open_folder()) #merge first page of _1 file and _2 file
+    # pdfmerge(open_folder()) #merge first page of _1 file and _2 file
 
     """for owner in ownersu:
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie ustalenie.docx', 'ust_granicKwiatowa.docx', owner)
@@ -1530,4 +1554,5 @@ def main():
 
 
 if __name__ == "__main__":
+    Operator().run()
     main()
