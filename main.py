@@ -48,7 +48,7 @@ JEDNOSTKAREJESTROWA = ''
 OBREB = ''
 KERG = ''
 FOLDER = ''
-GMLFILE = "GD-13.6640.8939.2021_40901011.gml"
+GMLFILE = "GD-13.6640.9820.2021_40901011.gml"
 XYACCURACY = 2
 HACCURACY = 2
 ANGLEACCURACY = 4
@@ -575,7 +575,7 @@ def parcelfinder(parcel, ownersfile):
                 print(' '.join([row[0], row[1], row[2]]))
 
 
-def changehash(templatefile, outputfile, hashdict):
+def changehash(templatefile, outputfile, hashdict, nextrow=False):
     template = Document(templatefile)
     get_text_from_doc(templatefile)
     try:
@@ -681,6 +681,12 @@ def changehash(templatefile, outputfile, hashdict):
 
 def kwtopdf(kw):
     openweb('https://ekw.ms.gov.pl/eukw_ogol/KsiegiWieczyste')
+    i = 0
+    while pylocate(os.getcwd() + '\\img\\' + 'kw.png') is None and i < 10:
+        time.sleep(1)
+        print('Wait for it...')
+        print(pylocate(os.getcwd() + '\\img\\' + 'kw.png'))
+        i += 1
     if pylocate(os.getcwd() + '\\img\\' + 'kw.png') is not None:
         pyautogui.click(pylocate(os.getcwd() + '\\img\\' + 'kw.png'))
         pyautogui.write(kw.split('/')[0])
@@ -844,8 +850,10 @@ def populate_points_from_gml():
 
         operat = getcontentfromtags(point, 'egb:dodatkoweInformacje')
         operat = operat.replace('operat punktu:', '')
+        operat = operat.replace('Operat Pomiarowy : ', '')
         operat = operat.split(' ')[0]
-
+        operat = operat.split('\n')[0]
+        operat = operat.replace('"','')
         new_point = Point(id, number, x, y, gmlid, zrd, bpp, stb, rzg, operat)
         pointsobj.append(new_point)
         logging.debug(f'Utworzyłem nowy punkt o numerze: {new_point.number} id {new_point.point_id}, '
@@ -1272,6 +1280,14 @@ def fill_changes_report(parcel):
     changehash(os.getcwd() + '\\docs\\' + origfile, filename, hashdict=wykazdict)
 
 
+def fill_points_comparision(pointsobj):
+    filename = 'Porównanie atrybutów punktów granicznych.docx'
+    origfile = 'Porownanie atrybutów'
+    for point in pointsobj:
+        pass
+
+
+
 class MyBoxLayout(Widget):
     pass
 
@@ -1434,10 +1450,12 @@ def main():
     # todo search only in divided parcels, and optimize search.
     # pdfmerge(open_folder())
     # Write kw to file with parcel
+    kwlist = []
     with open('dzialka_kw.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         for parcel in divideparcelsobj:
             writer.writerow([parcel.number, parcel.kw])
+            kwlist.append(parcel.kw)
     """with open('atrybuty.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         pointlist = []
@@ -1542,7 +1560,7 @@ def main():
     # find_kerg(file.name)
     # kwlist = findkw('C:\\Users\\Jurek\\Dysk Google\\GEO\\Bibice_Zbożowa\\PODGiK\\właściciele.docx', 'parcelsu.txt')
     # for kw in kwlist:
-    #    kwtopdf(kw)
+        #kwtopdf(kw)
     # kwtopdf('KR1P/00516204/5')
     # pdfmerge(open_folder()) #merge first page of _1 file and _2 file
 
@@ -1554,5 +1572,5 @@ def main():
 
 
 if __name__ == "__main__":
-    Operator().run()
+    # Operator().run()
     main()
