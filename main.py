@@ -36,11 +36,14 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.properties import ObjectProperty
 from kivy.lang import Builder
+from kivy.core.window import Window
 import csv
 import math
+from kivymd.app import MDApp
 
 # designate our kivy design file:
-Builder.load_file('operator.kv')
+Window.size = (500, 700)
+# Builder.load_file('operator.kv')
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
@@ -48,7 +51,7 @@ JEDNOSTKAREJESTROWA = ''
 OBREB = ''
 KERG = ''
 FOLDER = ''
-GMLFILE = "GD-13.6640.9820.2021_40901011.gml"
+GMLFILE = "GD-13.6640.9282.2021_40901011.gml"
 XYACCURACY = 2
 HACCURACY = 2
 ANGLEACCURACY = 4
@@ -1288,13 +1291,16 @@ def fill_points_comparision(pointsobj):
 
 
 
-class MyBoxLayout(Widget):
-    pass
+class MyBoxLayout(BoxLayout):
+    def checkbox_click(self, instance, value):
+        print(value)
 
-
-class Operator(App):
+class Operator(MDApp):
     def build(self):
-        return MyBoxLayout()
+        self.theme_cls.theme_style = "Dark"
+        self.theme_cls.primary_palette = "BlueGray"
+        MyBoxLayout()
+        return Builder.load_file('operator.kv')
 
 
 class Owner:
@@ -1446,16 +1452,16 @@ def main():
     """for parcel in divideparcelsobj:
         fill_changes_report(parcel)"""
 
-    write_parcel_points_to_file(divideparcelsobj, 'wykaz_wspolrzednych.csv', write_atributes=True)
+    # write_parcel_points_to_file(divideparcelsobj, 'wykaz_wspolrzednych.csv', write_atributes=True)
     # todo search only in divided parcels, and optimize search.
     # pdfmerge(open_folder())
     # Write kw to file with parcel
-    kwlist = []
+    """kwlist = []
     with open('dzialka_kw.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         for parcel in divideparcelsobj:
             writer.writerow([parcel.number, parcel.kw])
-            kwlist.append(parcel.kw)
+            kwlist.append(parcel.kw)"""
     """with open('atrybuty.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         pointlist = []
@@ -1572,5 +1578,5 @@ def main():
 
 
 if __name__ == "__main__":
-    # Operator().run()
+    Operator().run()
     main()
