@@ -14,12 +14,14 @@ MyBoxLayout:
             height: 40
             size_hint_y: None
         TextInput:
-            id: calc_input
+            id: kerg_input
             text: ""
+            multiline: False
             halign: "right"
             font_size: 25
             height: 40
             size_hint_y: None
+            on_text_validate: root.on_enter(self.text)
         Label:
             text: "Działki"
             font_size: "20"

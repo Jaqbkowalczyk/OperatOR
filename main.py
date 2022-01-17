@@ -51,13 +51,13 @@ JEDNOSTKAREJESTROWA = ''
 OBREB = ''
 KERG = ''
 FOLDER = ''
-GMLFILE = "Zbiór danych GML1.gml"
+GMLFILE = "Zbiór danych GML.gml"
 XYACCURACY = 2
 HACCURACY = 2
 ANGLEACCURACY = 4
 AREAACCURACY = 0
 DIVISIONPOINTS = 'pkty_podzial.txt'
-MAINPARCEL = '206'
+MAINPARCEL = '38/1'
 
 def find_kerg(filename):  # todo regex
     logging.debug(f'{filename}')
@@ -1295,8 +1295,13 @@ def fill_points_comparision(pointsobj):
 
 
 class MyBoxLayout(BoxLayout):
+
     def checkbox_click(self, instance, value):
         print(value)
+
+    def on_enter(instance, value):
+        print('User pressed enter in', instance)
+        print(f'Value: {value}')
 
 class Operator(MDApp):
     def build(self):
@@ -1449,24 +1454,23 @@ def main():
     #dividepointsobj = populate_points_from_csv(DIVISIONPOINTS)
     parcels_to_divide = list_from_csv('dzialki do podzialu.txt')
     divideparcelsobj, divideownersobj = populate_divide_base(parcelsobj, parcels_to_divide)
-    namestofile(divideownersobj, 'nazwiska i adresy.docx')
+    #namestofile(divideownersobj, 'nazwiska i adresy.docx')
     #createstickers('nazwiska i adresy.docx', 'naklejki.docx')
     #write_area_to_file(divideparcelsobj, 'powierzchnie_ewid.csv')
     """for parcel in divideparcelsobj:
         fill_changes_report(parcel)"""
 
-    write_parcel_points_to_file(divideparcelsobj, 'wykaz_wspolrzednych.csv', write_atributes=True)
+    # write_parcel_points_to_file(divideparcelsobj, 'wykaz_wspolrzednych.csv', write_atributes=True)
     # todo search only in divided parcels, and optimize search.
     # pdfmerge(open_folder())
     # Write kw to file with parcel
-    kwlist = []
+    """kwlist = []
     with open('dzialka_kw.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         for parcel in divideparcelsobj:
-            writer.writerow([parcel.number, parcel.kw, parcel.get_owners()])
-            kwlist.append(parcel.kw)
-    """
-    with open('atrybuty.csv', 'w', newline='') as csvfile:
+            writer.writerow([parcel.number, parcel.kw])
+            kwlist.append(parcel.kw)"""
+    """with open('atrybuty.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         pointlist = []
         for parcel in divideparcelsobj:
@@ -1498,12 +1502,12 @@ def main():
                                                  parcel.points[i+k].zrd, parcel.points[i+k].bpp,
                                                  parcel.points[i+k].stb, parcel.points[i+k].rzg])
                                 pointlist.append(parcel.points[i+k].number)
-        
+    
     ^
     |
     |
     Moduł do wykazu punktów granicznych dla granic odchodzących od drogi prostopadle
-    """
+"""
     """for parcel in divideparcelsobj:
         for point in dividepointsobj:
             if is_on_border(parcel, point):
@@ -1574,8 +1578,9 @@ def main():
     # kwtopdf('KR1P/00516204/5')
     # pdfmerge(open_folder()) #merge first page of _1 file and _2 file
 
-    for owner in divideownersobj:
+    """for owner in divideownersobj:
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie ustalenie.docx', 'ust_granicGarliczka.docx', owner)
+    """
     """
     for owner in ownersw:
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie ustalenie.docx', 'ust_granicKwiatowa.docx', owner)"""
@@ -1583,5 +1588,5 @@ def main():
 
 
 if __name__ == "__main__":
-    #Operator().run()
+    Operator().run()
     main()
