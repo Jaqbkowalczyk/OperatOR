@@ -28,22 +28,13 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from numpy import ones, vstack
 from numpy.linalg import lstsq
-from kivy.app import App
-from kivy.uix.label import Label
-from kivy.uix.widget import Widget
-from kivy.uix.button import Button
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
-from kivy.properties import ObjectProperty
-from kivy.lang import Builder
-from kivy.core.window import Window
+
 import csv
 import math
-from kivymd.app import MDApp
+from kivy_app import Operator
 
-# designate our kivy design file:
-Window.size = (500, 700)
-# Builder.load_file('operator.kv')
+
+
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
@@ -1293,22 +1284,6 @@ def fill_points_comparision(pointsobj):
         pass
 
 
-
-class MyBoxLayout(BoxLayout):
-
-    def checkbox_click(self, instance, value):
-        print(value)
-
-    def on_enter(instance, value):
-        print('User pressed enter in', instance)
-        print(f'Value: {value}')
-
-class Operator(MDApp):
-    def build(self):
-        self.theme_cls.theme_style = "Dark"
-        self.theme_cls.primary_palette = "BlueGray"
-        MyBoxLayout()
-        return Builder.load_file('operator.kv')
 
 
 class Owner:
