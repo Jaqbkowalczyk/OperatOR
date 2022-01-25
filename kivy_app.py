@@ -15,6 +15,7 @@ Window.size = (500, 700)
 
 class MyBoxLayout(MDBoxLayout):
 
+
     def checkbox_click(self, instance, value):
         print(value)
 

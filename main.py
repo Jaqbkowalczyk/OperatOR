@@ -28,7 +28,7 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from numpy import ones, vstack
 from numpy.linalg import lstsq
-
+import sqlite3
 import csv
 import math
 from kivy_app import Operator
@@ -42,6 +42,7 @@ JEDNOSTKAREJESTROWA = ''
 OBREB = ''
 KERG = ''
 FOLDER = ''
+DATA_FOLDER = ''
 GMLFILE = "Zbiór danych GML.gml"
 XYACCURACY = 2
 HACCURACY = 2
@@ -82,8 +83,13 @@ def set_obr(obr_value: str):
 
 def set_gmlfile(gml_value: str):
     global GMLFILE
-    GMLFILE = GML_value
+    GMLFILE = gml_value
     logging.debug(f'GMLFILE został ustawiony na: {GMLFILE}')
+
+
+def open_gmlfile():
+    gml_file = open_file()
+    set_gmlfile(gml_file)
 
 
 def ask_for_kerg():
@@ -96,6 +102,12 @@ def set_folder(folder_value: str):
     logging.debug(f'FOLDER został ustawiony na: {FOLDER}')
 
 
+def set_data_folder(folder_value: str):
+    global DATA_FOLDER
+    DATA_FOLDER = folder_value
+    logging.debug(f'DATA_FOLDER został ustawiony na: {DATA_FOLDER}')
+
+
 def open_folder():
     tk.Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
     filename = askdirectory()  # show an "Open" dialog box and return the path to the selected folder
@@ -103,7 +115,6 @@ def open_folder():
 
 
 def open_file():
-    logging.debug('hej')
     tk.Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
     filename = askopenfile('r')  # show an "Open" dialog box and return the path to the selected folder
     return filename
@@ -154,18 +165,34 @@ def find_info():
                 pass
 
 
-def check_project_data():  # todo find a way to extract text from .rtf file
+def set_project_data():  # todo find a way to extract text from .rtf file
     """Function to check for variables used in all future functions"""
     # 1. Select project folder
     folder = open_folder()
     set_folder(folder)
-    # 2. Find data from PODGiK (.gml file, info o materialach)
-    # text = get_text_from_doc(find_info())
+    # 2. Find if Data folder exists, and if not - create it
+    data_folder_exists = os.path.isdir(FOLDER + '/Data')
+    if data_folder_exists:
+        set_data_folder(FOLDER + '/Data')
+    else:
+        # Directory
+        directory = "Data"
 
-    #print(text)
-    # 3. Search through .gml file to find JEDNOSTKAREJESTROWA and OBREB values
-    # 4. Find KERG number
-    set_kerg('666.2250.2021')
+        # Parent Directory path
+        parent_dir = FOLDER
+
+        # Path
+        path = os.path.join(parent_dir, directory)
+
+        # Create the directory
+        # 'Data' in
+        # current folder
+        os.mkdir(path)
+        logging.debug("Directory '% s' created" % directory)
+        set_data_folder(path)
+
+
+def create_database():
     pass
 
 
@@ -1563,5 +1590,7 @@ def main():
 
 
 if __name__ == "__main__":
-    Operator().run()
-    main()
+    set_project_data()
+    create_database()
+    #Operator().run()
+    #main()
