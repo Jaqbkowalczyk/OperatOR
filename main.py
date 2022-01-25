@@ -29,6 +29,7 @@ from docx.oxml.ns import qn
 from numpy import ones, vstack
 from numpy.linalg import lstsq
 import sqlite3
+from sqlite3 import Error
 import csv
 import math
 from kivy_app import Operator
@@ -192,8 +193,13 @@ def set_project_data():  # todo find a way to extract text from .rtf file
         set_data_folder(path)
 
 
-def create_database():
-    pass
+def create_databases(db_list):
+
+
+
+def initial_setup():
+    db_list = ['owners.db', 'parcels.db', 'points.db','landcats.db']
+    create_databases(db_list)
 
 
 def write_report():
@@ -1591,6 +1597,6 @@ def main():
 
 if __name__ == "__main__":
     set_project_data()
-    create_database()
+    initial_setup()
     #Operator().run()
     #main()
