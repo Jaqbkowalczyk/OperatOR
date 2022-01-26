@@ -194,7 +194,13 @@ def set_project_data():  # todo find a way to extract text from .rtf file
 
 
 def create_databases(db_list):
+    for db in db_list:
+        conn = sqlite3.connect(DATA_FOLDER+'/'+db)
+        conn.close()
 
+# todo populate db
+def populate_databases():
+    pass
 
 
 def initial_setup():
