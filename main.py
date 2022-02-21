@@ -1764,8 +1764,10 @@ def main():
 
 
 if __name__ == "__main__":
-    set_project_data()
-    initial_setup()
+    #set_project_data()
+    #initial_setup()
     # Operator().run()
     # main()
+    config = load_config('config.yml')
+    print(config['INFO']['JEDNOSTKAREJESTROWA'])
 #todo write method to dump info into config.yml
