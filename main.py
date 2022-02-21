@@ -32,8 +32,9 @@ import sqlite3
 from sqlite3 import Error
 import csv
 import math
-from kivy_app import Operator
+from kivy_app import Operator 
 from load_config import *
+from save_config import *
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
