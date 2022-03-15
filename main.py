@@ -35,6 +35,7 @@ import math
 from kivy_app import Operator 
 from load_config import *
 from save_config import *
+from alive_progress import alive_bar
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 pyautogui.FAILSAFE = True
@@ -43,7 +44,7 @@ OBREB = ''
 KERG = ''
 FOLDER = ''
 DATA_FOLDER = ''
-GMLFILE = "GD-13.6640.912.2022_40901011.gml"
+GMLFILE = "Zbiór danych GML.gml"
 XYACCURACY = 2
 HACCURACY = 2
 ANGLEACCURACY = 4
@@ -247,15 +248,16 @@ def create_databases():
             except Error as e:
                 print(e)
         elif tb == 'owners':
-            sql_create_owners_table = """CREATE TABLE IF NOT EXISTS points (
+            sql_create_owners_table = """CREATE TABLE IF NOT EXISTS owners (
                                                     id integer PRIMARY KEY,
+                                                    owner_id text NOT NULL,
                                                     name text NOT NULL,
                                                     surname text,
                                                     address text NOT NULL,
                                                     name2 text,
                                                     surname2 text,
-                                                    pesel integer,
-                                                    fatheername text,
+                                                    pesel text,
+                                                    fathername text,
                                                     mothername text,
                                                     nip text,
                                                     regon text,
@@ -269,13 +271,14 @@ def create_databases():
             except Error as e:
                 print(e)
         elif tb == 'parcels':
-            sql_create_parcels_table = """CREATE TABLE IF NOT EXISTS points (
+            sql_create_parcels_table = """CREATE TABLE IF NOT EXISTS parcels (
                                                                 id integer PRIMARY KEY,
+                                                                parcel_id text NOT NULL,
                                                                 gmlid text NOT NULL,
                                                                 number text NOT NULL,
                                                                 owners text NOT NULL,
-                                                                points text NOT NULL,
-                                                                landcat text,
+                                                                points_list text NOT NULL,
+                                                                landcat_list text,
                                                                 kw text,
                                                                 area real,
                                                                 jrg text,
@@ -291,7 +294,7 @@ def create_databases():
     conn.close()
 
 
-# todo populate db
+
 def populate_databases(pointsobj, landcatsobj, ownersobj, parcelsobj):
     conn = sqlite3.connect(DATA_FOLDER + '/' + DATABASE)
     for tb in TB_LIST:
@@ -301,28 +304,31 @@ def populate_databases(pointsobj, landcatsobj, ownersobj, parcelsobj):
             points = []
             c = conn.cursor()
             i = 1
-            print(len(pointsobj))
-            for point in pointsobj:
-                points = [i,
-                          str(point.point_id),
-                          str(point.gmlid),
-                          int(point.number),
-                          float(point.x),
-                          float(point.y),
-                          str(point.zrd),
-                          str(point.bpp),
-                          str(point.stb),
-                          str(point.rzg),
-                          str(point.operat),
-                          str(point.sporna)
-                          ]
-                i += 1
-                try:
-                    c.execute(sql, points)
-                    logging.debug(f'writing into points, id: {i}')
-                    conn.commit()
-                except Error as e:
-                    print(e)
+            #print('Populating points')
+            with alive_bar(len(pointsobj)) as bar:
+                for point in pointsobj:
+                    points = [i,
+                              str(point.point_id),
+                              str(point.gmlid),
+                              int(point.number),
+                              float(point.x),
+                              float(point.y),
+                              str(point.zrd),
+                              str(point.bpp),
+                              str(point.stb),
+                              str(point.rzg),
+                              str(point.operat),
+                              str(point.sporna)
+                              ]
+                    i += 1
+                    bar()
+                    try:
+                        c.execute(sql, points)
+                        logging.debug(f'writing into points, id: {i}')
+                        conn.commit()
+                    except Error as e:
+                        print(e)
+
 
         elif tb == 'landcats':
             sql = ''' INSERT INTO landcats(id,classid,ofu,ozu,ozk,area)
@@ -330,6 +336,7 @@ def populate_databases(pointsobj, landcatsobj, ownersobj, parcelsobj):
             landcats = []
             c = conn.cursor()
             i = 1
+            #print('Populating Landcats')
             for landcat in landcatsobj:
                 landcats = [i,
                             str(landcat.class_id),
@@ -347,17 +354,139 @@ def populate_databases(pointsobj, landcatsobj, ownersobj, parcelsobj):
                 except Error as e:
                     print(e)
         elif tb == 'owners':
-            pass
+            sql = ''' INSERT INTO owners(id,owner_id,name,surname,address,name2,surname2,pesel,fathername,mothername,nip,regon,
+                                        hour,date,source,parcels)
+                                                  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) '''
+            owners = []
+            c = conn.cursor()
+            i = 1
+            #print('Populating Owners')
+            for owner in ownersobj:
+                owners = [i,
+                            str(owner.id),
+                            str(owner.name),
+                            str(owner.surname),
+                            str(owner.address),
+                            str(owner.name2),
+                            str(owner.surname2),
+                            str(owner.pesel),
+                            str(owner.fathername),
+                            str(owner.mothername),
+                            str(owner.nip),
+                            str(owner.regon),
+                            str(owner.hour),
+                            str(owner.date),
+                            str(owner.source),
+                            str(owner.parcels)
+                          ]
+                i += 1
+                try:
+                    c.execute(sql, owners)
+
+                    logging.debug(f'writing into owners, id: {i}')
+                    conn.commit()
+                except Error as e:
+                    print(e)
         elif tb == 'parcels':
-            pass
+            sql = ''' INSERT INTO parcels(id,parcel_id,gmlid,number,owners,points_list,landcat_list,kw,area,jrg,calc_area,jed_ewid,
+                                                    obr)
+                                                              VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?) '''
+            parcels = []
+            c = conn.cursor()
+            i = 1
+            #print('Populating parcels')
+            for parcel in parcelsobj:
+                parcels = [i,
+                          str(parcel.parcel_id),
+                          str(parcel.gmlid),
+                          str(parcel.number),
+                          str(parcel.get_owner_list()),
+                          str(parcel.get_point_list()),
+                          str(parcel.get_landcat_list()),
+                          str(parcel.kw),
+                          float(parcel.area),
+                          str(parcel.jrg),
+                          float(parcel.calc_area),
+                          str(parcel.jed_ewid),
+                          str(parcel.obr)
+                          ]
+                i += 1
+                try:
+                    c.execute(sql, parcels)
+
+                    logging.debug(f'writing into parcels, id: {i}')
+                    conn.commit()
+                except Error as e:
+                    print(e)
     conn.close()
+
+
+def read_database():
+    pointsobj, landcatsobj, ownersobj, parcelsobj = [], [], [], []
+    conn = sqlite3.connect(DATA_FOLDER + '/' + DATABASE)
+    for tb in TB_LIST:
+        if tb == 'points':
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM points")
+
+            rows = cur.fetchall()
+
+            for row in rows:
+                point = Point(row[1],row[3],row[4],row[5],row[2],row[6],row[7],row[8],row[9],row[10],row[11])
+                pointsobj.append(point)
+        elif tb == 'landcats':
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM landcats")
+
+            rows = cur.fetchall()
+
+            for row in rows:
+                landcat = Landcat(row[1],row[2],row[3],row[4],row[5])
+                landcatsobj.append(landcat)
+        elif tb == 'owners':
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM owners")
+
+            rows = cur.fetchall()
+
+            for row in rows:
+                owner = Owner(row[1],row[2],row[4],row[3],name2=row[5],surname2=row[6],pesel=row[7],fathername=row[8],
+                              mothername=row[9],nip=row[10],regon=row[11],hour=row[12],date=row[13],source=row[14],
+                              parcels=row[15])
+                #print(owner.parcels)
+                ownersobj.append(owner)
+        if len(ownersobj)>0 and len(pointsobj)>0 and len(landcatsobj)>0 and tb == "parcels":
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM parcels")
+
+            rows = cur.fetchall()
+
+            for row in rows:
+                points =[]
+                landcats = []
+                owners = []
+                for point in row[5]:
+                    for pointobj in pointsobj:
+                        if point == pointobj.point_id:
+                            points.append(pointobj)
+                for landcat in row[6]:
+                    for landcatobj in landcatsobj:
+                        if landcat == landcatobj.class_id:
+                            landcats.append(landcatobj)
+                for owner in row[4]:
+                    for ownerobj in ownersobj:
+                        if len(owner) == 1:
+
+                parcel = Parcel(row[1],row[3],points,landcats,gmlid=row[2],area=row[8],jrg=row[9],owners=owners)
+                parcelsobj.append(parcel)
+    return pointsobj, landcatsobj, ownersobj, parcelsobj
 
 
 def initial_setup():
     pointsobj, landcatsobj, ownersobj, parcelsobj = populate_base()
     create_databases()
     populate_databases(pointsobj, landcatsobj, ownersobj, parcelsobj)
-
+    read_database()
 
 def write_report():
     """Function to write report file using given values"""
@@ -614,8 +743,8 @@ def findowners(file, parcelspath):
                 ownersobj.append(o)
 
     for o in ownersobj:
-        print(f'Cześć nazywam się: {o.name} {o.surname}. Mieszkam przy ul.: {o.address},'
-              f' jestem właścicielem działki: {o.parcels}')
+        """print(f'Cześć nazywam się: {o.name} {o.surname}. Mieszkam przy ul.: {o.address},'
+              f' jestem właścicielem działki: {o.parcels}')"""
     return ownersobj
 
 
@@ -903,7 +1032,7 @@ def kwtopdf(kw):
         pyautogui.hotkey('ctrlleft', 'w')
 
 
-# todo Change pdf merge to merge more pages than two
+
 def pdfmerge(folder):
     try:
         os.mkdir(folder + '/' + 'merged')
@@ -1112,6 +1241,8 @@ def populate_parcels_from_gml(pointsobj, ownersobj):
                         for owner in ownersobj:
                             if owner.id == getinfofromtags(entity, 'egb:osobaFizyczna5')['xlink:href'].split(':')[-1]:
                                 owners.append((counter + '/' + denominator, [owner]))
+                                #print(f'Owner: {owner.name} {owner.surname}: {id}')
+                                owner.addparcels(id)
                     elif 'egb:malzenstwo4' in entity:
                         marriage_link = getinfofromtags(entity, 'egb:malzenstwo4')['xlink:href'].split(':')[-1]
                         for marriage_text in marriagelist:
@@ -1131,6 +1262,9 @@ def populate_parcels_from_gml(pointsobj, ownersobj):
                                     owners = None
                                 else:
                                     owners.append((counter + '/' + denominator, [owner1, owner2]))
+                                    #print(f'Owner: {owner1.name} {owner1.surname} and {owner2.name} {owner2.surname}: {id}')
+                                    owner1.addparcels(id)
+                                    owner2.addparcels(id)
                     elif 'egb:instytucja3' in entity:
                         institution_link = getinfofromtags(entity, 'egb:instytucja3')['xlink:href'].split(':')[-1]
                         for institution_text in institutionlist:
@@ -1138,6 +1272,8 @@ def populate_parcels_from_gml(pointsobj, ownersobj):
                                 for owner in ownersobj:
                                     if owner.id == institution_link:
                                         owners.append((counter + '/' + denominator, [owner]))
+                                        #print(f'Owner: {owner.name} {owner.surname}: {id}')
+                                        owner.addparcels(id)
             except KeyError:
                 pass
         kw = getcontentfromtags(parcel_text, 'egb:numerElektronicznejKW')
@@ -1293,7 +1429,6 @@ def populate_base():
     pointsobj = populate_points_from_gml()
     ownersobj = populate_owners_from_gml()
     parcelsobj, landcatsobj = populate_parcels_from_gml(pointsobj, ownersobj)
-    print('correct')
     return pointsobj, landcatsobj, ownersobj, parcelsobj
 
 
@@ -1486,7 +1621,7 @@ def fill_points_comparision(pointsobj):
 
 
 class Owner:
-    def __init__(self, id, name, address, surname=None, pesel=None, fathername=None, mothername=None, parcels=[],
+    def __init__(self, id, name, address, surname=None, pesel=None, fathername=None, mothername=None, parcels=None,
                  name2=None, surname2=None, nip=None, regon=None, hour=None,
                  date=None, source=None):
         self.id = id
@@ -1498,37 +1633,44 @@ class Owner:
         self.pesel = pesel
         self.fathername = fathername
         self.mothername = mothername
-        self.nip = nip
-        self.regon = regon
-        self.hour = hour
-        self.date = date
-        self.source = source
-        self.parcels = parcels
+        self.nip        = nip
+        self.regon      = regon
+        self.hour       = hour
+        self.date       = date
+        self.source     = source
+        self.parcels    = parcels
         try:
             self.fullname = self.name + ' ' + self.surname
         except TypeError:
             self.fullname = self.name
 
     def addparcels(self, parcel):
+        if self.parcels is None:
+            self.parcels = []
         self.parcels.append(parcel)
 
     def zawiadomienie(self):
         pass
 
+    def get_parcel_list(self):
+        parcellist = []
+        for parcel in self.parcels:
+            parcellist.append(parcel.parcel_id)
+        return parcellist
 
 class Parcel:
     def __init__(self, parcel_id, number, points, landcat, gmlid=None, area=None, jrg=None, owners=None, kw=None,
                  calc_area=None, jed_ewid=None, obr=None):
-        self.parcel_id = parcel_id
-        self.gmlid = gmlid
-        self.number = number
-        self.owners = owners
-        self.points = points  # List of Point objects
-        self.landcat = landcat  # List of Landcat objects
-        self.kw = kw
-        self.area = area
-        self.jrg = jrg
-        self.calc_area = calc_area
+        self.parcel_id= parcel_id
+        self.gmlid= gmlid
+        self.number= number
+        self.owners= owners
+        self.points= points  # List of Point objects
+        self.landcat= landcat  # List of Landcat objects
+        self.kw= kw
+        self.area= area
+        self.jrg= jrg
+        self.calc_area= calc_area
         if jed_ewid is not None:
             self.jed_ewid = jed_ewid
         else:
@@ -1569,6 +1711,30 @@ class Parcel:
                 """text += '\n'"""
         return text
 
+    def get_point_list(self):
+        pointlist = []
+        for point in self.points:
+            pointlist.append(point.point_id)
+        return pointlist
+
+    def get_landcat_list(self):
+        landcatlist = []
+        for landcat in self.landcat:
+            landcatlist.append(landcat.class_id)
+        return landcatlist
+
+    def get_owner_list(self):
+        #todo something wrong with marriages (two separate tuples for one marriage (1/1))
+        ownerlist = []
+        for owner in self.owners:
+            if isinstance(owner[1][0], Owner):
+                if len(owner[1]) == 1:
+                    ownerlist.append((owner[0],owner[1][0].id))
+                elif len(owner[1]) == 2:
+                    ownerlist.append((owner[0], owner[1][0].id, owner[1][1].id))
+                else:
+                    ownerlist.append('brak')
+        return ownerlist
 
 class Point:
     def __init__(self, point_id, number, x, y, gmlid=None, zrd=None, bpp=None, stb=None, rzg=None, operat=None,
@@ -1764,10 +1930,7 @@ def main():
 
 
 if __name__ == "__main__":
-    #set_project_data()
-    #initial_setup()
+    set_project_data()
+    initial_setup()
     # Operator().run()
     # main()
-    config = load_config('config.yml')
-    print(config['INFO']['JEDNOSTKAREJESTROWA'])
-#todo write method to dump info into config.yml
