@@ -476,6 +476,8 @@ def read_database():
                 for owner in row[4]:
                     for ownerobj in ownersobj:
                         if len(owner) == 1:
+                            #!!!
+                            pass
 
                 parcel = Parcel(row[1],row[3],points,landcats,gmlid=row[2],area=row[8],jrg=row[9],owners=owners)
                 parcelsobj.append(parcel)
@@ -1361,6 +1363,8 @@ def populate_owners_from_gml():
                 street = getcontentfromtags(address_text, 'egb:ulica')
                 if country == 'brak':
                     country = ''
+                elif country == 'Polska':
+                    country = ''
                 if localnum != 'brak':
                     address = street + ' ' + number + '/' + localnum + '\n' + code + ' ' + town + ' ' + country
                 elif street != 'brak':
@@ -1394,6 +1398,8 @@ def populate_owners_from_gml():
                 localnum = getcontentfromtags(address_text, 'egb:nrLokalu')
                 street = getcontentfromtags(address_text, 'egb:ulica')
                 if country == 'brak':
+                    country = ''
+                elif country == 'Polska':
                     country = ''
                 if localnum != 'brak':
                     iaddress = street + ' ' + number + '/' + localnum + '\n' + code + ' ' + town + ' ' + country
@@ -1563,6 +1569,7 @@ def write_area_to_file(parcels, file):
 def write_parcel_points_to_file(parcels, file, write_atributes=False, header=False):
     with open(file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
+        pointslist = []
         if header and write_atributes:
             writer.writerow(["Number", "X", "Y", "ZRD", "BPP", "STB", "RZG", "Operat"])
         elif header:
@@ -1570,17 +1577,53 @@ def write_parcel_points_to_file(parcels, file, write_atributes=False, header=Fal
         for parcel in parcels:
             for point in parcel.points:
                 if write_atributes:
-                    writer.writerow([point.number, str(round(point.x, 2)), str(round(point.y, 2)),
+                    pointslist.append([point.number, str(round(point.x, 2)), str(round(point.y, 2)),
                                      point.zrd, point.bpp,
                                      point.stb, point.rzg, point.operat])
                 else:
-                    writer.writerow([point.number, str(round(point.x, 2)), str(round(point.y, 2))])
+                    pointslist.append([point.number, str(round(point.x, 2)), str(round(point.y, 2))])
+        # remove duplicates from list
+        temp=[]
+        for i, pt in enumerate(pointslist):
+            if pt[0] in temp:
+                pointslist.pop(i)
+                #print(f'deleted: {pt[0]}')
+            temp.append(pt[0])
+            #print(temp)
+        for pt in pointslist:
+            writer.writerow(pt)
+
+
+def write_parcel_owners_to_file(parcels, file, write_kw=False, header=False):
+    with open(file, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        parcelslist = []
+        if header and write_kw:
+            writer.writerow(["Number", "Owner", "KW"])
+        elif header:
+            writer.writerow(["Number", "Owner"])
+        for parcel in parcels:
+            owners = parcel.get_owners()
+            if write_kw:
+                parcelslist.append([parcel.number, owners, parcel.kw])
+            else:
+                parcelslist.append([parcel.number, owners])
+        # remove duplicates from list
+        temp=[]
+        for i, pt in enumerate(parcelslist):
+            if pt[0] in temp:
+                parcelslist.pop(i)
+                #print(f'deleted: {pt[0]}')
+            temp.append(pt[0])
+            #print(temp)
+        for pt in parcelslist:
+            writer.writerow(pt)
 
 
 def fill_changes_report(parcel):
     number = parcel.number.replace('/', '_')
     filename = 'Wykaz zmian ' + number + '.rtf'
-    origfile = 'Wykaz zmian.docx'
+    origfile = '9. Wykaz zmian.docx'
     wykazdict = {'enter': '\n' * 30, "nr_dz": str(parcel.number).split('/')[0], 'kw': parcel.kw,
                  'owner': parcel.get_owners(), 'parcel_id': parcel.parcel_id,
                  "pow_ewid": str(parcel.area), "jed_ewid": parcel.jed_ewid, "obr": parcel.obr, "jrg": parcel.jrg}
@@ -1798,13 +1841,14 @@ def main():
     # dividepointsobj = populate_points_from_csv(DIVISIONPOINTS)
     parcels_to_divide = list_from_csv('dzialki do podzialu.txt')
     divideparcelsobj, divideownersobj = populate_divide_base(parcelsobj, parcels_to_divide)
-    # namestofile(divideownersobj, 'nazwiska i adresy.docx')
-    # createstickers('nazwiska i adresy.docx', 'naklejki.docx')
-    # write_area_to_file(divideparcelsobj, 'powierzchnie_ewid.csv')
-    """for parcel in divideparcelsobj:
-        fill_changes_report(parcel)"""
+    namestofile(divideownersobj, 'nazwiska i adresy.docx')
+    createstickers('nazwiska i adresy.docx', 'naklejki.docx')
+    write_area_to_file(divideparcelsobj, 'powierzchnie_ewid.csv')
+    for parcel in divideparcelsobj:
+        fill_changes_report(parcel)
 
     write_parcel_points_to_file(divideparcelsobj, 'wykaz_wspolrzednych.csv', write_atributes=True)
+    write_parcel_owners_to_file(divideparcelsobj, 'wykaz_wlascicieli.csv', write_kw=True)
     # pdfmerge(open_folder())
     # Write kw to file with parcel
     """kwlist = []
@@ -1897,7 +1941,6 @@ def main():
     # check_project_data()
     # write_report()
     # ConvertRtfToDocx('C:\\Users\\Jurek\\Documents\\Kuba\\Python\\OperatOR\\docs','info_o_materiałach1.rtf')
-    # createparcelfilefromdoc(os.getcwd() + '\\docs\\protokol_wyznaczenia_granic.docx', 'parcels.txt')
     """o = Owner('Jakub', 'Kowwalczyk', 'KRakowska 23, 31-102 KRaków', '512')
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiad o wyznaczeniu granic.docx', 'wyzn_granic.docx', o)"""
     # removeduplicates('parcelsw.txt', 'parcelsu.txt', 'parcelsw.txt')
@@ -1921,8 +1964,8 @@ def main():
     # pdfmerge(open_folder()) #merge first page of _1 file and _2 file
 
     """for owner in divideownersobj:
-        filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie ustalenie.docx', 'ust_granicGarliczka.docx', owner)
-    """
+        filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie wznowienie.docx', 'wznowienie_granic Morawica.docx', owner)
+"""
     """
     for owner in ownersw:
         filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie ustalenie.docx', 'ust_granicKwiatowa.docx', owner)"""
@@ -1930,7 +1973,7 @@ def main():
 
 
 if __name__ == "__main__":
-    set_project_data()
-    initial_setup()
+    # set_project_data()
+    # initial_setup()
     # Operator().run()
-    # main()
+    main()
