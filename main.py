@@ -44,7 +44,7 @@ OBREB = ''
 KERG = ''
 FOLDER = ''
 DATA_FOLDER = ''
-GMLFILE = "Zbiór danych GML.gml"
+GMLFILE = "zbior_danych_egib.gml"
 XYACCURACY = 2
 HACCURACY = 2
 ANGLEACCURACY = 4
@@ -297,13 +297,13 @@ def create_databases():
 
 def populate_databases(pointsobj, landcatsobj, ownersobj, parcelsobj):
     conn = sqlite3.connect(DATA_FOLDER + '/' + DATABASE)
+    i = 1
     for tb in TB_LIST:
         if tb == 'points':
             sql = ''' INSERT INTO points(id,pointid,gmlid,number,x,y,zrd,bpp,stb,rzg,operat,sporna)
                           VALUES(?,?,?,?,?,?,?,?,?,?,?,?) '''
             points = []
             c = conn.cursor()
-            i = 1
             #print('Populating points')
             with alive_bar(len(pointsobj)) as bar:
                 for point in pointsobj:
@@ -335,7 +335,6 @@ def populate_databases(pointsobj, landcatsobj, ownersobj, parcelsobj):
                                       VALUES(?,?,?,?,?,?) '''
             landcats = []
             c = conn.cursor()
-            i = 1
             #print('Populating Landcats')
             for landcat in landcatsobj:
                 landcats = [i,
@@ -359,7 +358,6 @@ def populate_databases(pointsobj, landcatsobj, ownersobj, parcelsobj):
                                                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) '''
             owners = []
             c = conn.cursor()
-            i = 1
             #print('Populating Owners')
             for owner in ownersobj:
                 owners = [i,
@@ -393,7 +391,6 @@ def populate_databases(pointsobj, landcatsobj, ownersobj, parcelsobj):
                                                               VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?) '''
             parcels = []
             c = conn.cursor()
-            i = 1
             #print('Populating parcels')
             for parcel in parcelsobj:
                 parcels = [i,
@@ -465,6 +462,8 @@ def read_database():
                 points =[]
                 landcats = []
                 owners = []
+                owner1 = None
+                owner2 = None
                 for point in row[5]:
                     for pointobj in pointsobj:
                         if point == pointobj.point_id:
@@ -474,10 +473,18 @@ def read_database():
                         if landcat == landcatobj.class_id:
                             landcats.append(landcatobj)
                 for owner in row[4]:
-                    for ownerobj in ownersobj:
-                        if len(owner) == 1:
-                            #!!!
-                            pass
+                    if len(owner) == 3:
+                        for ownerobj in ownersobj:
+                            if owner[1] == ownerobj.id:
+                                owner1 = ownerobj
+                            elif owner[2] ==ownerobj.id:
+                                owner2 = ownerobj
+                        owners.append((owner[0],[owner1,owner2]))
+                    elif len(owner) == 2:
+                        for ownerobj in ownersobj:
+                            if owner[1] == ownerobj.id:
+                                owners.append((owner[0],[ownerobj]))
+
 
                 parcel = Parcel(row[1],row[3],points,landcats,gmlid=row[2],area=row[8],jrg=row[9],owners=owners)
                 parcelsobj.append(parcel)
@@ -809,7 +816,10 @@ def calccontrolnumber(kw):
             kw = ('0' * (8 - len(kw))) + kw
             kw = 'KR1P' + kw
     for s in kw:
-        sum += dictionary[s.upper()] * int(waga[i])
+        try:
+            sum += dictionary[s.upper()] * int(waga[i])
+        except KeyError:
+            pass
         i += 1
     i = 0
     kw = kw[:4] + '/' + kw[4:] + '/' + str(sum % 10)
@@ -1209,12 +1219,18 @@ def populate_parcels_from_gml(pointsobj, ownersobj):
         gmlid = getcontentfromtags(parcel_text, 'bt:lokalnyId')
         area = float(getcontentfromtags(parcel_text, 'egb:powierzchniaEwidencyjna'))
         # get jrg id from xlink:href tag. It's the last part of link that matters
-        jrg_link = getinfofromtags(parcel_text, 'egb:JRG2')['xlink:href'].split(':')[-1]
+        try:
+            jrg_link = getinfofromtags(parcel_text, 'egb:JRG2')['xlink:href'].split(':')[-1]
+        except KeyError:
+            jrg_link = ''
         landcat_links = []
         for item in parcel_text.split('egb:klasouzytekWGranicachDzialki')[1:]:
             item = 'egb:klasouzytekWGranicachDzialki' + item
             item = item.split('/>')[0]
-            landcat_links.append(getinfofromtags(item, 'egb:klasouzytekWGranicachDzialki')['xlink:href'].split(':')[-1])
+            try:
+                landcat_links.append(getinfofromtags(item, 'egb:klasouzytekWGranicachDzialki')['xlink:href'].split(':')[-1])
+            except KeyError:
+                pass
         jrg = ''
         landcat = []
         for landcat_text in landcatlist:
@@ -1262,6 +1278,15 @@ def populate_parcels_from_gml(pointsobj, ownersobj):
                                         owner2 = owner
                                 if owner1 and owner2 == '':
                                     owners = None
+                                elif owner1 == '':
+                                    owners.append((counter + '/' + denominator, [owner2]))
+                                    try:
+                                        owner2.addparcels(id)
+                                    except AttributeError:
+                                        print(owner2)
+                                elif owner2 == '':
+                                    owners.append((counter + '/' + denominator, [owner1]))
+                                    owner1.addparcels(id)
                                 else:
                                     owners.append((counter + '/' + denominator, [owner1, owner2]))
                                     #print(f'Owner: {owner1.name} {owner1.surname} and {owner2.name} {owner2.surname}: {id}')
@@ -1298,10 +1323,13 @@ def populate_parcels_from_gml(pointsobj, ownersobj):
                     pointslist.append((float(poslist[i]), float(poslist[i + 1])))  # Only add correct points
                     logging.debug(f'Punkt: {(float(poslist[i]), float(poslist[i + 1]))}')
                 except ValueError:
-                    print(number + ' ' + poslist[i] + ' ' + poslist[i + 1])
+                    print(number + ' ' + poslist[i])
                 except IndexError:
                     print(number + ' ' + str(i) + str(len(poslist)))
-        pointslist.pop()  # remove last point because it's the same as first
+        try:
+            pointslist.pop()  # remove last point because it's the same as first
+        except IndexError:
+            pass
         for point in pointslist:
             for pt in pointsobj:
                 if pt.x == point[0] and pt.y == point[1]:  # find point objects basing on coordinates
@@ -1844,9 +1872,11 @@ def main():
     namestofile(divideownersobj, 'nazwiska i adresy.docx')
     createstickers('nazwiska i adresy.docx', 'naklejki.docx')
     write_area_to_file(divideparcelsobj, 'powierzchnie_ewid.csv')
-    for parcel in divideparcelsobj:
-        fill_changes_report(parcel)
-
+    """for parcel in divideparcelsobj:
+        fill_changes_report(parcel)"""
+    """for owner in divideownersobj:
+            filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie ustalenie.docx', 'Ustalenie granic Grębynice - Zawiadomienia.docx', owner)
+"""
     write_parcel_points_to_file(divideparcelsobj, 'wykaz_wspolrzednych.csv', write_atributes=True)
     write_parcel_owners_to_file(divideparcelsobj, 'wykaz_wlascicieli.csv', write_kw=True)
     # pdfmerge(open_folder())
@@ -1962,18 +1992,11 @@ def main():
     # kwtopdf(kw)
     # kwtopdf('KR1P/00516204/5')
     # pdfmerge(open_folder()) #merge first page of _1 file and _2 file
-
-    """for owner in divideownersobj:
-        filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie wznowienie.docx', 'wznowienie_granic Morawica.docx', owner)
-"""
-    """
-    for owner in ownersw:
-        filldocxtemplate(os.getcwd() + '\\docs\\Zawiadomienie ustalenie.docx', 'ust_granicKwiatowa.docx', owner)"""
     return 0
 
 
 if __name__ == "__main__":
-    # set_project_data()
-    # initial_setup()
+    #set_project_data()
+    #initial_setup()
     # Operator().run()
     main()
